@@ -1,29 +1,31 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" id="htmlRoot">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MED GARAGE - ورشة صيانة وميكانيك السيارات</title>
+    <title>MED GARAGE - ورشة محمد لصيانة السيارات</title>
 
-    <!-- إعدادات PWA -->
-    <meta name="theme-color" content="#0b0f19">
+    <meta name="theme-color" content="#ffffff">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="MED GARAGE">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://i.ibb.co/L5hY9sW/1791058804178.jpg">
-    <link rel="icon" type="image/jpg" href="https://i.ibb.co/L5hY9sW/1791058804178.jpg">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png">
+    <link rel="icon" type="image/png" href="https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png">
 
     <style>
         :root { 
             --primary: #dc2626; 
             --primary-hover: #b91c1c; 
-            --bg: #0b0f19; 
-            --card: #1f2937; 
-            --text: #f9fafb; 
-            --accent: #eab308; 
-            --whatsapp: #25d366;
+            --bg: #ffffff;
+            --card: #f8fafc;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --accent: #d97706;
+            --whatsapp: #16a34a;
             --contact: #2563eb;
             --success: #16a34a;
+            --star: #fbbf24;
+            --border: #e2e8f0;
         } 
 
         * {
@@ -37,7 +39,7 @@
             color: var(--text); 
             margin: 0; 
             padding: 15px; 
-            line-height: 1.5;
+            line-height: 1.6;
         } 
 
         .container { 
@@ -50,48 +52,83 @@
             text-align: center; 
             padding: 15px 0 20px; 
             border-bottom: 2px solid var(--primary); 
+            position: relative;
         } 
 
         .logo-letter { 
-            width: 90px; 
-            height: 90px; 
+            width: 130px; 
+            height: 130px; 
             border-radius: 50%; 
-            background: linear-gradient(135deg, #1f2937, #111827); 
+            background: #ffffff; 
             border: 3px solid var(--primary); 
-            color: var(--primary); 
-            font-size: 50px; 
-            font-weight: 900; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
             margin: 0 auto 15px auto; 
-            box-shadow: 0 0 20px rgba(220, 38, 38, 0.4); 
-            text-shadow: 0 0 10px rgba(220, 38, 38, 0.5);
-            line-height: 1;
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.15);
+            overflow: hidden;
+            padding: 4px;
         } 
+
+        .logo-letter img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 50%;
+            display: block;
+        }
 
         .header h1 { 
             margin: 5px 0 0; 
-            color: #ffffff; 
+            color: #0f172a; 
             font-size: 26px; 
-            font-weight: bold; 
+            font-weight: bold;
+            letter-spacing: 1px;
         } 
 
         .header p { 
             margin: 5px 0; 
-            color: #9ca3af; 
+            color: var(--text-muted); 
             font-size: 14px; 
         } 
 
-        /* شريط الحالة */
+        .lang-toggle {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .lang-toggle button {
+            background: transparent;
+            border: none;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .lang-toggle button.active {
+            background: var(--primary);
+            color: #ffffff;
+        }
+
         .status-bar {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(234, 179, 8, 0.1);
+            background: rgba(217, 119, 6, 0.1);
             border: 1px solid var(--accent);
-            color: var(--accent);
-            padding: 5px 12px;
+            color: #b45309;
+            padding: 6px 14px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: bold;
@@ -112,9 +149,8 @@
             50% { opacity: 0.4; }
         }
 
-        /* بطاقة PWA */
         .install-pwa-card {
-            background: linear-gradient(135deg, #1e293b, #0f172a);
+            background: var(--card);
             border: 1px solid var(--accent);
             border-radius: 10px;
             padding: 12px;
@@ -123,13 +159,11 @@
             display: none;
         }
 
-        .install-pwa-card.visible {
-            display: block;
-        }
+        .install-pwa-card.visible { display: block; }
 
         .btn-install {
             background-color: var(--accent);
-            color: #000;
+            color: #fff;
             border: none;
             padding: 10px 15px;
             border-radius: 6px;
@@ -138,36 +172,130 @@
             cursor: pointer;
             width: 100%;
             margin-top: 8px;
-            transition: transform 0.1s;
+            font-family: inherit;
         }
 
-        .btn-install:active {
-            transform: scale(0.98);
+        .section-title { 
+            font-size: 18px; 
+            margin: 28px 0 15px; 
+            color: var(--primary); 
+            border-right: 4px solid var(--primary); 
+            padding-right: 10px; 
+            font-weight: bold;
         }
 
-        /* رابط الموقع */
-        .address-link { 
-            color: #ffffff; 
+        html[dir="ltr"] .section-title {
+            border-right: none;
+            border-left: 4px solid var(--primary);
+            padding-right: 0;
+            padding-left: 10px;
+        }
+
+        .info-card { 
+            background: var(--card); 
+            border: 1px solid var(--border); 
+            border-radius: 12px; 
+            padding: 18px; 
+            margin-bottom: 15px; 
+        } 
+
+        .info-card h4 { 
+            margin: 0 0 10px; 
+            color: #0284c7; 
+            font-size: 16px; 
+        } 
+
+        .info-card p { 
+            color: var(--text-muted); 
             font-size: 14px; 
-            font-weight: bold; 
-            background: #1e293b; 
-            padding: 12px 18px; 
-            border-radius: 10px; 
-            display: block; 
-            margin-top: 15px; 
-            border: 1px solid var(--primary); 
-            text-decoration: none; 
+            line-height: 1.7; 
+            margin: 0; 
+        } 
+
+        .announcement-card { 
+            background: linear-gradient(145deg, #fffbeb, #fef3c7); 
+            border: 1px solid #fbbf24; 
+            border-right: 4px solid var(--accent); 
+            padding: 18px; 
+            border-radius: 12px; 
+            margin: 15px 0; 
             text-align: center; 
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); 
-            transition: transform 0.1s, background 0.2s;
+        } 
+
+        html[dir="ltr"] .announcement-card {
+            border-right: 1px solid #fbbf24;
+            border-left: 4px solid var(--accent);
         }
 
-        .address-link:active {
-            transform: scale(0.98);
-            background: #0f172a;
+        .announcement-badge { 
+            background: var(--accent); 
+            color: #ffffff; 
+            font-weight: bold; 
+            padding: 4px 14px; 
+            border-radius: 12px; 
+            font-size: 12px; 
+            display: inline-block; 
+        } 
+
+        .announcement-card h3 { 
+            color: #92400e; 
+            margin: 12px 0 8px; 
+            font-size: 17px; 
+        } 
+
+        .announcement-card p { 
+            color: #78350f; 
+            font-size: 13px; 
+            margin: 0; 
+            line-height: 1.7; 
+        } 
+
+        .services-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        /* الأزرار */
+        details.service-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        details.service-item[open] { border-color: var(--primary); }
+
+        summary.service-header {
+            padding: 15px;
+            font-weight: bold;
+            font-size: 14px;
+            color: #1e293b;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            list-style: none;
+        }
+
+        summary.service-header::-webkit-details-marker { display: none; }
+
+        summary.service-header::after {
+            content: '➕';
+            font-size: 12px;
+            color: var(--accent);
+        }
+
+        details[open] summary.service-header::after { content: '➖'; }
+
+        .service-details {
+            padding: 12px 15px;
+            background-color: #ffffff;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
         .btn-group { 
             display: flex; 
             flex-direction: column; 
@@ -177,11 +305,12 @@
 
         .btn-call,
         .btn-whatsapp,
-        .btn-save-contact { 
+        .btn-save-contact,
+        .address-link { 
             color: #fff; 
             text-decoration: none; 
-            padding: 13px 12px; 
-            border-radius: 8px; 
+            padding: 14px 12px; 
+            border-radius: 10px; 
             font-weight: bold; 
             font-size: 15px; 
             text-align: center; 
@@ -197,115 +326,68 @@
         .btn-whatsapp { background-color: var(--whatsapp); }
         .btn-save-contact { background-color: var(--contact); }
 
+        .address-link { 
+            background: var(--card); 
+            color: #0f172a;
+            border: 1px solid var(--border);
+            margin-top: 0;
+        }
+
         .btn-call:active,
         .btn-whatsapp:active,
-        .btn-save-contact:active {
-            transform: scale(0.97);
+        .btn-save-contact:active,
+        .address-link:active {
+            transform: scale(0.98);
             opacity: 0.9;
         }
 
-        /* إعلان الافتتاح */
-        .announcement-card { 
-            background: linear-gradient(145deg, #1e1b4b, #0f172a); 
-            border: 1px solid #6366f1; 
-            border-right: 4px solid var(--accent); 
-            padding: 15px; 
-            border-radius: 12px; 
-            margin: 20px 0 15px; 
-            text-align: center; 
-        } 
+        #contact-message {
+            display: none;
+            margin-top: 8px;
+            padding: 8px;
+            background: rgba(37, 99, 235, 0.08);
+            border: 1px solid var(--contact);
+            border-radius: 6px;
+            color: var(--contact);
+            font-size: 12px;
+            text-align: center;
+            line-height: 1.5;
+        }
 
-        .announcement-badge { 
-            background: var(--accent); 
-            color: #000; 
-            font-weight: bold; 
-            padding: 3px 12px; 
-            border-radius: 12px; 
-            font-size: 12px; 
-            display: inline-block; 
-        } 
-
-        .announcement-card h3 { 
-            color: #60a5fa; 
-            margin: 10px 0 6px; 
-            font-size: 17px; 
-        } 
-
-        .announcement-card p { 
-            color: #d1d5db; 
-            font-size: 13px; 
-            margin: 0; 
-            line-height: 1.6; 
-        } 
-
-        /* العناوين */
-        .section-title { 
-            font-size: 18px; 
-            margin: 25px 0 15px; 
-            color: var(--primary); 
-            border-right: 4px solid var(--primary); 
-            padding-right: 10px; 
-        } 
-
-        .info-card { 
-            background: var(--card); 
-            border: 1px solid #374151; 
-            border-radius: 10px; 
-            padding: 15px; 
-            margin-bottom: 15px; 
-        } 
-
-        .info-card h4 { 
-            margin: 0 0 8px; 
-            color: #38bdf8; 
-            font-size: 15px; 
-        } 
-
-        .info-card p { 
-            color: #d1d5db; 
-            font-size: 13px; 
-            line-height: 1.6; 
-            margin: 0; 
-        } 
-
-        /* نموذج الحجز */
         .booking-form {
             background: var(--card);
-            border: 1px solid #374151;
-            border-radius: 10px;
-            padding: 15px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
             margin-bottom: 20px;
         }
 
-        .form-group {
-            margin-bottom: 12px;
-        }
+        .form-group { margin-bottom: 12px; }
 
         .form-group label {
             display: block;
             font-size: 13px;
-            color: #d1d5db;
+            color: var(--text);
             margin-bottom: 5px;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .form-control {
             width: 100%;
             padding: 11px;
-            background: #111827;
-            border: 1px solid #374151;
+            background: #ffffff;
+            border: 1px solid var(--border);
             border-radius: 6px;
-            color: #fff;
+            color: var(--text);
             font-size: 14px;
             box-sizing: border-box;
             font-family: inherit;
-            transition: border-color 0.2s;
         }
 
         .form-control:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
         }
 
         .btn-submit-booking {
@@ -320,7 +402,6 @@
             cursor: pointer;
             margin-top: 5px;
             font-family: inherit;
-            transition: transform 0.1s, background 0.2s;
         }
 
         .btn-submit-booking:active {
@@ -328,90 +409,54 @@
             background-color: var(--primary-hover);
         }
 
-        /* الخدمات */
-        .services-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
         }
 
-        details.service-item {
+        .gallery-item {
+            aspect-ratio: 1 / 1;
             background: var(--card);
-            border: 1px solid #374151;
+            border: 1px dashed var(--border);
             border-radius: 10px;
-            overflow: hidden;
-            transition: border-color 0.2s ease;
-        }
-
-        details.service-item[open] {
-            border-color: var(--primary);
-        }
-
-        summary.service-header {
-            padding: 14px 15px;
-            font-weight: bold;
-            font-size: 14px;
-            color: #f3f4f6;
-            cursor: pointer;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            list-style: none;
+            justify-content: center;
+            color: #cbd5e1;
+            font-size: 24px;
         }
 
-        summary.service-header::-webkit-details-marker {
-            display: none;
-        }
-
-        summary.service-header::after {
-            content: '➕';
+        .gallery-note {
+            text-align: center;
             font-size: 12px;
-            color: var(--accent);
+            color: var(--text-muted);
+            margin-top: 5px;
+            font-style: italic;
         }
 
-        details[open] summary.service-header::after {
-            content: '➖';
-        }
-
-        .service-details {
-            padding: 12px 15px;
-            background-color: #111827;
-            border-top: 1px solid #374151;
+        .reviews-empty {
+            background: var(--card);
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 25px 15px;
+            text-align: center;
+            color: var(--text-muted);
             font-size: 13px;
-            color: #d1d5db;
-            line-height: 1.6;
         }
 
-        .price-tag {
-            color: var(--accent);
-            font-weight: bold;
-            display: block;
-            margin-top: 6px;
-            font-size: 14px;
-        }
-
-        .price-note {
-            font-size: 11px;
-            color: #9ca3af;
-            margin-top: 15px;
+        .footer {
             text-align: center;
-            line-height: 1.5;
-        }
-
-        #contact-message {
-            display: none;
-            margin-top: 8px;
-            padding: 8px;
-            background: rgba(37, 99, 235, 0.1);
-            border: 1px solid var(--contact);
-            border-radius: 6px;
-            color: #93c5fd;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
             font-size: 12px;
-            text-align: center;
-            line-height: 1.5;
         }
 
-        /* Toast notification */
+        .footer strong { color: var(--primary); }
+
         .toast {
             position: fixed;
             bottom: 20px;
@@ -423,20 +468,15 @@
             border-radius: 8px;
             font-weight: bold;
             font-size: 14px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
             z-index: 9999;
             transition: transform 0.3s ease;
             max-width: 90%;
             text-align: center;
         }
 
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .toast.error {
-            background: var(--primary);
-        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--primary); }
     </style>
 </head>
 <body>
@@ -445,136 +485,140 @@
 
     <!-- الهيدر -->
     <div class="header">
-        <div class="logo-letter">M</div>
+        <div class="lang-toggle">
+            <button id="btnAr" class="active" onclick="setLang('ar')">ع</button>
+            <button id="btnFr" onclick="setLang('fr')">FR</button>
+        </div>
+
+        <div class="logo-letter">
+            <img src="https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png" alt="Med Garage Logo">
+        </div>
         <h1>MED GARAGE</h1>
-        <p>ورشة صيانة وميكانيك السيارات</p>
+        <p data-ar="ورشة محمد لصيانة السيارات" data-fr="Garage Mohamed Auto Repair">ورشة محمد لصيانة السيارات</p>
 
         <div class="status-bar">
             <span class="status-dot"></span>
-            <span>الافتتاح الرسمي قريباً (ديسمبر / بداية جانفي)</span>
+            <span data-ar="الافتتاح الرسمي قريباً" data-fr="Ouverture bientôt">الافتتاح الرسمي قريباً</span>
         </div>
 
-        <!-- زر PWA -->
         <div class="install-pwa-card" id="installContainer">
-            <span style="font-size: 12px; color: #f3f4f6;">📲 احفظ تطبيق الورشة على شاشة هاتفك الرئيسية</span>
-            <button class="btn-install" onclick="promptInstall()">إضافة إلى الشاشة الرئيسية ➕</button>
+            <span style="font-size: 12px; color: #1e293b; font-weight: 600;" data-ar="📲 احفظ تطبيق الورشة على شاشة هاتفك" data-fr="📲 Installez l'app sur votre téléphone">📲 احفظ تطبيق الورشة على شاشة هاتفك</span>
+            <button class="btn-install" onclick="promptInstall()" data-ar="إضافة إلى الشاشة الرئيسية ➕" data-fr="Ajouter à l'écran d'accueil ➕">إضافة إلى الشاشة الرئيسية ➕</button>
         </div>
+    </div>
 
-        <!-- رابط الخريطة -->
-        <a href="https://www.google.com/maps/dir/?api=1&destination=36.7085001%2C2.9272610&travelmode=driving" target="_blank" rel="noopener noreferrer" class="address-link">
-            📍 Cité 1780 OPGI - السويدانية
-            <br>
-            <span style="font-size: 12px; font-weight: normal;">اضغط هنا لفتح الموقع والوصول إلى الورشة</span>
-        </a>
-
-        <!-- أزرار التواصل -->
-        <div class="btn-group">
-            <a href="tel:+213790582551" class="btn-call">
-                📞 الاتصال بالورشة
-                <br>
-                <span style="font-size: 13px; font-weight: normal;">0790 58 25 51</span>
-            </a>
-
-            <a href="https://wa.me/213790582551?text=السلام%20عليكم،%20أريد%20الاستفسار%20عن%20خدمات%20MED%20GARAGE" target="_blank" rel="noopener noreferrer" class="btn-whatsapp">
-                💬 مراسلة عبر الواتساب
-            </a>
-
-            <button type="button" onclick="downloadVCard()" class="btn-save-contact">
-                📱 حفظ رقم الورشة في الهاتف
-            </button>
-
-            <div id="contact-message"></div>
-        </div>
+    <!-- شكون حنا -->
+    <div class="section-title" data-ar="شكون حنا" data-fr="Qui sommes-nous">شكون حنا</div>
+    <div class="info-card">
+        <h4 data-ar="👨‍🔧 ورشة محمد لصيانة السيارات" data-fr="👨‍🔧 Garage Mohamed Auto Repair">👨‍🔧 ورشة محمد لصيانة السيارات</h4>
+        <p data-ar="نعتمد منهجية عمل قائمة على التشخيص الشامل والفحص الدقيق للسيارة قبل تغيير أي قطعة غيار، لضمان معالجة العطل الحقيقي وتوفير التكاليف على الزبون." data-fr="Nous adoptons une méthode basée sur le diagnostic complet et la vérification précise du véhicule avant tout remplacement de pièce, afin de traiter la vraie panne et d'économiser les coûts du client.">نعتمد منهجية عمل قائمة على التشخيص الشامل والفحص الدقيق للسيارة قبل تغيير أي قطعة غيار، لضمان معالجة العطل الحقيقي وتوفير التكاليف على الزبون.</p>
     </div>
 
     <!-- إعلان الافتتاح -->
     <div class="announcement-card">
-        <span class="announcement-badge">📢 ترقبوا الافتتاح</span>
-        <h3>افتتاح الورشة المرتقب</h3>
-        <p>
-            نسعد بإعلامكم أننا بصدد تحضير افتتاح ورشتنا المجهزة بالكامل خلال شهر <strong>ديسمبر المقبل أو أواخر بداية شهر جانفي</strong>. نقوم حالياً بتجهيز أحدث أجهزة الفحص والتشخيص لضمان أفضل خدمة لسياراتكم.
-        </p>
+        <span class="announcement-badge" data-ar="📢 ترقبوا الافتتاح" data-fr="📢 Ouverture imminente">📢 ترقبوا الافتتاح</span>
+        <h3 data-ar="افتتاح الورشة المرتقب" data-fr="Ouverture prochaine du garage">افتتاح الورشة المرتقب</h3>
+        <p data-ar="نسعد بإعلامكم أننا بصدد تحضير افتتاح ورشتنا المجهزة بالكامل خلال شهر جانفي 2027. نقوم حالياً بتجهيز أحدث أجهزة الفحص والتشخيص لضمان أفضل خدمة لسياراتكم." data-fr="Nous avons le plaisir de vous informer que nous préparons l'ouverture de notre garage entièrement équipé pour le mois de Janvier 2027. Nous installons actuellement les derniers équipements de diagnostic pour vous garantir le meilleur service.">نسعد بإعلامكم أننا بصدد تحضير افتتاح ورشتنا المجهزة بالكامل خلال شهر جانفي 2027. نقوم حالياً بتجهيز أحدث أجهزة الفحص والتشخيص لضمان أفضل خدمة لسياراتكم.</p>
     </div>
 
-    <!-- منهجية العمل -->
-    <div class="section-title">منهجية العمل</div>
-    <div class="info-card">
-        <h4>👨‍🔧 التشخيص الدقيق قبل التغيير</h4>
-        <p>
-            نعتمد منهجية عمل قائمة على <strong>التشخيص الشامل والفحص الدقيق للسيارة قبل تغيير أي قطعة غيار</strong> لضمان معالجة العطل الحقيقي وتوفير التكاليف على الزبون.
-        </p>
+    <!-- خدماتنا -->
+    <div class="section-title" data-ar="خدماتنا" data-fr="Nos services">خدماتنا</div>
+    <div class="services-list">
+        <details class="service-item">
+            <summary class="service-header" data-ar="🛢️ Vidange + Filtres (تغيير الزيت والفلتر)" data-fr="🛢️ Vidange + Filtres">🛢️ Vidange + Filtres (تغيير الزيت والفلتر)</summary>
+            <div class="service-details" data-ar="تشمل العملية تغيير زيت المحرك المناسب مع كافة الفلاتر واختبار المحرك." data-fr="Remplacement de l'huile moteur avec tous les filtres et test du moteur.">تشمل العملية تغيير زيت المحرك المناسب مع كافة الفلاتر واختبار المحرك.</div>
+        </details>
+
+        <details class="service-item">
+            <summary class="service-header" data-ar="⚙️ Kit Distribution (حزام التوزيع)" data-fr="⚙️ Kit Distribution">⚙️ Kit Distribution (حزام التوزيع)</summary>
+            <div class="service-details" data-ar="استبدال كيت الدستريبسيون بدقة عالية وضبط التوقيت الصحيح للمحرك." data-fr="Remplacement du kit de distribution avec précision et calage correct du moteur.">استبدال كيت الدستريبسيون بدقة عالية وضبط التوقيت الصحيح للمحرك.</div>
+        </details>
+
+        <details class="service-item">
+            <summary class="service-header" data-ar="🔩 Kit Embrayage (نظام الامبرياج)" data-fr="🔩 Kit Embrayage">🔩 Kit Embrayage (نظام الامبرياج)</summary>
+            <div class="service-details" data-ar="فك وتغيير طقم الامبرياج واختبار سلاسة نقل الحركة." data-fr="Démontage et remplacement du kit d'embrayage avec test de la boîte de vitesses.">فك وتغيير طقم الامبرياج واختبار سلاسة نقل الحركة.</div>
+        </details>
+
+        <details class="service-item">
+            <summary class="service-header" data-ar="🛠️ Suspension & Freinage" data-fr="🛠️ Suspension & Freinage">🛠️ Suspension & Freinage (المكابح والتعليق)</summary>
+            <div class="service-details" data-ar="فحص وتغيير الصفائح، الديسكات، والأمتيسورات لضمان أمان السيارة." data-fr="Vérification et remplacement des plaquettes, disques et amortisseurs pour votre sécurité.">فحص وتغيير الصفائح، الديسكات، والأمتيسورات لضمان أمان السيارة.</div>
+        </details>
+
+        <details class="service-item">
+            <summary class="service-header" data-ar="💻 Scanner & Diagnostic" data-fr="💻 Scanner & Diagnostic">💻 Scanner & Diagnostic (الفحص الإلكتروني)</summary>
+            <div class="service-details" data-ar="تشخيص الأعطال الإلكترونية والميكانيكية وقراءة الأعطال بدقة قبل البداية في العمل." data-fr="Diagnostic électronique et mécanique précis avant toute intervention.">تشخيص الأعطال الإلكترونية والميكانيكية وقراءة الأعطال بدقة قبل البداية في العمل.</div>
+        </details>
+    </div>
+
+    <!-- معلومات الورشة -->
+    <div class="section-title" data-ar="معلومات الورشة" data-fr="Informations du garage">معلومات الورشة</div>
+    <div class="btn-group">
+        <a href="https://www.google.com/maps/dir/?api=1&destination=36.7085001%2C2.9272610&travelmode=driving" target="_blank" rel="noopener noreferrer" class="address-link">
+            <span data-ar="📍 Cité 1780 OPGI - السويدانية" data-fr="📍 Cité 1780 OPGI - Souidania">📍 Cité 1780 OPGI - السويدانية</span>
+            <br>
+            <span style="font-size: 12px; font-weight: normal; color: var(--text-muted);" data-ar="اضغط هنا لفتح الخريطة" data-fr="Cliquez ici pour ouvrir la carte">اضغط هنا لفتح الخريطة</span>
+        </a>
+
+        <a href="tel:+213790582551" class="btn-call">
+            <span data-ar="📞 الاتصال بالورشة" data-fr="📞 Appeler le garage">📞 الاتصال بالورشة</span>
+            <br>
+            <span style="font-size: 13px; font-weight: normal;">0790 58 25 51</span>
+        </a>
+
+        <a href="https://wa.me/213790582551?text=السلام%20عليكم" target="_blank" rel="noopener noreferrer" class="btn-whatsapp" data-ar="💬 مراسلة عبر الواتساب" data-fr="💬 Contacter via WhatsApp">💬 مراسلة عبر الواتساب</a>
+
+        <button type="button" onclick="downloadVCard()" class="btn-save-contact" data-ar="📱 حفظ رقم الورشة" data-fr="📱 Enregistrer le numéro">📱 حفظ رقم الورشة</button>
+
+        <div id="contact-message"></div>
     </div>
 
     <!-- نموذج الحجز -->
-    <div class="section-title">طلب حجز موعد / استفسار خاص</div>
+    <div class="section-title" data-ar="طلب حجز موعد" data-fr="Demande de rendez-vous">طلب حجز موعد</div>
     <div class="booking-form">
         <div class="form-group">
-            <label for="client-name">الاسم الكريم:</label>
+            <label for="client-name" data-ar="الاسم الكريم:" data-fr="Votre nom :">الاسم الكريم:</label>
             <input type="text" id="client-name" class="form-control" placeholder="أدخل اسمك">
         </div>
         <div class="form-group">
-            <label for="car-model">نوع السيارة والمحرك:</label>
-            <input type="text" id="car-model" class="form-control" placeholder="مثال: Golf 7 2.0 TDI">
+            <label for="car-model" data-ar="نوع السيارة والمحرك:" data-fr="Type de voiture et moteur :">نوع السيارة والمحرك:</label>
+            <input type="text" id="car-model" class="form-control" placeholder="Ex: Golf 7 2.0 TDI">
         </div>
         <div class="form-group">
-            <label for="service-type">الخدمة المطلوبة:</label>
+            <label for="service-type" data-ar="الخدمة المطلوبة:" data-fr="Service souhaité :">الخدمة المطلوبة:</label>
             <select id="service-type" class="form-control">
                 <option value="Vidange + Filtres">Vidange + Filtres</option>
                 <option value="Kit Distribution">Kit Distribution</option>
                 <option value="Kit Embrayage">Kit Embrayage</option>
                 <option value="Suspension & Freinage">Suspension & Freinage</option>
                 <option value="Scanner & Diagnostic">Scanner & Diagnostic</option>
-                <option value="عطل آخر / استفسار">عطل آخر / استفسار عام</option>
+                <option value="Autre / استفسار" data-ar="عطل آخر / استفسار" data-fr="Autre / Renseignement">عطل آخر / استفسار</option>
             </select>
         </div>
-        <button type="button" onclick="sendBooking()" class="btn-submit-booking">📲 إرسال الطلب عبر الواتساب</button>
+        <button type="button" onclick="sendBooking()" class="btn-submit-booking" data-ar="📲 إرسال الطلب عبر الواتساب" data-fr="📲 Envoyer via WhatsApp">📲 إرسال الطلب عبر الواتساب</button>
     </div>
 
-    <!-- الخدمات -->
-    <div class="section-title">الخدمات والأسعار التقديرية</div>
-    <div class="services-list">
-        <details class="service-item">
-            <summary class="service-header">🛢️ Vidange + Filtres (تغيير الزيت والفلتر)</summary>
-            <div class="service-details">
-                تشمل العملية تغيير زيت المحرك المناسب مع كافة الفلاتر واختبار المحرك.
-                <span class="price-tag">💰 السعر: ابتداءً من 4000 دج (يد العاملة + قطع الغيار)</span>
-            </div>
-        </details>
-
-        <details class="service-item">
-            <summary class="service-header">⚙️ Kit Distribution (حزام التوزيع)</summary>
-            <div class="service-details">
-                استبدال كيت الدستريبسيون بدقة عالية وضبط التوقيت الصحيح للمحرك.
-                <span class="price-tag">💰 السعر: ابتداءً من 6000 دج</span>
-            </div>
-        </details>
-
-        <details class="service-item">
-            <summary class="service-header">🔩 Kit Embrayage (نظام الامبرياج)</summary>
-            <div class="service-details">
-                فك وتغيير طقم الامبرياج واختبار سلاسة نقل الحركة.
-                <span class="price-tag">💰 السعر: ابتداءً من 6000 دج</span>
-            </div>
-        </details>
-
-        <details class="service-item">
-            <summary class="service-header">🛠️ Suspension & Freinage (المكابح ونظام التعليق)</summary>
-            <div class="service-details">
-                فحص وتغيير الصفائح (Plaquettes)، الديسكات، والأمتيسورات لضمان أمان السيارة.
-                <span class="price-tag">💰 السعر: حسب الفحص والقطع المطلوبة</span>
-            </div>
-        </details>
-
-        <details class="service-item">
-            <summary class="service-header">💻 Scanner & Diagnostic (الفحص والتشخيص)</summary>
-            <div class="service-details">
-                تشخيص الأعطال الإلكترونية والميكانيكية وقراءة الأعطال بدقة قبل البداية في العمل.
-                <span class="price-tag">💰 السعر: سعر ثابت وتنافسي عند الفحص</span>
-            </div>
-        </details>
+    <!-- معرض الصور -->
+    <div class="section-title" data-ar="معرض الصور" data-fr="Galerie photos">معرض الصور</div>
+    <div class="gallery-grid">
+        <div class="gallery-item">+</div>
+        <div class="gallery-item">+</div>
+        <div class="gallery-item">+</div>
+        <div class="gallery-item">+</div>
+        <div class="gallery-item">+</div>
+        <div class="gallery-item">+</div>
     </div>
+    <p class="gallery-note" data-ar="قريباً: صور وفيديوهات الورشة" data-fr="Bientôt : photos et vidéos du garage">قريباً: صور وفيديوهات الورشة</p>
 
-    <p class="price-note">* ملاحظة: الأسعار النهائية تختلف حسب نوع السيارة، سعة المحرك، ونوعية قطع الغيار المختارة.</p>
+    <!-- آراء الزبائن -->
+    <div class="section-title" data-ar="آراء زبائننا" data-fr="Avis de nos clients">آراء زبائننا</div>
+    <div class="reviews-empty" data-ar="⭐ كن أول من يشاركنا رأيه بعد الافتتاح" data-fr="⭐ Soyez le premier à nous donner votre avis après l'ouverture">⭐ كن أول من يشاركنا رأيه بعد الافتتاح</div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <strong>MED GARAGE</strong> © 2027
+        <br>
+        <span data-ar="جميع الحقوق محفوظة" data-fr="Tous droits réservés">جميع الحقوق محفوظة</span>
+    </div>
 
 </div>
 
@@ -582,25 +626,58 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ==================== PWA INSTALL ====================
+// ==================== تبديل اللغة ====================
+let currentLang = 'ar';
+
+function setLang(lang) {
+    currentLang = lang;
+    const html = document.getElementById('htmlRoot');
+    
+    if (lang === 'ar') {
+        html.setAttribute('lang', 'ar');
+        html.setAttribute('dir', 'rtl');
+        document.getElementById('btnAr').classList.add('active');
+        document.getElementById('btnFr').classList.remove('active');
+    } else {
+        html.setAttribute('lang', 'fr');
+        html.setAttribute('dir', 'ltr');
+        document.getElementById('btnFr').classList.add('active');
+        document.getElementById('btnAr').classList.remove('active');
+    }
+    
+    document.querySelectorAll('[data-ar][data-fr]').forEach(el => {
+        const val = el.getAttribute('data-' + lang);
+        if (val) {
+            if (el.tagName === 'INPUT' || el.tagName === 'SELECT') {
+                el.placeholder = val;
+            } else {
+                el.textContent = val;
+            }
+        }
+    });
+    
+    try { localStorage.setItem('medgarage_lang', lang); } catch(e) {}
+}
+
+try {
+    const savedLang = localStorage.getItem('medgarage_lang');
+    if (savedLang && savedLang !== 'ar') setLang(savedLang);
+} catch(e) {}
+
+// ==================== PWA ====================
 let deferredPrompt;
 const installContainer = document.getElementById('installContainer');
 
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    if (installContainer) {
-        installContainer.classList.add('visible');
-    }
+    if (installContainer) installContainer.classList.add('visible');
 });
 
 function promptInstall() {
     if (deferredPrompt) {
         deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-                showToast('✅ تم تثبيت التطبيق بنجاح');
-            }
+        deferredPrompt.userChoice.then(() => {
             deferredPrompt = null;
             installContainer.classList.remove('visible');
         });
@@ -609,18 +686,15 @@ function promptInstall() {
     }
 }
 
-// ==================== TOAST ====================
+// ==================== Toast ====================
 function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
     toast.textContent = message;
     toast.className = 'toast show' + (type === 'error' ? ' error' : '');
-    
-    setTimeout(() => {
-        toast.classList.remove('show');
-    }, 3500);
+    setTimeout(() => toast.classList.remove('show'), 3500);
 }
 
-// ==================== SAVE CONTACT (VCard) ====================
+// ==================== حفظ الرقم (VCard) ====================
 function downloadVCard() {
     const vcard = "BEGIN:VCARD\n" +
                   "VERSION:3.0\n" +
@@ -631,78 +705,53 @@ function downloadVCard() {
                   "URL:https://wa.me/213790582551\n" +
                   "END:VCARD";
 
-    // الطريقة 1: data URI (تخدم على معظم الأجهزة)
     try {
         const encoded = encodeURIComponent(vcard);
         const dataUri = "data:text/vcard;charset=utf-8," + encoded;
-        
         const link = document.createElement("a");
         link.href = dataUri;
         link.download = "MED_GARAGE.vcf";
         link.style.display = "none";
         document.body.appendChild(link);
         link.click();
-        
-        setTimeout(() => {
-            document.body.removeChild(link);
-        }, 100);
+        setTimeout(() => document.body.removeChild(link), 100);
 
-        // رسالة توضيحية
         const message = document.getElementById("contact-message");
-        message.innerHTML = "✅ تم تحميل الملف! افتحه من <strong>الإشعارات</strong> أو <strong>التحميلات</strong> لإضافته لجهات الاتصال.";
+        message.innerHTML = "✅ تم تحميل الملف! افتحه من <strong>الإشعارات</strong> أو <strong>التحميلات</strong>.";
         message.style.display = "block";
-
         showToast('✅ تم تحميل بطاقة الاتصال');
-
-        // إخفاء الرسالة بعد 8 ثواني
-        setTimeout(() => {
-            message.style.display = "none";
-        }, 8000);
-
+        setTimeout(() => message.style.display = "none", 8000);
     } catch (e) {
-        // Fallback: فتح رسالة واتساب
         showToast('⚠️ جرب من واتساب لحفظ الرقم', 'error');
-        setTimeout(() => {
-            window.open('https://wa.me/213790582551', '_blank');
-        }, 1500);
+        setTimeout(() => window.open('https://wa.me/213790582551', '_blank'), 1500);
     }
 }
 
-// ==================== SEND BOOKING ====================
+// ==================== إرسال الحجز ====================
 function sendBooking() {
     const name = document.getElementById('client-name').value.trim();
     const car = document.getElementById('car-model').value.trim();
     const service = document.getElementById('service-type').value;
 
-    // تحقق من المدخلات
     if (!name) {
         showToast('⚠️ يرجى إدخال الاسم', 'error');
         document.getElementById('client-name').focus();
         return;
     }
-
     if (!car) {
         showToast('⚠️ يرجى إدخال نوع السيارة', 'error');
         document.getElementById('car-model').focus();
         return;
     }
 
-    const text = "السلام عليكم، أريد حجز موعد / استفسار:\n\n" +
+    const text = "السلام عليكم، أريد حجز موعد:\n\n" +
                  "👤 الاسم: " + name + "\n" +
                  "🚘 السيارة: " + car + "\n" +
                  "🛠️ الخدمة: " + service;
 
-    const encodedText = encodeURIComponent(text);
-    const whatsappUrl = "https://wa.me/213790582551?text=" + encodedText;
-    
+    const whatsappUrl = "https://wa.me/213790582551?text=" + encodeURIComponent(text);
     window.open(whatsappUrl, '_blank');
     showToast('📲 جاري فتح واتساب...');
-}
-
-// ==================== خدمة Worker للـ PWA (اختياري) ====================
-if ('serviceWorker' in navigator) {
-    // يمكن إضافة service worker لاحقاً
-    console.log('PWA: Service Worker مدعوم');
 }
 </script>
 
