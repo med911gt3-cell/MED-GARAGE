@@ -1,0 +1,20 @@
+{
+  "name": "MED GARAGE",
+  "short_name": "MED GARAGE",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1f242b",
+  "theme_color": "#1a1d21",
+  "icons": [
+    {
+      "src": "https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
