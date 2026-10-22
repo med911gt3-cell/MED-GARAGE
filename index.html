@@ -1,0 +1,1004 @@
+<!DOCTYPE html>  <html lang="ar" dir="rtl" id="htmlRoot">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>MED GARAGE - ورشة محمد لصيانة السيارات</title>  <meta name="theme-color" content="#1a1d21">  
+<meta name="mobile-web-app-capable" content="yes">  
+<meta name="apple-mobile-web-app-title" content="MED GARAGE">  
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">  
+<link rel="apple-touch-icon" href="https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png">  
+<link rel="icon" type="image/png" href="https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png">  
+<link rel="manifest" href="manifest.json">  
+
+<style>  
+    :root {   
+        --primary: #dc2626;   
+        --primary-hover: #b91c1c;   
+        --bg: #1f242b;  
+        --bg-gradient: linear-gradient(135deg, #2a2f38 0%, #181b20 100%);  
+        --card: #ffffff;  
+        --text: #1e293b;  
+        --text-light: #f8fafc;  
+        --text-muted: #64748b;  
+        --accent: #f59e0b;  
+        --whatsapp: #16a34a;  
+        --contact: #2563eb;  
+        --success: #16a34a;  
+        --star: #fbbf24;  
+        --border: #cbd5e1;  
+    }   
+
+    * {  
+        box-sizing: border-box;  
+        -webkit-tap-highlight-color: transparent;  
+    }  
+
+    body {   
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;   
+        background: var(--bg-gradient);  
+        background-attachment: fixed;  
+        color: var(--text-light);   
+        margin: 0;   
+        padding: 15px;   
+        line-height: 1.6;  
+        min-height: 100vh;  
+    }   
+
+    .container {   
+        max-width: 500px;   
+        margin: 0 auto;   
+        padding-bottom: 40px;  
+    }   
+
+    .header {   
+        text-align: center;   
+        padding: 15px 0 20px;   
+        border-bottom: 2px solid var(--primary);   
+        position: relative;  
+    }   
+
+    .logo-letter {   
+        width: 130px;   
+        height: 130px;   
+        border-radius: 50%;   
+        background: #ffffff;   
+        border: 3px solid var(--primary);   
+        display: flex;   
+        align-items: center;   
+        justify-content: center;   
+        margin: 0 auto 15px auto;   
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);  
+        overflow: hidden;  
+        padding: 4px;  
+    }   
+
+    .logo-letter img {  
+        width: 100%;  
+        height: 100%;  
+        object-fit: contain;  
+        border-radius: 50%;  
+        display: block;  
+    }  
+
+    .header h1 {   
+        margin: 5px 0 0;   
+        color: #ffffff;   
+        font-size: 28px;   
+        font-weight: bold;  
+        letter-spacing: 1px;  
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);  
+    }   
+
+    .header p {   
+        margin: 5px 0;   
+        color: #cbd5e1;   
+        font-size: 14px;   
+    }   
+
+    .lang-toggle {  
+        position: absolute;  
+        top: 10px;  
+        left: 10px;  
+        display: flex;  
+        background: rgba(255, 255, 255, 0.1);  
+        border: 1px solid rgba(255, 255, 255, 0.2);  
+        border-radius: 20px;  
+        overflow: hidden;  
+        backdrop-filter: blur(5px);  
+    }  
+
+    .lang-toggle button {  
+        background: transparent;  
+        border: none;  
+        padding: 6px 14px;  
+        font-size: 13px;  
+        font-weight: bold;  
+        color: #cbd5e1;  
+        cursor: pointer;  
+        font-family: inherit;  
+        transition: all 0.2s;  
+    }  
+
+    .lang-toggle button.active {  
+        background: var(--primary);  
+        color: #ffffff;  
+    }  
+
+    .status-bar {  
+        display: inline-flex;  
+        align-items: center;  
+        gap: 8px;  
+        background: rgba(245, 158, 11, 0.15);  
+        border: 1px solid var(--accent);  
+        color: #fbbf24;  
+        padding: 6px 14px;  
+        border-radius: 20px;  
+        font-size: 12px;  
+        font-weight: bold;  
+        margin-top: 10px;  
+    }  
+
+    .status-dot {  
+        width: 8px;  
+        height: 8px;  
+        background-color: var(--accent);  
+        border-radius: 50%;  
+        box-shadow: 0 0 8px var(--accent);  
+        animation: pulse 2s infinite;  
+    }  
+
+    @keyframes pulse {  
+        0%, 100% { opacity: 1; }  
+        50% { opacity: 0.4; }  
+    }  
+
+    /* ===== Slider الماركات ===== */  
+    .brands-section {  
+        margin-top: 20px;  
+        padding: 15px 0;  
+        background: var(--card);  
+        border-radius: 12px;  
+        border: 1px solid var(--border);  
+        overflow: hidden;  
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);  
+    }  
+
+    .brands-title {  
+        text-align: center;  
+        font-size: 14px;  
+        font-weight: bold;  
+        color: var(--text);  
+        margin-bottom: 12px;  
+        padding: 0 15px;  
+    }  
+
+    .brands-slider {  
+        display: flex;  
+        gap: 10px;  
+        overflow: hidden;  
+        position: relative;  
+        padding: 5px 0;  
+    }  
+
+    .brands-track {  
+        display: flex;  
+        gap: 10px;  
+        animation: scrollBrands 30s linear infinite;  
+        padding-right: 10px;  
+    }  
+
+    @keyframes scrollBrands {  
+        0% { transform: translateX(0); }  
+        100% { transform: translateX(-50%); }  
+    }  
+
+    html[dir="rtl"] .brands-track {  
+        animation: scrollBrandsRTL 30s linear infinite;  
+    }  
+
+    @keyframes scrollBrandsRTL {  
+        0% { transform: translateX(0); }  
+        100% { transform: translateX(50%); }  
+    }  
+
+    .brand-card {  
+        flex-shrink: 0;  
+        background: #ffffff;  
+        border: 1px solid var(--border);  
+        border-radius: 10px;  
+        padding: 10px 18px;  
+        font-size: 13px;  
+        font-weight: bold;  
+        color: var(--text);  
+        white-space: nowrap;  
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);  
+        display: flex;  
+        align-items: center;  
+        gap: 6px;  
+    }  
+
+    .brand-flag {  
+        font-size: 16px;  
+    }  
+
+    .install-pwa-card {  
+        background: var(--card);  
+        color: var(--text);  
+        border: 1px solid var(--accent);  
+        border-radius: 10px;  
+        padding: 12px;  
+        margin-top: 15px;  
+        text-align: center;  
+        display: none;  
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);  
+    }  
+
+    .install-pwa-card.visible { display: block; }  
+
+    .btn-install {  
+        background-color: var(--accent);  
+        color: #fff;  
+        border: none;  
+        padding: 10px 15px;  
+        border-radius: 6px;  
+        font-weight: bold;  
+        font-size: 13px;  
+        cursor: pointer;  
+        width: 100%;  
+        margin-top: 8px;  
+        font-family: inherit;  
+    }  
+
+    .section-title {   
+        font-size: 18px;   
+        margin: 28px 0 15px;   
+        color: #f8fafc;   
+        border-right: 4px solid var(--primary);   
+        padding-right: 10px;   
+        font-weight: bold;  
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);  
+    }  
+
+    html[dir="ltr"] .section-title {  
+        border-right: none;  
+        border-left: 4px solid var(--primary);  
+        padding-right: 0;  
+        padding-left: 10px;  
+    }  
+
+    .info-card {   
+        background: var(--card);   
+        color: var(--text);  
+        border: 1px solid var(--border);   
+        border-radius: 12px;   
+        padding: 18px;   
+        margin-bottom: 15px;   
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);  
+    }   
+
+    .info-card h4 {   
+        margin: 0 0 10px;   
+        color: #0284c7;   
+        font-size: 16px;   
+    }   
+
+    .info-card p {   
+        color: var(--text-muted);   
+        font-size: 14px;   
+        line-height: 1.7;   
+        margin: 0;   
+    }   
+
+    .announcement-card {   
+        background: var(--card);   
+        color: var(--text);  
+        border: 1px solid var(--border);   
+        border-right: 4px solid var(--accent);   
+        padding: 18px;   
+        border-radius: 12px;   
+        margin: 15px 0;   
+        text-align: center;   
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);  
+    }   
+
+    html[dir="ltr"] .announcement-card {  
+        border-right: 1px solid var(--border);  
+        border-left: 4px solid var(--accent);  
+    }  
+
+    .announcement-badge {   
+        background: rgba(217, 119, 6, 0.15);   
+        color: #b45309;   
+        font-weight: bold;   
+        padding: 4px 14px;   
+        border-radius: 12px;   
+        font-size: 12px;   
+        display: inline-block;   
+    }   
+
+    .announcement-card h3 {   
+        color: #1e293b;   
+        margin: 12px 0 8px;   
+        font-size: 17px;   
+    }   
+
+    .announcement-card p {   
+        color: var(--text-muted);   
+        font-size: 13px;   
+        margin: 0;   
+        line-height: 1.7;   
+    }   
+
+    .services-list {  
+        display: flex;  
+        flex-direction: column;  
+        gap: 10px;  
+    }  
+
+    details.service-item {  
+        background: var(--card);  
+        color: var(--text);  
+        border: 1px solid var(--border);  
+        border-radius: 12px;  
+        overflow: hidden;  
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);  
+    }  
+
+    details.service-item[open] { border-color: var(--primary); }  
+
+    summary.service-header {  
+        padding: 15px;  
+        font-weight: bold;  
+        font-size: 14px;  
+        color: #1e293b;  
+        cursor: pointer;  
+        display: flex;  
+        justify-content: space-between;  
+        align-items: center;  
+        list-style: none;  
+    }  
+
+    summary.service-header::-webkit-details-marker { display: none; }  
+
+    summary.service-header::after {  
+        content: '➕';  
+        font-size: 12px;  
+        color: var(--accent);  
+    }  
+
+    details[open] summary.service-header::after { content: '➖'; }  
+
+    .service-details {  
+        padding: 12px 15px;  
+        background-color: #f8fafc;  
+        border-top: 1px solid var(--border);  
+        font-size: 13px;  
+        color: var(--text-muted);  
+        line-height: 1.9;  
+    }  
+
+    .service-details .check-item {  
+        display: block;  
+        padding: 2px 0;  
+    }  
+
+    .btn-group {   
+        display: flex;   
+        flex-direction: column;   
+        gap: 10px;   
+        margin-top: 15px;   
+    }   
+
+    .btn-call,  
+    .btn-whatsapp,  
+    .btn-save-contact,  
+    .address-link {   
+        color: #fff;   
+        text-decoration: none;   
+        padding: 14px 12px;   
+        border-radius: 10px;   
+        font-weight: bold;   
+        font-size: 15px;   
+        text-align: center;   
+        display: block;  
+        width: 100%;  
+        border: none;  
+        cursor: pointer;  
+        transition: transform 0.1s, opacity 0.2s;  
+        font-family: inherit;  
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);  
+    }  
+
+    .btn-call { background-color: var(--success); }  
+    .btn-whatsapp { background-color: var(--whatsapp); }  
+    .btn-save-contact { background-color: var(--contact); }  
+
+    .address-link {   
+        background: var(--card);   
+        color: #1e293b;  
+        border: 1px solid var(--border);  
+        margin-top: 0;  
+    }  
+
+    .address-link span { color: var(--text-muted); }  
+
+    .btn-call:active,  
+    .btn-whatsapp:active,  
+    .btn-save-contact:active,  
+    .address-link:active {  
+        transform: scale(0.98);  
+        opacity: 0.9;  
+    }  
+
+    #contact-message {  
+        display: none;  
+        margin-top: 8px;  
+        padding: 8px;  
+        background: rgba(37, 99, 235, 0.15);  
+        border: 1px solid var(--contact);  
+        border-radius: 6px;  
+        color: #93c5fd;  
+        font-size: 12px;  
+        text-align: center;  
+        line-height: 1.5;  
+    }  
+
+    .booking-form {  
+        background: var(--card);  
+        color: var(--text);  
+        border: 1px solid var(--border);  
+        border-radius: 12px;  
+        padding: 18px;  
+        margin-bottom: 20px;  
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);  
+    }  
+
+    .form-group { margin-bottom: 12px; }  
+
+    .form-group label {  
+        display: block;  
+        font-size: 13px;  
+        color: var(--text);  
+        margin-bottom: 5px;  
+        font-weight: 600;  
+    }  
+
+    .form-group .required { color: var(--primary); }  
+
+    .form-control {  
+        width: 100%;  
+        padding: 11px;  
+        background: #ffffff;  
+        border: 1px solid var(--border);  
+        border-radius: 6px;  
+        color: var(--text);  
+        font-size: 14px;  
+        box-sizing: border-box;  
+        font-family: inherit;  
+    }  
+
+    .form-control:focus {  
+        outline: none;  
+        border-color: var(--primary);  
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);  
+    }  
+
+    textarea.form-control {  
+        resize: vertical;  
+        min-height: 80px;  
+    }  
+
+    .btn-submit-booking {  
+        background-color: var(--primary);  
+        color: #fff;  
+        border: none;  
+        width: 100%;  
+        padding: 12px;  
+        border-radius: 8px;  
+        font-weight: bold;  
+        font-size: 14px;  
+        cursor: pointer;  
+        margin-top: 5px;  
+        font-family: inherit;  
+        box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3);  
+    }  
+
+    .btn-submit-booking:active {  
+        transform: scale(0.98);  
+        background-color: var(--primary-hover);  
+    }  
+
+    .gallery-grid {  
+        display: grid;  
+        grid-template-columns: repeat(3, 1fr);  
+        gap: 8px;  
+        margin-bottom: 15px;  
+    }  
+
+    .gallery-item {  
+        aspect-ratio: 1 / 1;  
+        background: var(--card);  
+        border: 1px dashed var(--border);  
+        border-radius: 10px;  
+        display: flex;  
+        align-items: center;  
+        justify-content: center;  
+        color: #64748b;  
+        font-size: 24px;  
+    }  
+
+    .gallery-note {  
+        text-align: center;  
+        font-size: 12px;  
+        color: #cbd5e1;  
+        margin-top: 5px;  
+        font-style: italic;  
+    }  
+
+    .reviews-empty {  
+        background: var(--card);  
+        color: var(--text-muted);  
+        border: 2px dashed var(--border);  
+        border-radius: 12px;  
+        padding: 25px 15px;  
+        text-align: center;  
+        font-size: 13px;  
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);  
+    }  
+
+    .footer {  
+        text-align: center;  
+        margin-top: 30px;  
+        padding-top: 20px;  
+        border-top: 1px solid rgba(255, 255, 255, 0.1);  
+        color: #cbd5e1;  
+        font-size: 12px;  
+    }  
+
+    .footer strong { color: var(--primary); }  
+
+    .toast {  
+        position: fixed;  
+        bottom: 20px;  
+        left: 50%;  
+        transform: translateX(-50%) translateY(100px);  
+        background: var(--success);  
+        color: #fff;  
+        padding: 12px 20px;  
+        border-radius: 8px;  
+        font-weight: bold;  
+        font-size: 14px;  
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);  
+        z-index: 9999;  
+        transition: transform 0.3s ease;  
+        max-width: 90%;  
+        text-align: center;  
+    }  
+
+    .toast.show { transform: translateX(-50%) translateY(0); }  
+    .toast.error { background: var(--primary); }  
+</style>
+
+</head>  
+<body>  <div class="container">  <!-- الهيدر -->  
+<div class="header">  
+    <div class="lang-toggle">  
+        <button id="btnAr" class="active" onclick="setLang('ar')">ع</button>  
+        <button id="btnFr" onclick="setLang('fr')">FR</button>  
+    </div>  
+
+    <div class="logo-letter">  
+        <img src="https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png" alt="Med Garage Logo">  
+    </div>  
+    <h1>MED GARAGE</h1>  
+    <p data-ar="ورشة محمد لصيانة السيارات" data-fr="Garage Mohamed Auto Repair">ورشة محمد لصيانة السيارات</p>  
+
+    <div class="status-bar">  
+        <span class="status-dot"></span>  
+        <span data-ar="الافتتاح الرسمي قريباً" data-fr="Ouverture bientôt">الافتتاح الرسمي قريباً</span>  
+    </div>  
+</div>  
+
+<!-- Slider الماركات -->  
+<div class="brands-section">  
+    <div class="brands-title" data-ar="🚗 الماركات التي نتعامل معها" data-fr="🚗 Marques que nous traitons">🚗 الماركات التي نتعامل معها</div>  
+    <div class="brands-slider">  
+        <div class="brands-track">  
+            <!-- المجموعة 1 -->  
+            <div class="brand-card"><span class="brand-flag">🇨🇳</span> Chery</div>  
+            <div class="brand-card"><span class="brand-flag">🇨🇳</span> Geely</div>  
+            <div class="brand-card"><span class="brand-flag">🇨🇳</span> Changan</div>  
+            <div class="brand-card"><span class="brand-flag">🇫🇷</span> Renault</div>  
+            <div class="brand-card"><span class="brand-flag">🇫🇷</span> Peugeot</div>  
+            <div class="brand-card"><span class="brand-flag">🇩🇪</span> Volkswagen</div>  
+            <div class="brand-card"><span class="brand-flag">🇯🇵</span> Toyota</div>  
+            <div class="brand-card"><span class="brand-flag">🇰🇷</span> Hyundai</div>  
+            <div class="brand-card"><span class="brand-flag">🇰🇷</span> Kia</div>  
+            <div class="brand-card"><span class="brand-flag">🇷🇴</span> Dacia</div>  
+            <!-- المجموعة 2 (نسخة للـ loop) -->  
+            <div class="brand-card"><span class="brand-flag">🇨🇳</span> Chery</div>  
+            <div class="brand-card"><span class="brand-flag">🇨🇳</span> Geely</div>  
+            <div class="brand-card"><span class="brand-flag">🇨🇳</span> Changan</div>  
+            <div class="brand-card"><span class="brand-flag">🇫🇷</span> Renault</div>  
+            <div class="brand-card"><span class="brand-flag">🇫🇷</span> Peugeot</div>  
+            <div class="brand-card"><span class="brand-flag">🇩🇪</span> Volkswagen</div>  
+            <div class="brand-card"><span class="brand-flag">🇯🇵</span> Toyota</div>  
+            <div class="brand-card"><span class="brand-flag">🇰🇷</span> Hyundai</div>  
+            <div class="brand-card"><span class="brand-flag">🇰🇷</span> Kia</div>  
+            <div class="brand-card"><span class="brand-flag">🇷🇴</span> Dacia</div>  
+        </div>  
+    </div>  
+</div>  
+
+<div class="install-pwa-card" id="installContainer">  
+    <span style="font-size: 12px; color: #1e293b; font-weight: 600;" data-ar="📲 احفظ تطبيق الورشة على شاشة هاتفك" data-fr="📲 Installez l'app sur votre téléphone">📲 احفظ تطبيق الورشة على شاشة هاتفك</span>  
+    <button class="btn-install" onclick="promptInstall()" data-ar="إضافة إلى الشاشة الرئيسية ➕" data-fr="Ajouter à l'écran d'accueil ➕">إضافة إلى الشاشة الرئيسية ➕</button>  
+</div>  
+
+<!-- من نحن -->  
+<div class="section-title" data-ar="من نحن" data-fr="Qui sommes-nous">من نحن</div>  
+<div class="info-card">  
+    <h4 data-ar="👨‍🔧 ورشة محمد لصيانة السيارات" data-fr="👨‍🔧 Garage Mohamed Auto Repair">👨‍🔧 ورشة محمد لصيانة السيارات</h4>  
+    <p data-ar="نعتمد منهجية عمل قائمة على التشخيص الشامل والفحص الدقيق للسيارة قبل تغيير أي قطعة غيار، لضمان معالجة العطل الحقيقي وتوفير التكاليف على الزبون." data-fr="Nous adoptons une méthode basée sur le diagnostic complet et la vérification précise du véhicule avant tout remplacement de pièce, afin de traiter la vraie panne et d'économiser les coûts du client.">نعتمد منهجية عمل قائمة على التشخيص الشامل والفحص الدقيق للسيارة قبل تغيير أي قطعة غيار، لضمان معالجة العطل الحقيقي وتوفير التكاليف على الزبون.</p>  
+</div>  
+
+<!-- إعلان الافتتاح -->  
+<div class="announcement-card">  
+    <span class="announcement-badge" data-ar="📢 ترقبوا الافتتاح" data-fr="📢 Ouverture imminente">📢 ترقبوا الافتتاح</span>  
+    <h3 data-ar="افتتاح الورشة المرتقب" data-fr="Ouverture prochaine du garage">افتتاح الورشة المرتقب</h3>  
+    <p data-ar="نسعد بإعلامكم أننا بصدد تحضير افتتاح ورشتنا المجهزة بالكامل خلال شهر جانفي 2027. نقوم حالياً بتجهيز أحدث أجهزة الفحص والتشخيص لضمان أفضل خدمة لسياراتكم." data-fr="Nous avons le plaisir de vous informer que nous préparons l'ouverture de notre garage entièrement équipé pour le mois de Janvier 2027. Nous installons actuellement les derniers équipements de diagnostic pour vous garantir le meilleur service.">نسعد بإعلامكم أننا بصدد تحضير افتتاح ورشتنا المجهزة بالكامل خلال شهر جانفي 2027. نقوم حالياً بتجهيز أحدث أجهزة الفحص والتشخيص لضمان أفضل خدمة لسياراتكم.</p>  
+</div>  
+
+<!-- خدماتنا -->  
+<div class="section-title" data-ar="خدماتنا" data-fr="Nos services">خدماتنا</div>  
+<div class="services-list">  
+
+    <details class="service-item">  
+        <summary class="service-header" data-ar="🛢️ Vidange + Filtres (تغيير الزيت والفلتر)" data-fr="🛢️ Vidange + Filtres">🛢️ Vidange + Filtres (تغيير الزيت والفلتر)</summary>  
+        <div class="service-details">  
+            <span class="check-item">✅ تغيير زيت المحرك</span>  
+            <span class="check-item">✅ تغيير فلتر الزيت</span>  
+            <span class="check-item">✅ تغيير فلتر الهواء</span>  
+            <span class="check-item">✅ تغيير فلتر الوقود</span>  
+            <span class="check-item">✅ فحص بصري شامل (كي ترفع السيارة)</span>  
+        </div>  
+    </details>  
+
+    <details class="service-item">  
+        <summary class="service-header" data-ar="🛠️ Freinage (الفرامل)" data-fr="🛠️ Freinage">🛠️ Freinage (الفرامل)</summary>  
+        <div class="service-details">  
+            <span class="check-item">✅ فحص الصفائح (Plaquettes)</span>  
+            <span class="check-item">✅ تغيير الصفائح إذا استهلكت</span>  
+            <span class="check-item">✅ فحص الديسكات (Disques)</span>  
+            <span class="check-item">✅ تغيير الديسكات إذا استهلكت</span>  
+            <span class="check-item">✅ فحص وتغيير زيت الفرامل (Liquide de frein)</span>  
+            <span class="check-item">✅ اختبار نظام الفرامل</span>  
+        </div>  
+    </details>  
+
+    <details class="service-item">  
+        <summary class="service-header" data-ar="🚗 Suspension (نظام التعليق)" data-fr="🚗 Suspension">🚗 Suspension (نظام التعليق)</summary>  
+        <div class="service-details">  
+            <span class="check-item">✅ فحص الأمتيسورات (Amortisseurs)</span>  
+            <span class="check-item">✅ تغيير الأمتيسورات إذا استهلكت</span>  
+            <span class="check-item">✅ فحص النوابض (Ressorts)</span>  
+            <span class="check-item">✅ فحص Rottules</span>  
+            <span class="check-item">✅ فحص Silentblocs</span>  
+            <span class="check-item">✅ فحص Biellettes de barre stabilisatrice</span>  
+            <span class="check-item">✅ اختبار على الطريق</span>  
+        </div>  
+    </details>  
+
+    <details class="service-item">  
+        <summary class="service-header" data-ar="🔩 Embrayage (نظام الامبرياج)" data-fr="🔩 Embrayage">🔩 Embrayage (نظام الامبرياج)</summary>  
+        <div class="service-details">  
+            <span class="check-item">✅ فك علبة السرعة (Boîte de vitesses)</span>  
+            <span class="check-item">✅ استبدال الديسك (Disque d'embrayage)</span>  
+            <span class="check-item">✅ استبدال الصفيحة (Plateau de pression)</span>  
+            <span class="check-item">✅ استبدال البيل (Butée)</span>  
+            <span class="check-item">✅ إعادة تركيب علبة السرعة</span>  
+            <span class="check-item">✅ اختبار سلاسة نقل الحركة</span>  
+        </div>  
+    </details>  
+
+    <details class="service-item">  
+        <summary class="service-header" data-ar="⚙️ Kit Distribution (حزام التوقيت)" data-fr="⚙️ Kit Distribution">⚙️ Kit Distribution (حزام التوقيت)</summary>  
+        <div class="service-details">  
+            <span class="check-item">✅ استبدال الحزام (Courroie de distribution)</span>  
+            <span class="check-item">✅ استبدال بكرة الشد (Galet tendeur)</span>  
+            <span class="check-item">✅ استبدال بكرة التوجيه (Galet enrouleur)</span>  
+            <span class="check-item">✅ استبدال مضخة الماء (Pompe à eau) - اختياري</span>  
+            <span class="check-item">✅ ضبط توقيت المحرك (Calage)</span>  
+            <span class="check-item">✅ فحص واختبار</span>  
+        </div>  
+    </details>  
+
+    <details class="service-item">  
+        <summary class="service-header" data-ar="💧 Fuites Huile & Eau (تسريبات الزيت والماء)" data-fr="💧 Fuites Huile & Eau">💧 Fuites Huile & Eau (تسريبات الزيت والماء)</summary>  
+        <div class="service-details">  
+            <span class="check-item">✅ فحص تسريبات الزيت</span>  
+            <span class="check-item">✅ فحص تسريبات الماء (LDR)</span>  
+            <span class="check-item">✅ إصلاح الجوان كيلاس (Joint Culasse) إذا لزم</span>  
+            <span class="check-item">✅ إصلاح الجوانات (Joints)</span>  
+            <span class="check-item">✅ تغيير الخراطيم (Durites) إذا استهلكت</span>  
+            <span class="check-item">✅ اختبار بعد الإصلاح</span>  
+        </div>  
+    </details>  
+
+    <details class="service-item">  
+        <summary class="service-header" data-ar="💻 Scanner & Diagnostic (الفحص الإلكتروني)" data-fr="💻 Scanner & Diagnostic">💻 Scanner & Diagnostic (الفحص الإلكتروني)</summary>  
+        <div class="service-details">  
+            <span class="check-item">✅ قراءة أكواد الأخطاء (Lecture des codes)</span>  
+            <span class="check-item">✅ تحليل الأعطال الإلكترونية</span>  
+            <span class="check-item">✅ فحص الحساسات (Capteurs)</span>  
+            <span class="check-item">✅ مسح الأكواد (Effacement des codes)</span>  
+            <span class="check-item">✅ تقرير مفصّل للزبون</span>  
+        </div>  
+    </details>  
+
+    <details class="service-item">  
+        <summary class="service-header" data-ar="🔧 Révision Moteur (مراجعة شاملة)" data-fr="🔧 Révision Moteur">🔧 Révision Moteur (مراجعة شاملة)</summary>  
+        <div class="service-details">  
+            <span class="check-item">✅ فك رأس المحرك (Culasse)</span>  
+            <span class="check-item">✅ تغيير الجوان كيلاس (Joint Culasse)</span>  
+            <span class="check-item">✅ تغيير الساقمون (Segments)</span>  
+            <span class="check-item">✅ فحص نظام التبريد</span>  
+            <span class="check-item">✅ فحص نظام التزييت</span>  
+            <span class="check-item">✅ إعادة تركيب المحرك</span>  
+            <span class="check-item">✅ اختبار كامل</span>  
+        </div>  
+    </details>  
+
+    <details class="service-item">  
+        <summary class="service-header" data-ar="❄️ Climatisation (فحص مبرد السيارات)" data-fr="❄️ Climatisation">❄️ Climatisation (فحص مبرد السيارات)</summary>  
+        <div class="service-details">  
+            <span class="check-item">✅ فحص غاز التبريد (Gaz de refroidissement)</span>  
+            <span class="check-item">✅ فحص الخراطيم (Durites)</span>  
+            <span class="check-item">✅ فحص الفلاتر (Filtres)</span>  
+            <span class="check-item">✅ اختبار التبريد (Test de refroidissement)</span>  
+        </div>  
+    </details>  
+
+</div>  
+
+<!-- معلومات الورشة -->  
+<div class="section-title" data-ar="معلومات الورشة" data-fr="Informations du garage">معلومات الورشة</div>  
+<div class="btn-group">  
+    <a href="https://www.google.com/maps/dir/?api=1&destination=36.7085001%2C2.9272610&travelmode=driving" target="_blank" rel="noopener noreferrer" class="address-link">  
+        <span data-ar="📍 Cité 1780 OPGI - السويدانية" data-fr="📍 Cité 1780 OPGI - Souidania">📍 Cité 1780 OPGI - السويدانية</span>  
+        <br>  
+        <span style="font-size: 12px; font-weight: normal;" data-ar="اضغط هنا لفتح الخريطة" data-fr="Cliquez ici pour ouvrir la carte">اضغط هنا لفتح الخريطة</span>  
+    </a>  
+
+    <a href="tel:+213790582551" class="btn-call">  
+        <span data-ar="📞 الاتصال بالورشة" data-fr="📞 Appeler le garage">📞 الاتصال بالورشة</span>  
+        <br>  
+        <span style="font-size: 13px; font-weight: normal; direction: ltr; display: inline-block;">0790 58 25 51</span>  
+    </a>  
+
+    <a href="https://wa.me/213790582551?text=السلام%20عليكم" target="_blank" rel="noopener noreferrer" class="btn-whatsapp" data-ar="💬 مراسلة عبر الواتساب" data-fr="💬 Contacter via WhatsApp">💬 مراسلة عبر الواتساب</a>  
+
+    <button type="button" onclick="downloadVCard()" class="btn-save-contact" data-ar="📱 حفظ رقم الورشة" data-fr="📱 Enregistrer le numéro">📱 حفظ رقم الورشة</button>  
+
+    <div id="contact-message"></div>  
+</div>  
+
+<!-- نموذج الحجز -->  
+<div class="section-title" data-ar="طلب حجز موعد" data-fr="Demande de rendez-vous">طلب حجز موعد</div>  
+<div class="booking-form">  
+    <div class="form-group">  
+        <label for="client-name" data-ar="الاسم الكريم: *" data-fr="Votre nom : *">الاسم الكريم: <span class="required">*</span></label>  
+        <input type="text" id="client-name" class="form-control" placeholder="أدخل اسمك">  
+    </div>  
+    <div class="form-group">  
+        <label for="car-model" data-ar="نوع السيارة والمحرك:" data-fr="Type de voiture et moteur :">نوع السيارة والمحرك:</label>  
+        <input type="text" id="car-model" class="form-control" placeholder="Ex: Golf 7 2.0 TDI">  
+    </div>  
+    <div class="form-group">  
+        <label for="client-phone" data-ar="رقم الهاتف:" data-fr="Numéro de téléphone :">رقم الهاتف:</label>  
+        <input type="tel" id="client-phone" class="form-control" placeholder="05 XX XX XX XX" style="direction: ltr; text-align: right;">  
+    </div>  
+    <div class="form-group">  
+        <label for="service-type" data-ar="الخدمة المطلوبة:" data-fr="Service souhaité :">الخدمة المطلوبة:</label>  
+        <select id="service-type" class="form-control">  
+            <option value="" data-ar="-- اختياري --" data-fr="-- Optionnel --">-- اختياري --</option>  
+            <option value="Vidange + Filtres">Vidange + Filtres</option>  
+            <option value="Freinage">Freinage</option>  
+            <option value="Suspension">Suspension</option>  
+            <option value="Embrayage">Embrayage</option>  
+            <option value="Kit Distribution">Kit Distribution</option>  
+            <option value="Fuites Huile & Eau">Fuites Huile & Eau</option>  
+            <option value="Scanner & Diagnostic">Scanner & Diagnostic</option>  
+            <option value="Révision Moteur">Révision Moteur</option>  
+            <option value="Climatisation">Climatisation</option>  
+            <option value="Autre" data-ar="عطل آخر / استفسار" data-fr="Autre / Renseignement">عطل آخر / استفسار</option>  
+        </select>  
+    </div>  
+    <div class="form-group">  
+        <label for="issue-desc" data-ar="وصف المشكل / استفسار:" data-fr="Description du problème :">وصف المشكل / استفسار:</label>  
+        <textarea id="issue-desc" class="form-control" placeholder="اكتب هنا ما تحتاجه..."></textarea>  
+    </div>  
+    <button type="button" onclick="sendBooking()" class="btn-submit-booking" data-ar="📲 إرسال الطلب عبر الواتساب" data-fr="📲 Envoyer via WhatsApp">📲 إرسال الطلب عبر الواتساب</button>  
+</div>  
+
+<!-- معرض الصور -->  
+<div class="section-title" data-ar="معرض الصور" data-fr="Galerie photos">معرض الصور</div>  
+<div class="gallery-grid">  
+    <div class="gallery-item">+</div>  
+    <div class="gallery-item">+</div>  
+    <div class="gallery-item">+</div>  
+    <div class="gallery-item">+</div>  
+    <div class="gallery-item">+</div>  
+    <div class="gallery-item">+</div>  
+</div>  
+<p class="gallery-note" data-ar="قريباً: صور وفيديوهات الورشة" data-fr="Bientôt : photos et vidéos du garage">قريباً: صور وفيديوهات الورشة</p>  
+
+<!-- آراء الزبائن -->  
+<div class="section-title" data-ar="آراء زبائننا" data-fr="Avis de nos clients">آراء زبائننا</div>  
+<div class="reviews-empty" data-ar="⭐ كن أول من يشاركنا رأيه بعد الافتتاح" data-fr="⭐ Soyez le premier à nous donner votre avis après l'ouverture">⭐ كن أول من يشاركنا رأيه بعد الافتتاح</div>  
+
+<!-- Footer -->  
+<div class="footer">  
+    <strong>MED GARAGE</strong> © 2027  
+    <br>  
+    <span data-ar="جميع الحقوق محفوظة" data-fr="Tous droits réservés">جميع الحقوق محفوظة</span>  
+</div>
+
+</div>  <div class="toast" id="toast"></div>  <script>  
+// ==================== تبديل اللغة ====================  
+let currentLang = 'ar';  
+  
+function setLang(lang) {  
+    currentLang = lang;  
+    const html = document.getElementById('htmlRoot');  
+  
+    if (lang === 'ar') {  
+        html.setAttribute('lang', 'ar');  
+        html.setAttribute('dir', 'rtl');  
+        document.getElementById('btnAr').classList.add('active');  
+        document.getElementById('btnFr').classList.remove('active');  
+    } else {  
+        html.setAttribute('lang', 'fr');  
+        html.setAttribute('dir', 'ltr');  
+        document.getElementById('btnFr').classList.add('active');  
+        document.getElementById('btnAr').classList.remove('active');  
+    }  
+  
+    document.querySelectorAll('[data-ar][data-fr]').forEach(el => {  
+        const val = el.getAttribute('data-' + lang);  
+        if (val) {  
+            if (el.tagName === 'INPUT' || el.tagName === 'SELECT') {  
+                if (el.placeholder) el.placeholder = val;  
+            } else {  
+                el.textContent = val;  
+            }  
+        }  
+    });  
+  
+    // تحديث placeholders الحقول  
+    const placeholders = {  
+        'client-name': { ar: 'أدخل اسمك', fr: 'Entrez votre nom' },  
+        'car-model': { ar: 'Ex: Golf 7 2.0 TDI', fr: 'Ex: Golf 7 2.0 TDI' },  
+        'client-phone': { ar: '05 XX XX XX XX', fr: '05 XX XX XX XX' },  
+        'issue-desc': { ar: 'اكتب هنا ما تحتاجه...', fr: 'Écrivez ici ce dont vous avez besoin...' }  
+    };  
+  
+    Object.keys(placeholders).forEach(id => {  
+        const el = document.getElementById(id);  
+        if (el) el.placeholder = placeholders[id][lang];  
+    });  
+  
+    try { localStorage.setItem('medgarage_lang', lang); } catch(e) {}  
+}  
+  
+try {  
+    const savedLang = localStorage.getItem('medgarage_lang');  
+    if (savedLang && savedLang !== 'ar') setLang(savedLang);  
+} catch(e) {}  
+  
+// ==================== PWA INSTALL ====================  
+let deferredPrompt;  
+const installContainer = document.getElementById('installContainer');  
+  
+window.addEventListener('beforeinstallprompt', (e) => {  
+    e.preventDefault();  
+    deferredPrompt = e;  
+    if (installContainer) installContainer.classList.add('visible');  
+});  
+  
+function promptInstall() {  
+    if (deferredPrompt) {  
+        deferredPrompt.prompt();  
+        deferredPrompt.userChoice.then(() => {  
+            deferredPrompt = null;  
+            installContainer.classList.remove('visible');  
+        });  
+    } else {  
+        showToast(currentLang === 'ar' ? '💡 اضغط على ⋮ ثم "إضافة إلى الشاشة الرئيسية"' : '💡 Appuyez sur ⋮ puis "Ajouter à l\'écran d\'accueil"', 'error');  
+    }  
+}  
+  
+// ==================== TOAST ====================  
+function showToast(message, type = 'success') {  
+    const toast = document.getElementById('toast');  
+    toast.textContent = message;  
+    toast.className = 'toast show' + (type === 'error' ? ' error' : '');  
+    setTimeout(() => toast.classList.remove('show'), 3500);  
+}  
+  
+// ==================== حفظ الرقم (VCard) ====================  
+function downloadVCard() {  
+    const vcard = "BEGIN:VCARD\n" +  
+                  "VERSION:3.0\n" +  
+                  "FN:MED GARAGE\n" +  
+                  "ORG:MED GARAGE Auto Repair\n" +  
+                  "TEL;TYPE=CELL,VOICE:+213790582551\n" +  
+                  "ADR;TYPE=WORK:;;Cite 1780 OPGI;Souidania;Alger;16000;Algeria\n" +  
+                  "URL:https://wa.me/213790582551\n" +  
+                  "END:VCARD";  
+  
+    try {  
+        const encoded = encodeURIComponent(vcard);  
+        const dataUri = "data:text/vcard;charset=utf-8," + encoded;  
+        const link = document.createElement("a");  
+        link.href = dataUri;  
+        link.download = "MED_GARAGE.vcf";  
+        link.style.display = "none";  
+        document.body.appendChild(link);  
+        link.click();  
+        setTimeout(() => document.body.removeChild(link), 100);  
+  
+        const message = document.getElementById("contact-message");  
+        message.innerHTML = currentLang === 'ar'   
+            ? "✅ تم تحميل الملف! افتحه من <strong>الإشعارات</strong> أو <strong>التحميلات</strong>."  
+            : "✅ Fichier téléchargé ! Ouvrez-le depuis <strong>Notifications</strong> ou <strong>Téléchargements</strong>.";  
+        message.style.display = "block";  
+        showToast(currentLang === 'ar' ? '✅ تم تحميل بطاقة الاتصال' : '✅ Carte de contact téléchargée');  
+        setTimeout(() => message.style.display = "none", 8000);  
+    } catch (e) {  
+        showToast(currentLang === 'ar' ? '⚠️ جرب من واتساب لحفظ الرقم' : '⚠️ Essayez WhatsApp pour enregistrer', 'error');  
+        setTimeout(() => window.open('https://wa.me/213790582551', '_blank'), 1500);  
+    }  
+}  
+  
+// ==================== إرسال الحجز ====================  
+function sendBooking() {  
+    const name = document.getElementById('client-name').value.trim();  
+    const car = document.getElementById('car-model').value.trim();  
+    const phone = document.getElementById('client-phone').value.trim();  
+    const service = document.getElementById('service-type').value;  
+    const desc = document.getElementById('issue-desc').value.trim();  
+  
+    // الاسم فقط إجباري  
+    if (!name) {  
+        showToast(currentLang === 'ar' ? '⚠️ يرجى إدخال الاسم' : '⚠️ Veuillez entrer votre nom', 'error');  
+        document.getElementById('client-name').focus();  
+        return;  
+    }  
+  
+    let text = currentLang === 'ar'   
+        ? "السلام عليكم، أريد حجز موعد:\n\n"  
+        : "Bonjour, je souhaite prendre rendez-vous :\n\n";  
+  
+    text += (currentLang === 'ar' ? "👤 الاسم: " : "👤 Nom : ") + name + "\n";  
+  
+    if (car) text += (currentLang === 'ar' ? "🚘 السيارة: " : "🚘 Voiture : ") + car + "\n";  
+    if (phone) text += (currentLang === 'ar' ? "📞 الهاتف: " : "📞 Téléphone : ") + phone + "\n";  
+    if (service) text += (currentLang === 'ar' ? "🛠️ الخدمة: " : "🛠️ Service : ") + service + "\n";  
+    if (desc) text += (currentLang === 'ar' ? "📝 المشكل: " : "📝 Problème : ") + desc;  
+  
+    const whatsappUrl = "https://wa.me/213790582551?text=" + encodeURIComponent(text);  
+    window.open(whatsappUrl, '_blank');  
+    showToast(currentLang === 'ar' ? '📲 جاري فتح واتساب...' : '📲 Ouverture de WhatsApp...');  
+}  
+  
+// ==================== تسجيل Service Worker للعمل بدون إنترنت ====================  
+if ('serviceWorker' in navigator) {  
+    window.addEventListener('load', () => {  
+        navigator.serviceWorker.register('./sw.js')  
+            .then((reg) => console.log('Service Worker registered!', reg))  
+            .catch((err) => console.log('Service Worker registration failed:', err));  
+    });  
+}  
+</script>  </body>  
+</html>
