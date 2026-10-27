@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="htmlRoot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MED GARAGE - لوحة الإدارة الشاملة (Admin ERP)</title>
+    <meta name="theme-color" content="#1a1d21">
+    <link rel="icon" type="image/png" href="https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png">
+    <style>
+        :root {
+            --primary: #dc2626;
+            --primary-hover: #b91c1c;
+            --bg: #1f242b;
+            --bg-gradient: linear-gradient(135deg, #2a2f38 0%, #181b20 100%);
+            --card: #ffffff;
+            --card-dark: #2a2f36;
+            --card-darker: #181b20;
+            --text: #1e293b;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #f59e0b;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --border: #cbd5e1;
+            --border-dark: #374151;
+        }
+
+        [data-theme="light"] {
+            --bg: #f1f5f9;
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            --card: #ffffff;
+            --text: #0f172a;
+            --text-light: #0f172a;
+            --text-muted: #475569;
+            --border: #cbd5e1;
+        }
+
+        [data-theme="oled"] {
+            --primary: #2563eb;
+            --bg: #000000;
+            --bg-gradient: linear-gradient(135deg, #111111 0%, #000000 100%);
+            --card: #121212;
+            --text: #f8fafc;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Cairo', system-ui, -apple-system, sans-serif; font-weight: 700; background: var(--bg-gradient); background-attachment: fixed; color: var(--text-light); margin: 0; padding: 15px; line-height: 1.6; min-height: 100vh; }
+        .container { max-width: 550px; margin: 0 auto; padding-bottom: 40px; }
+
+        .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: var(--card-dark); border-radius: 12px; border: 1px solid var(--border-dark); margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .admin-header h2 { margin: 0; font-size: 16px; color: #fff; }
+        .btn-back-admin { background: transparent; border: 1px solid var(--border-dark); color: var(--text-muted); padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-block; }
+
+        .section-title { font-size: 18px; margin: 20px 0 12px; color: var(--text-light); border-right: 4px solid var(--primary); padding-right: 10px; font-weight: 900; }
+        html[dir="ltr"] .section-title { border-right: none; border-left: 4px solid var(--primary); padding-right: 0; padding-left: 10px; }
+
+        /* شاشة الدخول بالرمز السري PIN */
+        .pin-screen { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 99999; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .pin-box { background: var(--card-dark); border: 2px solid var(--primary); border-radius: 20px; padding: 30px 25px; width: 100%; max-width: 380px; text-align: center; }
+        .pin-input { width: 100%; padding: 15px; background: #0f1115; border: 1px solid var(--border-dark); border-radius: 10px; color: #fff; font-size: 22px; text-align: center; letter-spacing: 6px; font-family: monospace; margin-bottom: 15px; }
+
+        .admin-card { background: var(--card-dark); border: 1px solid var(--border-dark); border-radius: 12px; padding: 15px; margin-bottom: 12px; color: #fff; }
+        .admin-card h3 { margin: 0 0 12px; font-size: 15px; color: var(--accent); border-bottom: 1px solid var(--border-dark); padding-bottom: 8px; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+        .stat-box { padding: 15px 12px; border-radius: 12px; text-align: center; }
+        .stat-box.income { background: rgba(22, 163, 74, 0.15); border: 1px solid var(--success); }
+        .stat-box.count { background: rgba(37, 99, 235, 0.15); border: 1px solid #2563eb; }
+        .stat-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+        .stat-value { font-size: 20px; font-weight: 900; }
+        .stat-box.income .stat-value { color: #4ade80; }
+        .stat-box.count .stat-value { color: #60a5fa; }
+
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 13px; color: #cbd5e1; margin-bottom: 5px; font-weight: 700; }
+        .form-control { width: 100%; padding: 11px; background: #0f1115; border: 1px solid var(--border-dark); border-radius: 6px; color: #fff; font-size: 14px; font-family: inherit; font-weight: 700; box-sizing: border-box; }
+        .form-control.phone-input { direction: ltr; text-align: right; unicode-bidi: embed; }
+        .btn-submit-booking { background-color: var(--primary); color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; font-family: inherit; box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3); }
+
+        .list-box { background: #0f1115; border: 1px solid var(--border-dark); border-radius: 10px; padding: 10px; max-height: 400px; overflow-y: auto; margin-top: 10px; }
+        .list-row { background: #181b20; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; border: 1px solid var(--border-dark); color: #f1f5f9; line-height: 1.6; }
+        .empty-state { text-align: center; padding: 25px 15px; color: var(--text-muted); font-size: 12px; }
+
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: #fff; padding: 12px 20px; border-radius: 8px; font-weight: 900; font-size: 14px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); z-index: 99999; transition: transform 0.3s ease; max-width: 90%; text-align: center; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--primary); }
+    </style>
+</head>
+<body id="htmlRoot">
+
+<!-- شاشة حماية الإدارة بالرمز السري -->
+<div class="pin-screen" id="pinScreen">
+    <div class="pin-box">
+        <h3 style="color:#fff; margin-top:0;">🔐 دخول لوحة الإدارة</h3>
+        <p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;">الرمز الافتراضي: 911</p>
+        <input type="password" id="pinInput" class="pin-input" placeholder="****" maxlength="6">
+        <button onclick="checkAdminPin()" class="btn-submit-booking" style="margin-bottom:10px;">🔓 دخول</button>
+        <a href="index.html" class="btn-back-admin" style="display:block; text-align:center; padding:10px;">⬅️ العودة للرئيسية</a>
+    </div>
+</div>
+
+<div class="container" style="display:none;" id="adminContent">
+    <!-- هيدر الإدارة -->
+    <div class="admin-header">
+        <h2>⚙️ لوحة الإدارة الشاملة (Admin ERP)</h2>
+        <a href="index.html" class="btn-back-admin">⬅️ الرئيسية</a>
+    </div>
+
+    <!-- إحصائيات سريعة -->
+    <div class="stats-grid">
+        <div class="stat-box income">
+            <div class="stat-label">💰 مداخيل اليوم</div>
+            <div class="stat-value" id="statIncomeToday">0 دج</div>
+        </div>
+        <div class="stat-box count">
+            <div class="stat-label">📋 فواتير اليوم</div>
+            <div class="stat-value" id="statInvoicesToday">0</div>
+        </div>
+    </div>
+
+    <!-- الحجوزات والمواعيد داخل الورشة -->
+    <div class="admin-card">
+        <h3>📅 إدارة الحجوزات ومواعيد السيارات</h3>
+        <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">حجوزات جديدة:</div>
+        <div class="list-box" id="bookingsNewList"></div>
+        <div style="font-size:12px; color:var(--text-muted); margin:12px 0 8px;">سيارات قيد العمل داخل الورشة:</div>
+        <div class="list-box" id="bookingsWorkingList"></div>
+    </div>
+
+    <!-- قاعدة بيانات الزبائن -->
+    <div class="admin-card">
+        <h3>👥 قاعدة بيانات الزبائن</h3>
+        <div class="form-group" style="margin-bottom:8px;">
+            <input type="text" id="clientSearch" class="form-control" placeholder="🔍 بحث عن زبون..." oninput="loadClients()">
+        </div>
+        <div class="list-box" id="clientsList"></div>
+    </div>
+
+    <!-- الإعدادات والنسخ الاحتياطي -->
+    <div class="admin-card">
+        <h3>⚙️ إعدادات النظام والنسخ الاحتياطي</h3>
+        
+        <div class="form-group">
+            <label>تغيير رمز PIN السري</label>
+            <div style="display:flex; gap:6px;">
+                <input type="password" id="oldPin" class="form-control" placeholder="PIN الحالي">
+                <input type="password" id="newPin" class="form-control" placeholder="PIN الجديد">
+            </div>
+            <button onclick="changePin()" class="btn-submit-booking" style="background:#2563eb; margin-top:8px;">🔑 تحديث الرمز</button>
+        </div>
+
+        <hr style="border:0; border-top:1px solid var(--border-dark); margin:15px 0;">
+
+        <div style="display:flex; gap:10px;">
+            <button onclick="exportBackup()" class="btn-submit-booking" style="background:var(--accent);">📥 تصدير نسخة (JSON)</button>
+            <label class="btn-submit-booking" style="background:#2563eb; text-align:center; cursor:pointer; display:block; padding:12px;">
+                📤 استيراد نسخة
+                <input type="file" id="importFile" style="display:none;" onchange="importBackup(event)" accept=".json">
+            </label>
+        </div>
+
+        <div style="margin-top:15px;">
+            <button onclick="clearAllData()" class="btn-submit-booking" style="background:var(--danger);">🗑️ حذف كل بيانات النظام نهائياً</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+    const CONFIG = { defaultPin: '911', carPrefix: 'MED' };
+
+    function getData(key, def = []) {
+        try {
+            const v = localStorage.getItem('mg_' + key);
+            return v ? JSON.parse(v) : def;
+        } catch(e) { return def; }
+    }
+
+    function setData(key, val) {
+        try {
+            localStorage.setItem('mg_' + key, JSON.stringify(val));
+        } catch(e) { showToast('⚠️ خطأ في الحفظ', 'error'); }
+    }
+
+    function getPin() {
+        return localStorage.getItem('mg_pin') || CONFIG.defaultPin;
+    }
+
+    function setPin(newPin) {
+        localStorage.setItem('mg_pin', newPin);
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g,'&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function showToast(msg, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.className = 'toast show' + (type === 'error' ? ' error' : '');
+        setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    // التحقق من الرمز السري PIN
+    function checkAdminPin() {
+        const pin = document.getElementById('pinInput').value;
+        if (pin === getPin()) {
+            document.getElementById('pinScreen').style.display = 'none';
+            document.getElementById('adminContent').style.display = 'block';
+            loadAdminDashboard();
+            showToast('✅ أهلاً بك يا معلم محمد');
+        } else {
+            showToast('❌ الرمز السري خاطئ', 'error');
+            document.getElementById('pinInput').value = '';
+        }
+    }
+
+    document.getElementById('pinInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') checkAdminPin();
+    });
+
+    // تحميل لوحة التحكم
+    function loadAdminDashboard() {
+        const invoices = getData('invoices', []);
+        const today = new Date().toLocaleDateString('ar-DZ');
+        const todayInvoices = invoices.filter(i => i.date === today && i.status === 'done');
+        const todayIncome = todayInvoices.reduce((s, i) => s + (i.total || 0), 0);
+
+        document.getElementById('statIncomeToday').textContent = todayIncome.toLocaleString() + ' دج';
+        document.getElementById('statInvoicesToday').textContent = todayInvoices.length;
+
+        loadBookingsAdmin();
+        loadClients();
+    }
+
+    // إدارة الحجوزات
+    function loadBookingsAdmin() {
+        const bookings = getData('bookings', []);
+        const newB = bookings.filter(b => b.status === 'new');
+        const workingB = bookings.filter(b => b.status === 'working' || b.status === 'accepted');
+
+        document.getElementById('bookingsNewList').innerHTML = newB.length === 0 ? '<div class="empty-state">لا توجد حجوزات جديدة</div>' : newB.map(b => `
+            <div class="list-row">
+                <strong>👤 ${escapeHtml(b.name)}</strong> — 🚗 ${escapeHtml(b.car || 'غير محدد')}<br>
+                <span style="color:#fbbf24;">📅 الموعد: ${escapeHtml(b.bookingDate || 'غير محدد')}</span><br>
+                <span style="color:#94a3b8;">📞 <span style="direction:ltr; display:inline-block;">${escapeHtml(b.phone || '-')}</span> | 🛠️ ${escapeHtml(b.service || '-')}</span>
+                <div style="margin-top:8px; display:flex; gap:6px;">
+                    <button onclick="acceptBooking(${b.id})" style="background:var(--success); color:#fff; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">✅ قبول الحجز</button>
+                    <button onclick="rejectBooking(${b.id})" style="background:var(--danger); color:#fff; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">❌ رفض</button>
+                </div>
+            </div>
+        `).join('');
+
+        document.getElementById('bookingsWorkingList').innerHTML = workingB.length === 0 ? '<div class="empty-state">لا توجد سيارات قيد العمل حالياً</div>' : workingB.map(b => `
+            <div class="list-row">
+                <strong>🚗 ${escapeHtml(b.car || '-')}</strong> — ${escapeHtml(b.name)}<br>
+                <span style="color:#94a3b8;">🔢 رقم التتبع: ${b.carCode || '-'}</span>
+                <div style="margin-top:8px;">
+                    <button onclick="markDone(${b.id})" style="background:#2563eb; color:#fff; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">✅ تم الإصلاح</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function acceptBooking(id) {
+        let bookings = getData('bookings', []);
+        const idx = bookings.findIndex(b => b.id === id);
+        if (idx === -1) return;
+        const nextNum = String(bookings.filter(b => b.carCode).length + 1).padStart(4, '0');
+        bookings[idx].status = 'working';
+        bookings[idx].carCode = CONFIG.carPrefix + '-' + nextNum;
+        setData('bookings', bookings);
+        showToast('✅ تم قبول الحجز وتوليد رقم التتبع');
+        loadBookingsAdmin();
+    }
+
+    function rejectBooking(id) {
+        if (!confirm('حذف هذا الحجز؟')) return;
+        setData('bookings', getData('bookings', []).filter(b => b.id !== id));
+        loadBookingsAdmin();
+        showToast('🗑️ تم حذف الحجز');
+    }
+
+    function markDone(id) {
+        let bookings = getData('bookings', []);
+        const idx = bookings.findIndex(b => b.id === id);
+        if (idx !== -1) {
+            bookings[idx].status = 'done';
+            setData('bookings', bookings);
+            loadBookingsAdmin();
+            showToast('✅ تم إنهاء العمل على السيارة');
+        }
+    }
+
+    // قاعدة بيانات الزبائن
+    function loadClients() {
+        const invoices = getData('invoices', []);
+        const search = (document.getElementById('clientSearch').value || '').toLowerCase();
+        const uniqueClients = [];
+        const map = new Map();
+
+        invoices.forEach(i => {
+            if (i.client && !map.has(i.client)) {
+                map.set(i.client, true);
+                uniqueClients.push(i);
+            }
+        });
+
+        let filtered = search ? uniqueClients.filter(c => c.client.toLowerCase().includes(search)) : uniqueClients;
+        const container = document.getElementById('clientsList');
+
+        container.innerHTML = filtered.length === 0 ? '<div class="empty-state">لا يوجد زبائن مسجلين بعد</div>' : filtered.map(i => `
+            <div class="list-row">
+                <strong>👤 ${escapeHtml(i.client)}</strong><br>
+                <span style="color:#94a3b8;">📞 <span style="direction:ltr; display:inline-block;">${escapeHtml(i.phone || '-')}</span> | 🚗 ${escapeHtml(i.car || '-')}</span>
+            </div>
+        `).join('');
+    }
+
+    // تغيير PIN
+    function changePin() {
+        const oldP = document.getElementById('oldPin').value;
+        const newP = document.getElementById('newPin').value;
+        if (oldP !== getPin()) {
+            showToast('❌ الرمز الحالي خاطئ', 'error');
+            return;
+        }
+        if (newP.length < 3) {
+            showToast('⚠️ الرمز الجديد قصير جداً', 'error');
+            return;
+        }
+        setPin(newP);
+        document.getElementById('oldPin').value = '';
+        document.getElementById('newPin').value = '';
+        showToast('✅ تم تغيير الرمز السري بنجاح');
+    }
+
+    // تصدير واستيراد النسخ الاحتياطي
+    function exportBackup() {
+        const data = {
+            invoices: getData('invoices'),
+            bookings: getData('bookings'),
+            stock: getData('stock'),
+            expenses: getData('expenses'),
+            reviews: getData('reviews')
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `MED_GARAGE_Backup_${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+        showToast('✅ تم تصدير النسخة الاحتياطية');
+    }
+
+    function importBackup(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (data.invoices) setData('invoices', data.invoices);
+                if (data.bookings) setData('bookings', data.bookings);
+                if (data.stock) setData('stock', data.stock);
+                if (data.expenses) setData('expenses', data.expenses);
+                if (data.reviews) setData('reviews', data.reviews);
+                showToast('✅ تم استيراد البيانات بنجاح');
+                loadAdminDashboard();
+            } catch(err) {
+                showToast('❌ ملف غير صالح', 'error');
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    function clearAllData() {
+        if (!confirm('⚠️ تحذير: سيتم حذف جميع البيانات (فواتير، ستوك، زبائن، مصاريف) نهائياً! هل أنت متأكد؟')) return;
+        if (!confirm('⚠️ تأكيد أخير: لا يمكن التراجع عن هذه الخطوة نهائياً!')) return;
+        localStorage.clear();
+        showToast('🗑️ تم مسح كل البيانات بنجاح');
+        setTimeout(() => window.location.href = 'index.html', 1500);
+    }
+
+    window.onload = function() {
+        try {
+            const savedTheme = localStorage.getItem('medgarage_theme');
+            if (savedTheme) document.getElementById('htmlRoot').setAttribute('data-theme', savedTheme);
+        } catch(e) {}
+    };
+</script>
+
+</body>
+</html>
