@@ -84,6 +84,7 @@
         @keyframes scrollBrandsRTL { 0% { transform: translateX(0); } 100% { transform: translateX(50%); } }
         .brand-card { flex-shrink: 0; background: #ffffff; border: 1px solid var(--border); border-radius: 10px; padding: 10px 18px; font-size: 13px; font-weight: bold; color: #1e293b; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.04); display: flex; align-items: center; gap: 6px; }
 
+        /* PWA Install Card */
         .install-pwa-card { background: var(--card); color: var(--text); border: 1px solid var(--accent); border-radius: 10px; padding: 12px; margin-top: 15px; text-align: center; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .install-pwa-card.visible { display: block; }
         .btn-install { background-color: var(--accent); color: #fff; border: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; width: 100%; margin-top: 8px; font-family: inherit; }
@@ -111,12 +112,15 @@
         .service-details .check-item { display: block; padding: 3px 0; }
 
         .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
-        .btn-call, .btn-whatsapp, .btn-save-contact, .btn-share, .address-link { color: #fff; text-decoration: none; padding: 14px 12px; border-radius: 10px; font-weight: bold; font-size: 15px; text-align: center; display: block; width: 100%; border: none; cursor: pointer; transition: transform 0.1s, opacity 0.2s; font-family: inherit; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .btn-call, .btn-whatsapp, .btn-save-contact, .btn-share, .address-link, .btn-admin-access { color: #fff; text-decoration: none; padding: 14px 12px; border-radius: 10px; font-weight: bold; font-size: 15px; text-align: center; display: block; width: 100%; border: none; cursor: pointer; transition: transform 0.1s, opacity 0.2s; font-family: inherit; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .btn-call { background-color: var(--success); direction: ltr; unicode-bidi: isolate; }
         .btn-whatsapp { background-color: var(--whatsapp); }
         .btn-save-contact { background-color: var(--contact); }
         .btn-share { background-color: #8b5cf6; }
+        .btn-admin-access { background-color: #1e293b; border: 1px solid var(--accent); color: var(--accent); }
         .address-link { background: var(--card); color: var(--text); border: 1px solid var(--border); margin-top: 0; }
+        
+        #contact-message { display: none; margin-top: 8px; padding: 8px; background: rgba(37, 99, 235, 0.15); border: 1px solid var(--contact); border-radius: 6px; color: #93c5fd; font-size: 12px; text-align: center; line-height: 1.5; }
 
         .booking-form { background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .form-group { margin-bottom: 12px; }
@@ -178,7 +182,6 @@
                 <div class="brand-card">🇰🇷 Hyundai</div>
                 <div class="brand-card">🇰🇷 Kia</div>
                 <div class="brand-card">🇷🇴 Dacia</div>
-                <!-- تكرار للحركة المستمرة -->
                 <div class="brand-card">🇨🇳 Chery</div>
                 <div class="brand-card">🇨🇳 Geely</div>
                 <div class="brand-card">🇨🇳 Changan</div>
@@ -191,6 +194,12 @@
                 <div class="brand-card">🇷🇴 Dacia</div>
             </div>
         </div>
+    </div>
+
+    <!-- كارت تثبيت التطبيق (PWA) -->
+    <div class="install-pwa-card" id="installContainer">
+        <span style="font-size: 12px; font-weight: 600;" data-ar="📲 احفظ تطبيق الورشة على شاشة هاتفك" data-fr="📲 Installez l'app sur votre téléphone">📲 احفظ تطبيق الورشة على شاشة هاتفك</span>
+        <button class="btn-install" onclick="promptInstall()" data-ar="إضافة إلى الشاشة الرئيسية ➕" data-fr="Ajouter à l'écran d'accueil ➕">إضافة إلى الشاشة الرئيسية ➕</button>
     </div>
 
     <!-- من نحن -->
@@ -277,7 +286,7 @@
         </details>
     </div>
 
-    <!-- معلومات الورشة والأزرار -->
+    <!-- معلومات الورشة والأزرار (للزبائن) -->
     <div class="section-title" data-ar="معلومات الورشة" data-fr="Informations">معلومات الورشة</div>
     <div class="btn-group">
         <a href="https://www.google.com/maps/dir/?api=1&destination=36.7085001%2C2.9272610&travelmode=driving" target="_blank" class="address-link">
@@ -289,7 +298,9 @@
         </a>
         <a href="https://wa.me/213790582551?text=السلام%20عليكم" target="_blank" class="btn-whatsapp" data-ar="💬 مراسلة عبر الواتساب" data-fr="💬 WhatsApp">💬 مراسلة عبر الواتساب</a>
         <button type="button" onclick="downloadVCard()" class="btn-save-contact" data-ar="📱 حفظ رقم الورشة" data-fr="📱 Enregistrer le numéro">📱 حفظ رقم الورشة</button>
-        <button type="button" onclick="shareApp()" class="btn-share" data-ar="🔗 مشاركة التطبيق" data-fr="🔗 Partager l'application">🔗 مشاركة التطبيق</button>
+        <button type="button" onclick="sharePage()" class="btn-share" data-ar="📤 مشاركة رابط الورشة مع صديق" data-fr="📤 Partager le garage avec un ami">📤 مشاركة رابط الورشة مع صديق</button>
+        <a href="gallery-reviews.html" class="btn-save-contact" style="background:#0284c7; text-align:center; text-decoration:none;" data-ar="⭐ معرض الصور وآراء الزبائن" data-fr="⭐ Galerie & Avis">⭐ معرض الصور وآراء الزبائن</a>
+        <div id="contact-message"></div>
     </div>
 
     <!-- نموذج الحجز -->
@@ -334,14 +345,10 @@
         <button type="button" onclick="sendBooking()" class="btn-submit-booking" data-ar="📲 إرسال الطلب عبر الواتساب" data-fr="📲 Envoyer via WhatsApp">📲 إرسال الطلب عبر الواتساب</button>
     </div>
 
-    <!-- روابط نحو الأقسام المستقلة -->
-    <div class="section-title" data-ar="إدارة الورشة (الملفات المستقلة)" data-fr="Gestion du garage">إدارة الورشة (الملفات المستقلة)</div>
+    <!-- زر الدخول الخفي للإدارة (محمي بالرمز PIN) -->
+    <div class="section-title" data-ar="منطقة الإدارة (خاص بالورشة)" data-fr="Zone Administrateur">منطقة الإدارة (خاص بالورشة)</div>
     <div class="btn-group">
-        <a href="invoices.html" target="_blank" class="address-link" style="text-align: center; font-weight: bold;">🧾 نظام الفوترة والدوفي (Invoices)</a>
-        <a href="stock.html" target="_blank" class="address-link" style="text-align: center; font-weight: bold;">📦 تسيير المخزن والقطع (Stock)</a>
-        <a href="finance.html" target="_blank" class="address-link" style="text-align: center; font-weight: bold;">💰 الخزينة والمصاريف (Finance)</a>
-        <a href="gallery-reviews.html" target="_blank" class="address-link" style="text-align: center; font-weight: bold;">⭐ معرض الصور وآراء الزبائن (Gallery & Reviews)</a>
-        <a href="admin.html" target="_blank" class="address-link" style="text-align: center; font-weight: bold;">⚙️ لوحة الإدارة الشاملة (Admin)</a>
+        <a href="admin.html" class="btn-admin-access">⚙️ لوحة الإدارة الشاملة (Admin ERP)</a>
     </div>
 
     <!-- Footer -->
@@ -411,7 +418,28 @@
         setTimeout(() => toast.classList.remove('show'), 3500);
     }
 
-    // تحميل VCard
+    // PWA Install Logic
+    let deferredPrompt;
+    const installContainer = document.getElementById('installContainer');
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        if (installContainer) installContainer.classList.add('visible');
+    });
+
+    function promptInstall() {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                deferredPrompt = null;
+                if (installContainer) installContainer.classList.remove('visible');
+            });
+        } else {
+            showToast(currentLang === 'ar' ? '💡 اضغط على ⋮ ثم اختر "إضافة إلى الشاشة الرئيسية"' : '💡 Appuyez sur ⋮ puis "Ajouter à l\'écran d\'accueil"', 'error');
+        }
+    }
+
+    // تحميل VCard مع رسالة تأكيد
     function downloadVCard() {
         const vcard = "BEGIN:VCARD\nVERSION:3.0\nFN:MED GARAGE\nORG:MED GARAGE Auto Repair\nTEL;TYPE=CELL,VOICE:+213790582551\nADR;TYPE=WORK:;;Cite 1780 OPGI;Souidania;Alger;16000;Algeria\nURL:https://wa.me/213790582551\nEND:VCARD";
         try {
@@ -424,23 +452,30 @@
             document.body.appendChild(link);
             link.click();
             setTimeout(() => document.body.removeChild(link), 100);
+            
+            const message = document.getElementById("contact-message");
+            message.innerHTML = currentLang === 'ar' ? "✅ تم تحميل الملف! افتحه من <strong>الإشعارات</strong> أو <strong>التحميلات</strong>." : "✅ Fichier téléchargé ! Ouvrez-le depuis <strong>Notifications</strong> ou <strong>Téléchargements</strong>.";
+            message.style.display = "block";
             showToast(currentLang === 'ar' ? '✅ تم تحميل بطاقة الاتصال' : '✅ Carte de contact téléchargée');
+            setTimeout(() => message.style.display = "none", 8000);
         } catch (e) {
             showToast('⚠️ خطأ في التحميل', 'error');
         }
     }
 
-    // مشاركة التطبيق
-    function shareApp() {
+    // مشاركة رابط الصفحة للزبائن
+    function sharePage() {
+        const shareData = {
+            title: 'MED GARAGE - ورشة محمد لصيانة السيارات',
+            text: currentLang === 'ar' ? '🚗 أنصحك بزيارة ورشة محمد لصيانة السيارات (السويدانية). تشخيص دقيق، خدمة احترافية، وأسعار معقولة:' : '🚗 Je vous recommande Garage Mohamed Auto Repair (Souidania) :',
+            url: window.location.href
+        };
+
         if (navigator.share) {
-            navigator.share({
-                title: 'MED GARAGE',
-                text: 'اكتشف ورشة محمد لصيانة السيارات بالسويدانية:',
-                url: window.location.href
-            }).catch(() => {});
+            navigator.share(shareData).catch(() => {});
         } else {
             navigator.clipboard.writeText(window.location.href);
-            showToast(currentLang === 'ar' ? '📋 تم نسخ رابط الورشة' : '📋 Lien copié');
+            showToast(currentLang === 'ar' ? '📋 تم نسخ رابط الورشة، يمكنك إرساله لأصدقائك!' : '📋 Lien copié, partagez-le avec vos amis !');
         }
     }
 
