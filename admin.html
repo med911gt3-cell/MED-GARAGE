@@ -74,6 +74,11 @@
         .stat-box.income .stat-value { color: #4ade80; }
         .stat-box.count .stat-value { color: #60a5fa; }
 
+        /* أزرار التنقل السريع لملفات الإدارة داخل لوحة التحكم */
+        .erp-links-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+        .erp-link-btn { background: #181b20; border: 1px solid var(--border-dark); color: #fff; text-decoration: none; padding: 12px; border-radius: 10px; text-align: center; font-size: 13px; font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 5px; transition: border-color 0.2s; }
+        .erp-link-btn:hover { border-color: var(--primary); }
+
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 13px; color: #cbd5e1; margin-bottom: 5px; font-weight: 700; }
         .form-control { width: 100%; padding: 11px; background: #0f1115; border: 1px solid var(--border-dark); border-radius: 6px; color: #fff; font-size: 14px; font-family: inherit; font-weight: 700; box-sizing: border-box; }
@@ -107,6 +112,29 @@
     <div class="admin-header">
         <h2>⚙️ لوحة الإدارة الشاملة (Admin ERP)</h2>
         <a href="index.html" class="btn-back-admin">⬅️ الرئيسية</a>
+    </div>
+
+    <!-- أزرار الوصول السريع لكل ملفات التسيير المحمية -->
+    <div class="admin-card">
+        <h3>📂 أقسام التسيير والتحكم (محمية)</h3>
+        <div class="erp-links-grid">
+            <a href="stock.html" class="erp-link-btn">
+                <span style="font-size:20px;">📦</span>
+                <span>تسيير المخزن</span>
+            </a>
+            <a href="invoices.html" class="erp-link-btn">
+                <span style="font-size:20px;">🧾</span>
+                <span>الفوترة و Devis</span>
+            </a>
+            <a href="finance.html" class="erp-link-btn">
+                <span style="font-size:20px;">💰</span>
+                <span>الخزينة والأرباح</span>
+            </a>
+            <a href="gallery-reviews.html" class="erp-link-btn">
+                <span style="font-size:20px;">⭐</span>
+                <span>معرض الصور والآراء</span>
+            </a>
+        </div>
     </div>
 
     <!-- إحصائيات سريعة -->
