@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="htmlRoot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MED GARAGE - المخزن (Stock)</title>
+    <meta name="theme-color" content="#1a1d21">
+    <link rel="icon" type="image/png" href="https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png">
+    <style>
+        :root {
+            --primary: #dc2626;
+            --primary-hover: #b91c1c;
+            --bg: #1f242b;
+            --bg-gradient: linear-gradient(135deg, #2a2f38 0%, #181b20 100%);
+            --card: #ffffff;
+            --card-dark: #2a2f36;
+            --card-darker: #181b20;
+            --text: #1e293b;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #f59e0b;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --border: #cbd5e1;
+            --border-dark: #374151;
+        }
+
+        [data-theme="light"] {
+            --bg: #f1f5f9;
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            --card: #ffffff;
+            --text: #0f172a;
+            --text-light: #0f172a;
+            --text-muted: #475569;
+            --border: #cbd5e1;
+        }
+
+        [data-theme="oled"] {
+            --primary: #2563eb;
+            --bg: #000000;
+            --bg-gradient: linear-gradient(135deg, #111111 0%, #000000 100%);
+            --card: #121212;
+            --text: #f8fafc;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Cairo', system-ui, -apple-system, sans-serif; font-weight: 700; background: var(--bg-gradient); background-attachment: fixed; color: var(--text-light); margin: 0; padding: 15px; line-height: 1.6; min-height: 100vh; }
+        .container { max-width: 550px; margin: 0 auto; padding-bottom: 40px; }
+
+        .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: var(--card-dark); border-radius: 12px; border: 1px solid var(--border-dark); margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .admin-header h2 { margin: 0; font-size: 16px; color: #fff; }
+        .btn-back-admin { background: transparent; border: 1px solid var(--border-dark); color: var(--text-muted); padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-block; }
+
+        .section-title { font-size: 18px; margin: 20px 0 12px; color: var(--text-light); border-right: 4px solid var(--primary); padding-right: 10px; font-weight: 900; }
+        html[dir="ltr"] .section-title { border-right: none; border-left: 4px solid var(--primary); padding-right: 0; padding-left: 10px; }
+
+        .booking-form, .admin-card { background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 13px; color: var(--text); margin-bottom: 5px; font-weight: 700; }
+        .form-control { width: 100%; padding: 11px; background: #ffffff; border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px; font-family: inherit; font-weight: 700; box-sizing: border-box; }
+        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1); }
+        .btn-submit-booking { background-color: var(--primary); color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; font-family: inherit; box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3); }
+        
+        .list-box { background: #181b20; border: 1px solid var(--border-dark); border-radius: 10px; padding: 10px; max-height: 500px; overflow-y: auto; margin-top: 10px; }
+        .list-row { background: #0f1115; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; border: 1px solid var(--border-dark); color: #f1f5f9; line-height: 1.6; }
+        .empty-state { text-align: center; padding: 25px 15px; color: var(--text-muted); font-size: 12px; }
+
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: #fff; padding: 12px 20px; border-radius: 8px; font-weight: 900; font-size: 14px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); z-index: 9999; transition: transform 0.3s ease; max-width: 90%; text-align: center; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--primary); }
+    </style>
+</head>
+<body id="htmlRoot">
+
+<div class="container">
+    <!-- هيدر القائمة -->
+    <div class="admin-header">
+        <h2>📦 تسيير المخزن (Stock)</h2>
+        <a href="index.html" class="btn-back-admin">⬅️ الرئيسية</a>
+    </div>
+
+    <!-- إضافة قطعة جديدة للستوك -->
+    <div class="section-title">إضافة قطعة غيار جديدة</div>
+    <div class="booking-form">
+        <div class="form-group">
+            <label>اسم القطعة *</label>
+            <input type="text" id="stockName" class="form-control" placeholder="Ex: Filtre à huile VW / Plaquettes...">
+        </div>
+        <div class="form-group">
+            <label>الفئة</label>
+            <select id="stockCategory" class="form-control">
+                <option value="🛢️">🛢️ زيت (Huile)</option>
+                <option value="🔘">🔘 فلتر (Filtre)</option>
+                <option value="🛑">🛑 فرامل (Plaquettes / Disques)</option>
+                <option value="⚙️">⚙️ تعليق / ميكانيك (Suspension / Embrayage)</option>
+                <option value="📋">📋 أخرى (Autre)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>الكمية الأولية *</label>
+            <input type="number" id="stockQty" class="form-control" value="10">
+        </div>
+        <div class="form-group">
+            <label>سعر الشراء (دج)</label>
+            <input type="number" id="stockBuyPrice" class="form-control" placeholder="0">
+        </div>
+        <div class="form-group">
+            <label>سعر البيع للزبون (دج)</label>
+            <input type="number" id="stockSellPrice" class="form-control" placeholder="0">
+        </div>
+        <button type="button" onclick="addStockItem()" class="btn-submit-booking">💾 إضافة للستوك</button>
+    </div>
+
+    <!-- قائمة القطع الحالية -->
+    <div class="section-title">قائمة قطع الغيار المتوفرة</div>
+    <div class="form-group">
+        <input type="text" id="stockSearch" class="form-control" placeholder="🔍 بحث عن قطعة في الستوك..." oninput="loadStock()">
+    </div>
+    <div class="list-box" id="stockList">
+        <!-- يتم تعبئتها ديناميكياً -->
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+    // وظائف مساعدة للتعامل مع localStorage
+    function getData(key, def = []) {
+        try {
+            const v = localStorage.getItem('mg_' + key);
+            return v ? JSON.parse(v) : def;
+        } catch(e) { return def; }
+    }
+
+    function setData(key, val) {
+        try {
+            localStorage.setItem('mg_' + key, JSON.stringify(val));
+        } catch(e) { showToast('⚠️ خطأ في الحفظ', 'error'); }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g,'&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function showToast(msg, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.className = 'toast show' + (type === 'error' ? ' error' : '');
+        setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    // إضافة قطعة للستوك
+    function addStockItem() {
+        const name = document.getElementById('stockName').value.trim();
+        const category = document.getElementById('stockCategory').value;
+        const qty = parseInt(document.getElementById('stockQty').value) || 0;
+        const buyPrice = parseFloat(document.getElementById('stockBuyPrice').value) || 0;
+        const sellPrice = parseFloat(document.getElementById('stockSellPrice').value) || 0;
+
+        if (!name) {
+            showToast('⚠️ أدخل اسم القطعة', 'error');
+            document.getElementById('stockName').focus();
+            return;
+        }
+
+        let stock = getData('stock', []);
+        stock.push({
+            id: Date.now(),
+            name,
+            category,
+            qty,
+            buyPrice,
+            sellPrice
+        });
+
+        setData('stock', stock);
+        document.getElementById('stockName').value = '';
+        document.getElementById('stockQty').value = '10';
+        document.getElementById('stockBuyPrice').value = '';
+        document.getElementById('stockSellPrice').value = '';
+        
+        showToast('✅ تمت الإضافة للستوك بنجاح');
+        loadStock();
+    }
+
+    // تحميل وعرض الستوك مع محرك البحث
+    function loadStock() {
+        const stock = getData('stock', []);
+        const search = (document.getElementById('stockSearch').value || '').toLowerCase();
+        let filtered = search ? stock.filter(s => s.name.toLowerCase().includes(search)) : stock;
+
+        const container = document.getElementById('stockList');
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="empty-state">لا توجد قطع غيار مسجلة</div>';
+            return;
+        }
+
+        container.innerHTML = filtered.map(s => `
+            <div class="list-row">
+                <strong>${s.category} ${escapeHtml(s.name)}</strong><br>
+                <span style="color:#94a3b8;">الكمية المتوفرة: <strong style="color:${s.qty > 0 ? '#4ade80' : '#f87171'};">${s.qty}</strong> | شراء: ${s.buyPrice}دج | بيع: <strong style="color:#fbbf24;">${s.sellPrice}دج</strong></span>
+                <div style="margin-top:8px; display:flex; gap:6px;">
+                    <button onclick="updateStockQty(${s.id})" style="background:#2563eb; color:#fff; border:none; padding:5px 8px; border-radius:5px; cursor:pointer;">➕ كمية</button>
+                    <button onclick="updateStockPrice(${s.id})" style="background:#f59e0b; color:#fff; border:none; padding:5px 8px; border-radius:5px; cursor:pointer;">💰 سعر</button>
+                    <button onclick="deleteStock(${s.id})" style="background:#dc2626; color:#fff; border:none; padding:5px 8px; border-radius:5px; cursor:pointer;">🗑️ حذف</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // تعديل كمية القطعة
+    function updateStockQty(id) {
+        let stock = getData('stock', []);
+        const s = stock.find(x => x.id === id);
+        if (!s) return;
+        const val = prompt('أدخل الكمية الجديدة:', s.qty);
+        if (val === null) return;
+        const q = parseInt(val);
+        if (isNaN(q) || q < 0) return;
+        s.qty = q;
+        setData('stock', stock);
+        loadStock();
+        showToast('✅ تم تحديث الكمية');
+    }
+
+    // تعديل سعر البيع للقطعة
+    function updateStockPrice(id) {
+        let stock = getData('stock', []);
+        const s = stock.find(x => x.id === id);
+        if (!s) return;
+        const val = prompt('أدخل سعر البيع الجديد (دج):', s.sellPrice);
+        if (val === null) return;
+        const p = parseFloat(val);
+        if (isNaN(p) || p < 0) return;
+        s.sellPrice = p;
+        setData('stock', stock);
+        loadStock();
+        showToast('✅ تم تحديث سعر البيع');
+    }
+
+    // حذف قطعة من المخزن
+    function deleteStock(id) {
+        if (!confirm('هل تريد حذف هذه القطعة من الستوك؟')) return;
+        setData('stock', getData('stock', []).filter(s => s.id !== id));
+        loadStock();
+        showToast('🗑️ تم حذف القطعة');
+    }
+
+    // تحميل الستوك عند فتح الصفحة
+    window.onload = function() {
+        loadStock();
+        try {
+            const savedTheme = localStorage.getItem('medgarage_theme');
+            if (savedTheme) document.getElementById('htmlRoot').setAttribute('data-theme', savedTheme);
+        } catch(e) {}
+    };
+</script>
+
+</body>
+</html>
