@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="htmlRoot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MED GARAGE - لوحة التحكم</title>
+    <meta name="theme-color" content="#1a1d21">
+    <link rel="icon" type="image/png" href="https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png">
+    <style>
+        :root {
+            --primary: #dc2626;
+            --primary-hover: #b91c1c;
+            --bg: #1f242b;
+            --bg-gradient: linear-gradient(135deg, #2a2f38 0%, #181b20 100%);
+            --card: #ffffff;
+            --card-dark: #2a2f36;
+            --card-darker: #181b20;
+            --text: #1e293b;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #f59e0b;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --info: #2563eb;
+            --border: #cbd5e1;
+            --border-dark: #374151;
+        }
+
+        [data-theme="light"] {
+            --bg: #f1f5f9;
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            --card: #ffffff;
+            --text: #0f172a;
+            --text-light: #0f172a;
+            --text-muted: #475569;
+            --border: #cbd5e1;
+        }
+
+        [data-theme="oled"] {
+            --primary: #2563eb;
+            --bg: #000000;
+            --bg-gradient: linear-gradient(135deg, #111111 0%, #000000 100%);
+            --card: #121212;
+            --text: #f8fafc;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Cairo', system-ui, -apple-system, sans-serif; font-weight: 700; background: var(--bg-gradient); background-attachment: fixed; color: var(--text-light); margin: 0; padding: 15px; line-height: 1.6; min-height: 100vh; }
+        .container { max-width: 550px; margin: 0 auto; padding-bottom: 40px; }
+
+        /* ===== شاشة PIN ===== */
+        #pinScreen { display: flex; align-items: center; justify-content: center; min-height: 90vh; }
+        .pin-card { background: var(--card-dark); border: 2px solid var(--primary); border-radius: 16px; padding: 30px 25px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .pin-icon { font-size: 50px; margin-bottom: 10px; }
+        .pin-card h2 { margin: 0 0 20px; color: #fff; font-size: 20px; }
+        .pin-input { width: 100%; padding: 15px; text-align: center; font-size: 22px; letter-spacing: 10px; border: 2px solid var(--border-dark); border-radius: 10px; background: #0f1115; color: var(--accent); font-family: inherit; font-weight: 900; margin-bottom: 15px; }
+        .pin-input:focus { outline: none; border-color: var(--primary); }
+        .pin-btn { width: 100%; padding: 14px; border: none; border-radius: 10px; background: var(--primary); color: #fff; font-weight: 900; font-size: 16px; cursor: pointer; font-family: inherit; margin-bottom: 12px; }
+        .pin-btn:hover { background: var(--primary-hover); }
+        .pin-back { display: inline-block; color: var(--text-muted); text-decoration: none; font-size: 13px; margin-top: 10px; }
+        .pin-back:hover { color: var(--text-light); }
+
+        /* ===== الهيدر ===== */
+        .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: var(--card-dark); border-radius: 12px; border: 1px solid var(--border-dark); margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .admin-header h2 { margin: 0; font-size: 16px; color: #fff; }
+        .header-actions { display: flex; gap: 6px; }
+        .header-btn { background: transparent; border: 1px solid var(--border-dark); color: var(--text-muted); padding: 8px 10px; border-radius: 8px; font-size: 14px; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+        .header-btn:hover { background: var(--card-darker); color: var(--text-light); }
+        .header-btn.danger:hover { background: rgba(220,38,38,0.2); color: #f87171; border-color: var(--danger); }
+
+        /* ===== بطاقات الإحصائيات ===== */
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+        .stat-box { padding: 15px 12px; border-radius: 12px; text-align: center; position: relative; }
+        .stat-box.stock { background: rgba(37, 99, 235, 0.15); border: 1px solid var(--info); }
+        .stat-box.invoices { background: rgba(22, 163, 74, 0.15); border: 1px solid var(--success); }
+        .stat-box.income { background: rgba(22, 163, 74, 0.15); border: 1px solid var(--success); }
+        .stat-box.expense { background: rgba(220, 38, 38, 0.15); border: 1px solid var(--danger); }
+        .stat-box.profit { background: rgba(217, 119, 6, 0.15); border: 1px solid var(--accent); grid-column: 1 / -1; }
+        .stat-box.bookings { background: rgba(139, 92, 246, 0.15); border: 1px solid #8b5cf6; grid-column: 1 / -1; cursor: pointer; }
+        .stat-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+        .stat-value { font-size: 20px; font-weight: 900; }
+        .stat-box.stock .stat-value { color: #60a5fa; }
+        .stat-box.invoices .stat-value { color: #4ade80; }
+        .stat-box.income .stat-value { color: #4ade80; }
+        .stat-box.expense .stat-value { color: #f87171; }
+        .stat-box.profit .stat-value { color: #fbbf24; }
+        .stat-box.bookings .stat-value { color: #a78bfa; }
+
+        /* ===== الأقسام ===== */
+        .section-title { font-size: 18px; margin: 20px 0 12px; color: var(--text-light); border-right: 4px solid var(--primary); padding-right: 10px; font-weight: 900; display: flex; justify-content: space-between; align-items: center; }
+        .section-title small { font-size: 12px; color: var(--text-muted); font-weight: normal; }
+
+        .list-box { background: #181b20; border: 1px solid var(--border-dark); border-radius: 10px; padding: 10px; max-height: 400px; overflow-y: auto; margin-top: 10px; }
+        .list-row { background: #0f1115; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; border: 1px solid var(--border-dark); color: #f1f5f9; line-height: 1.6; }
+        .list-row:last-child { margin-bottom: 0; }
+        .empty-state { text-align: center; padding: 25px 15px; color: var(--text-muted); font-size: 12px; }
+        .btn-action { border: none; padding: 6px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; font-family: inherit; font-weight: bold; color: #fff; }
+        .btn-done { background: var(--success); }
+        .btn-cancel { background: var(--danger); }
+        .btn-convert { background: var(--info); }
+
+        /* ===== أزرار التنقل ===== */
+        .nav-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .nav-card { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 22px 15px; border-radius: 12px; text-decoration: none; color: #fff; font-weight: 900; font-size: 15px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: 1px solid transparent; }
+        .nav-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.35); }
+        .nav-card .icon { font-size: 32px; margin-bottom: 8px; }
+        .nav-card.stock { background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); }
+        .nav-card.invoices { background: linear-gradient(135deg, #15803d 0%, #16a34a 100%); }
+        .nav-card.finance { background: linear-gradient(135deg, #b45309 0%, #f59e0b 100%); }
+        .nav-card.gallery { background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%); }
+
+        .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); font-size: 12px; }
+        .footer strong { color: var(--primary); }
+
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: #fff; padding: 12px 20px; border-radius: 8px; font-weight: 900; font-size: 14px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); z-index: 9999; transition: transform 0.3s ease; max-width: 90%; text-align: center; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--primary); }
+    </style>
+</head>
+<body id="htmlRoot">
+
+<div class="container">
+
+    <!-- ================= شاشة PIN ================= -->
+    <div id="pinScreen">
+        <div class="pin-card">
+            <div class="pin-icon">🔒</div>
+            <h2>دخول الإدارة</h2>
+            <input type="password" id="pinInput" class="pin-input" maxlength="6" inputmode="numeric" placeholder="••••" autocomplete="off">
+            <button onclick="checkPin()" class="pin-btn">دخول</button>
+            <a href="index.html" class="pin-back">← العودة للرئيسية</a>
+        </div>
+    </div>
+
+    <!-- ================= لوحة التحكم ================= -->
+    <div id="dashboardScreen" style="display:none;">
+
+        <!-- الهيدر -->
+        <div class="admin-header">
+            <h2>📊 لوحة التحكم</h2>
+            <div class="header-actions">
+                <button class="header-btn" onclick="cycleTheme()" title="تبديل الثيم">🎨</button>
+                <a href="settings.html" class="header-btn" title="الإعدادات" style="text-decoration:none;">⚙️</a>
+                <button class="header-btn danger" onclick="logout()" title="خروج">🚪</button>
+            </div>
+        </div>
+
+        <!-- الإحصائيات -->
+        <div class="section-title">📈 ملخص سريع</div>
+        <div class="stats-grid">
+            <div class="stat-box stock">
+                <div class="stat-label">📦 القطع في السطوك</div>
+                <div class="stat-value" id="statStock">0</div>
+            </div>
+            <div class="stat-box invoices">
+                <div class="stat-label">🧾 الفواتير المكتملة</div>
+                <div class="stat-value" id="statInvoices">0</div>
+            </div>
+            <div class="stat-box income">
+                <div class="stat-label">💵 المداخيل</div>
+                <div class="stat-value" id="statIncome">0 دج</div>
+            </div>
+            <div class="stat-box expense">
+                <div class="stat-label">💸 المصاريف</div>
+                <div class="stat-value" id="statExpense">0 دج</div>
+            </div>
+            <div class="stat-box profit">
+                <div class="stat-label">📈 صافي الربح</div>
+                <div class="stat-value" id="statProfit">0 دج</div>
+            </div>
+            <div class="stat-box bookings" onclick="scrollToBookings()">
+                <div class="stat-label">📅 حجوزات جديدة (اضغط للعرض)</div>
+                <div class="stat-value" id="statBookings">0</div>
+            </div>
+        </div>
+
+        <!-- الحجوزات -->
+        <div class="section-title" id="bookingsSection">
+            📅 الحجوزات الجديدة
+            <small id="bookingsCount"></small>
+        </div>
+        <div class="list-box" id="bookingsList">
+            <div class="empty-state">جاري التحميل...</div>
+        </div>
+
+        <!-- التنقل -->
+        <div class="section-title">🔗 الأقسام</div>
+        <div class="nav-grid">
+            <a href="stock.html" class="nav-card stock">
+                <span class="icon">📦</span>
+                السطوك
+            </a>
+            <a href="invoices.html" class="nav-card invoices">
+                <span class="icon">🧾</span>
+                الفوترة
+            </a>
+            <a href="finance.html" class="nav-card finance">
+                <span class="icon">💰</span>
+                المالية
+            </a>
+            <a href="gallery-reviews.html" class="nav-card gallery">
+                <span class="icon">⭐</span>
+                المعرض
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <strong>MED GARAGE</strong> © 2027 — لوحة الإدارة
+        </div>
+    </div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+    // ================= أدوات مساعدة =================
+    function getData(key, def = []) {
+        try {
+            const v = localStorage.getItem('mg_' + key);
+            return v ? JSON.parse(v) : def;
+        } catch(e) { return def; }
+    }
+
+    function setData(key, val) {
+        try {
+            localStorage.setItem('mg_' + key, JSON.stringify(val));
+        } catch(e) { showToast('⚠️ خطأ في الحفظ', 'error'); }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function showToast(msg, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.className = 'toast show' + (type === 'error' ? ' error' : '');
+        setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    // ================= PIN والجلسة =================
+    const SESSION_KEY = 'mg_session';
+    const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 أيام
+
+    function checkSession() {
+        try {
+            const s = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+            return s && s.expires > Date.now();
+        } catch(e) { return false; }
+    }
+
+    function createSession() {
+        localStorage.setItem(SESSION_KEY, JSON.stringify({
+            start: Date.now(),
+            expires: Date.now() + SESSION_DURATION
+        }));
+    }
+
+    function checkPin() {
+        const input = document.getElementById('pinInput').value;
+        const correctPin = localStorage.getItem('mg_pin') || '911';
+        if (input === correctPin) {
+            createSession();
+            showDashboard();
+        } else {
+            showToast('❌ PIN غلط', 'error');
+            document.getElementById('pinInput').value = '';
+            document.getElementById('pinInput').focus();
+        }
+    }
+
+    // Enter key في PIN
+    document.getElementById('pinInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') checkPin();
+    });
+
+    function logout() {
+        if (!confirm('هل تريد تسجيل الخروج؟')) return;
+        localStorage.removeItem(SESSION_KEY);
+        location.reload();
+    }
+
+    // ================= التبديل بين الشاشات =================
+    function showDashboard() {
+        document.getElementById('pinScreen').style.display = 'none';
+        document.getElementById('dashboardScreen').style.display = 'block';
+        loadStats();
+        loadBookings();
+    }
+
+    // ================= الثيم =================
+    function applyTheme(theme) {
+        if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        else if (theme === 'oled') document.documentElement.setAttribute('data-theme', 'oled');
+        else document.documentElement.removeAttribute('data-theme');
+    }
+
+    function cycleTheme() {
+        const cur = localStorage.getItem('medgarage_theme') || 'dark';
+        const order = ['dark', 'light', 'oled'];
+        const next = order[(order.indexOf(cur) + 1) % 3];
+        localStorage.setItem('medgarage_theme', next);
+        applyTheme(next);
+        const icons = { dark: '🌙', light: '☀️', oled: '🖤' };
+        showToast(icons[next] + ' ثيم: ' + next);
+    }
+
+    // ================= الإحصائيات =================
+    function loadStats() {
+        const stock = getData('stock', []);
+        const invoices = getData('invoices', []);
+        const expenses = getData('expenses', []);
+        const bookings = getData('bookings', []);
+
+        // السطوك
+        document.getElementById('statStock').textContent = stock.length;
+
+        // الفواتير المكتملة (بدون Devis)
+        const paidInvoices = invoices.filter(i => i.status !== 'devis');
+        document.getElementById('statInvoices').textContent = paidInvoices.length;
+
+        // المداخيل
+        const totalIncome = paidInvoices.reduce((s, i) => s + (Number(i.total) || 0), 0);
+        document.getElementById('statIncome').textContent = totalIncome.toLocaleString() + ' دج';
+
+        // المصاريف
+        const totalExpense = expenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
+        document.getElementById('statExpense').textContent = totalExpense.toLocaleString() + ' دج';
+
+        // صافي الربح
+        const profit = totalIncome - totalExpense;
+        const profitEl = document.getElementById('statProfit');
+        profitEl.textContent = profit.toLocaleString() + ' دج';
+        profitEl.style.color = profit >= 0 ? '#4ade80' : '#f87171';
+
+        // الحجوزات الجديدة
+        const pending = bookings.filter(b => !b.status || b.status === 'pending');
+        document.getElementById('statBookings').textContent = pending.length;
+    }
+
+    // ================= الحجوزات =================
+    function loadBookings() {
+        const bookings = getData('bookings', []);
+        const container = document.getElementById('bookingsList');
+        const countEl = document.getElementById('bookingsCount');
+
+        const pending = bookings.filter(b => !b.status || b.status === 'pending');
+
+        countEl.textContent = pending.length > 0 ? `(${pending.length})` : '';
+
+        if (pending.length === 0) {
+            container.innerHTML = '<div class="empty-state">✅ لا توجد حجوزات جديدة</div>';
+            return;
+        }
+
+        container.innerHTML = pending.map(b => {
+            let services = '-';
+            if (Array.isArray(b.services)) services = b.services.join(' + ');
+            else if (b.services) services = b.services;
+            else if (b.service) services = b.service;
+
+            return `
+                <div class="list-row">
+                    <strong>👤 ${escapeHtml(b.name || 'بدون اسم')}</strong>
+                    ${b.car ? ` — 🚗 ${escapeHtml(b.car)}` : ''}
+                    ${b.phone ? `<br>📞 <span style="direction:ltr; display:inline-block;">${escapeHtml(b.phone)}</span>` : ''}
+                    ${b.date ? `<br>📅 ${escapeHtml(b.date)}` : ''}
+                    ${services !== '-' ? `<br>🛠️ ${escapeHtml(services)}` : ''}
+                    ${b.desc ? `<br>📝 ${escapeHtml(b.desc)}` : ''}
+                    <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
+                        <button class="btn-action btn-done" onclick="bookingAction(${b.id}, 'done')">✅ تم</button>
+                        <button class="btn-action btn-cancel" onclick="bookingAction(${b.id}, 'cancelled')">❌ إلغاء</button>
+                        <button class="btn-action btn-convert" onclick="bookingToInvoice(${b.id})">🧾 تحويل لفاتورة</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function bookingAction(id, newStatus) {
+        let bookings = getData('bookings', []);
+        const idx = bookings.findIndex(b => b.id === id);
+        if (idx === -1) return;
+
+        if (newStatus === 'cancelled') {
+            if (!confirm('إلغاء هذا الحجز؟')) return;
+        }
+
+        bookings[idx].status = newStatus;
+        bookings[idx].updatedAt = Date.now();
+        setData('bookings', bookings);
+
+        showToast(newStatus === 'done' ? '✅ تم تأكيد الحجز' : '🗑️ تم إلغاء الحجز');
+        loadBookings();
+        loadStats();
+    }
+
+    function bookingToInvoice(id) {
+        const bookings = getData('bookings', []);
+        const b = bookings.find(x => x.id === id);
+        if (!b) return;
+
+        // حفظ مؤقتاً في sessionStorage للفاتورة
+        try {
+            sessionStorage.setItem('mg_convert_booking', JSON.stringify(b));
+        } catch(e) {}
+
+        showToast('🧾 جاري فتح الفوترة...');
+        setTimeout(() => {
+            window.location.href = 'invoices.html';
+        }, 500);
+    }
+
+    function scrollToBookings() {
+        document.getElementById('bookingsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ================= تحميل الصفحة =================
+    window.onload = function() {
+        // تطبيق الثيم المحفوظ
+        try {
+            const savedTheme = localStorage.getItem('medgarage_theme');
+            if (savedTheme) applyTheme(savedTheme);
+        } catch(e) {}
+
+        // التحقق من الجلسة
+        if (checkSession()) {
+            showDashboard();
+        } else {
+            setTimeout(() => document.getElementById('pinInput').focus(), 300);
+        }
+    };
+</script>
+
+</body>
+</html>
