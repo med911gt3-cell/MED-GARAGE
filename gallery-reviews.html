@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MED GARAGE - معرض الصور وآراء الزبائن (Gallery & Reviews)</title>
-    <meta name="theme-color" content="#1a1d21">
+    <title>MED GARAGE - المعرض والآراء</title>
+    <meta name="theme-color" content="#1a1d21" id="themeColorMeta">
     <link rel="icon" type="image/png" href="https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png">
     <style>
         :root {
@@ -21,6 +21,7 @@
             --accent: #f59e0b;
             --success: #16a34a;
             --danger: #dc2626;
+            --info: #2563eb;
             --border: #cbd5e1;
             --border-dark: #374151;
             --star: #fbbf24;
@@ -54,84 +55,281 @@
         .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: var(--card-dark); border-radius: 12px; border: 1px solid var(--border-dark); margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
         .admin-header h2 { margin: 0; font-size: 16px; color: #fff; }
         .btn-back-admin { background: transparent; border: 1px solid var(--border-dark); color: var(--text-muted); padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-block; }
+        .btn-back-admin:hover { color: var(--text-light); }
 
-        .section-title { font-size: 18px; margin: 20px 0 12px; color: var(--text-light); border-right: 4px solid var(--primary); padding-right: 10px; font-weight: 900; }
-        html[dir="ltr"] .section-title { border-right: none; border-left: 4px solid var(--primary); padding-right: 0; padding-left: 10px; }
-
-        .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
-        .gallery-item { aspect-ratio: 1 / 1; background: var(--card); border: 1px dashed var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 24px; overflow: hidden; }
-        .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+        .section-title { font-size: 16px; margin: 22px 0 12px; color: var(--text-light); border-right: 4px solid var(--primary); padding-right: 10px; font-weight: 900; display: flex; justify-content: space-between; align-items: center; }
+        .section-title small { font-size: 12px; color: var(--text-muted); font-weight: normal; }
 
         .booking-form, .admin-card { background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 13px; color: var(--text); margin-bottom: 5px; font-weight: 700; }
         .form-control { width: 100%; padding: 11px; background: #ffffff; border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px; font-family: inherit; font-weight: 700; box-sizing: border-box; }
-        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1); }
-        .btn-submit-booking { background-color: var(--primary); color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; font-family: inherit; box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3); }
+        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(220,38,38,0.1); }
 
-        .list-box { background: #181b20; border: 1px solid var(--border-dark); border-radius: 10px; padding: 10px; max-height: 400px; overflow-y: auto; margin-top: 10px; }
+        .btn-submit-booking { background-color: var(--primary); color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; font-family: inherit; box-shadow: 0 4px 10px rgba(220,38,38,0.3); }
+
+        .btn { border: none; padding: 10px 18px; border-radius: 6px; font-weight: 900; cursor: pointer; font-family: inherit; color: #fff; }
+        .btn-sm { padding: 6px 10px; font-size: 11px; }
+        .btn-success { background: var(--success); }
+        .btn-warning { background: var(--accent); }
+        .btn-info { background: var(--info); }
+        .btn-danger { background: var(--danger); }
+
+        /* ===== معرض الصور ===== */
+        .gallery-upload-box {
+            border: 2px dashed var(--accent);
+            background: rgba(245,158,11,0.08);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 15px;
+        }
+        .gallery-upload-box:hover {
+            background: rgba(245,158,11,0.15);
+            border-color: var(--primary);
+        }
+        .gallery-upload-box .icon { font-size: 40px; margin-bottom: 6px; }
+        .gallery-upload-box .text { color: var(--text-light); font-size: 13px; }
+        .gallery-upload-box .hint { color: var(--text-muted); font-size: 11px; margin-top: 4px; }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .gallery-item {
+            aspect-ratio: 1 / 1;
+            background: var(--card-dark);
+            border: 1px solid var(--border-dark);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .gallery-item:hover { transform: scale(1.03); }
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .gallery-item .delete-btn {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            background: rgba(220,38,38,0.9);
+            color: #fff;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .gallery-item:hover .delete-btn { opacity: 1; }
+        @media (hover: none) {
+            .gallery-item .delete-btn { opacity: 1; }
+        }
+
+        .empty-gallery {
+            text-align: center;
+            padding: 30px 15px;
+            color: var(--text-muted);
+            font-size: 12px;
+            border: 1px dashed var(--border-dark);
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .empty-gallery .big-icon { font-size: 40px; margin-bottom: 8px; opacity: 0.5; }
+
+        /* ===== نجوم التقييم ===== */
+        .rating-input { display: flex; gap: 4px; font-size: 30px; direction: ltr; }
+        .rating-input span {
+            color: #4b5563;
+            cursor: pointer;
+            transition: color 0.15s;
+            user-select: none;
+        }
+        .rating-input span.active,
+        .rating-input span:hover,
+        .rating-input span:hover ~ span { color: #4b5563; }
+        .rating-input span.active { color: var(--star); }
+        .rating-input span:hover,
+        .rating-input span:hover ~ span { color: #4b5563; }
+        .rating-input span.selected,
+        .rating-input span.selected ~ span { color: #4b5563; }
+        .rating-input:hover span,
+        .rating-input:hover span ~ span { color: #4b5563; }
+        .rating-input span.on { color: var(--star) !important; }
+
+        /* ===== القوائم ===== */
+        .list-box { background: #181b20; border: 1px solid var(--border-dark); border-radius: 10px; padding: 10px; max-height: 500px; overflow-y: auto; margin-top: 10px; }
         .list-row { background: #0f1115; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; border: 1px solid var(--border-dark); color: #f1f5f9; line-height: 1.6; }
+        .list-row:last-child { margin-bottom: 0; }
         .empty-state { text-align: center; padding: 25px 15px; color: var(--text-muted); font-size: 12px; }
-        .stars { color: var(--star); font-size: 16px; margin-bottom: 4px; }
+        .stars { color: var(--star); font-size: 16px; margin-bottom: 4px; letter-spacing: 2px; }
 
-        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: #fff; padding: 12px 20px; border-radius: 8px; font-weight: 900; font-size: 14px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); z-index: 9999; transition: transform 0.3s ease; max-width: 90%; text-align: center; }
+        /* ===== Lightbox ===== */
+        .lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .lightbox.active { display: flex; }
+        .lightbox img {
+            max-width: 95%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+        }
+        .lightbox .close-lb {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .lightbox .close-lb:hover { background: rgba(220,38,38,0.8); }
+        .lightbox .nav-lb {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: #fff;
+            font-size: 28px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .lightbox .nav-lb:hover { background: rgba(220,38,38,0.8); }
+        .lightbox .nav-lb.prev { left: 15px; }
+        .lightbox .nav-lb.next { right: 15px; }
+
+        .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); font-size: 12px; }
+        .footer strong { color: var(--primary); }
+
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: #fff; padding: 12px 20px; border-radius: 8px; font-weight: 900; font-size: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 9999; transition: transform 0.3s ease; max-width: 90%; text-align: center; }
         .toast.show { transform: translateX(-50%) translateY(0); }
         .toast.error { background: var(--primary); }
+
+        .storage-warning {
+            background: rgba(245,158,11,0.15);
+            border: 1px solid var(--accent);
+            color: #fbbf24;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
     </style>
 </head>
 <body id="htmlRoot">
 
 <div class="container">
-    <!-- هيدر القائمة -->
     <div class="admin-header">
-        <h2>⭐ معرض الصور وآراء الزبائن</h2>
-        <a href="index.html" class="btn-back-admin">⬅️ الرئيسية</a>
+        <h2>⭐ المعرض والآراء</h2>
+        <a href="index.html" class="btn-back-admin">← الرئيسية</a>
     </div>
 
-    <!-- معرض الصور -->
-    <div class="section-title">🖼️ معرض صور الورشة والسيارات</div>
-    <div class="gallery-grid">
-        <div class="gallery-item">📷</div>
-        <div class="gallery-item">📷</div>
-        <div class="gallery-item">📷</div>
-        <div class="gallery-item">📷</div>
-        <div class="gallery-item">📷</div>
-        <div class="gallery-item">📷</div>
-    </div>
-    <p style="text-align:center; font-size:12px; color:var(--text-muted); font-style:italic;">قريباً: إضافة صور الفحص والصيانة المباشرة من الورشة</p>
+    <!-- ========== معرض الصور ========== -->
+    <div class="section-title">🖼️ معرض صور الورشة <small id="galleryCount"></small></div>
 
-    <!-- إضافة رأي زبون -->
-    <div class="section-title" style="margin-top:25px;">✍️ شاركنا بريك أو تقييمك</div>
+    <div class="storage-warning">
+        💡 <strong>ملاحظة:</strong> الصور تُحفظ في هذا الجهاز فقط (LocalStorage ~5MB). لصور احترافية أكثر، ارفعها من هاتفك بجودة متوسطة.
+    </div>
+
+    <!-- منطقة الرفع -->
+    <div class="gallery-upload-box" onclick="document.getElementById('imageInput').click()">
+        <div class="icon">📷</div>
+        <div class="text"><strong>اضغط لرفع صورة من هاتفك</strong></div>
+        <div class="hint">JPG / PNG — الحد الأقصى 2MB لكل صورة</div>
+    </div>
+    <input type="file" id="imageInput" accept="image/*" style="display:none;" onchange="handleImageUpload(event)" multiple>
+
+    <!-- شبكة الصور -->
+    <div class="gallery-grid" id="galleryGrid"></div>
+    <div class="empty-gallery" id="emptyGallery">
+        <div class="big-icon">🖼️</div>
+        <div>لا توجد صور بعد</div>
+        <div style="margin-top:6px; font-size:11px;">اضغط على الزر أعلاه لإضافة أول صورة</div>
+    </div>
+
+    <!-- ========== إضافة رأي ========== -->
+    <div class="section-title" style="margin-top:30px;">✍️ شاركنا بتقييمك</div>
     <div class="booking-form">
         <div class="form-group">
-            <label>اسم الزبون الكريم *</label>
+            <label>اسمك الكريم *</label>
             <input type="text" id="reviewName" class="form-control" placeholder="أدخل اسمك">
         </div>
         <div class="form-group">
-            <label>التقييم (عدد النجوم)</label>
-            <select id="reviewRating" class="form-control">
-                <option value="5">⭐⭐⭐⭐⭐ (ممتاز جداً)</option>
-                <option value="4">⭐⭐⭐⭐ (جيد جداً)</option>
-                <option value="3">⭐⭐⭐ (متوسط)</option>
-            </select>
+            <label>تقييمك</label>
+            <div class="rating-input" id="ratingInput">
+                <span data-val="1" onclick="setRating(1)">⭐</span>
+                <span data-val="2" onclick="setRating(2)">⭐</span>
+                <span data-val="3" onclick="setRating(3)">⭐</span>
+                <span data-val="4" onclick="setRating(4)">⭐</span>
+                <span data-val="5" onclick="setRating(5)">⭐</span>
+            </div>
         </div>
         <div class="form-group">
-            <label>رأيك أو تعليقك *</label>
-            <textarea id="reviewText" class="form-control" placeholder="اكتب انطباعك عن الخدمة في الورشة..."></textarea>
+            <label>رأيك *</label>
+            <textarea id="reviewText" class="form-control" placeholder="اكتب انطباعك عن الخدمة..." rows="3" style="resize:vertical;"></textarea>
         </div>
         <button type="button" onclick="addReview()" class="btn-submit-booking">⭐ إرسال التقييم</button>
     </div>
 
-    <!-- قائمة آراء الزبائن -->
-    <div class="section-title">💬 آراء وتقييمات الزبائن</div>
-    <div class="list-box" id="reviewsList">
-        <!-- يتم تعبئتها ديناميكياً -->
+    <!-- ========== الآراء ========== -->
+    <div class="section-title">
+        💬 آراء الزبائن
+        <small id="reviewsCount"></small>
     </div>
+    <div class="list-box" id="reviewsList">
+        <div class="empty-state">جاري التحميل...</div>
+    </div>
+
+    <div class="footer">
+        <strong>MED GARAGE</strong> © 2027 — المعرض والآراء
+    </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="if(event.target===this) closeLightbox()">
+    <button class="close-lb" onclick="closeLightbox()">✕</button>
+    <button class="nav-lb prev" onclick="event.stopPropagation(); navLightbox(-1)">‹</button>
+    <img id="lightboxImg" src="" alt="صورة">
+    <button class="nav-lb next" onclick="event.stopPropagation(); navLightbox(1)">›</button>
 </div>
 
 <div id="toast" class="toast"></div>
 
 <script>
+    // ================= أدوات =================
     function getData(key, def = []) {
         try {
             const v = localStorage.getItem('mg_' + key);
@@ -142,12 +340,20 @@
     function setData(key, val) {
         try {
             localStorage.setItem('mg_' + key, JSON.stringify(val));
-        } catch(e) { showToast('⚠️ خطأ في الحفظ', 'error'); }
+            return true;
+        } catch(e) {
+            if (e.name === 'QuotaExceededError' || e.code === 22) {
+                showToast('⚠️ الذاكرة ممتلئة! احذف صور قديمة', 'error');
+            } else {
+                showToast('⚠️ خطأ في الحفظ', 'error');
+            }
+            return false;
+        }
     }
 
     function escapeHtml(str) {
         if (!str) return '';
-        return String(str).replace(/&/g, '&amp;').replace(/</g,'&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
     function showToast(msg, type = 'success') {
@@ -157,9 +363,187 @@
         setTimeout(() => toast.classList.remove('show'), 3500);
     }
 
+    function applyTheme(theme) {
+        if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        else if (theme === 'oled') document.documentElement.setAttribute('data-theme', 'oled');
+        else document.documentElement.removeAttribute('data-theme');
+        const meta = document.getElementById('themeColorMeta');
+        if (meta) meta.setAttribute('content', theme === 'light' ? '#f1f5f9' : theme === 'oled' ? '#000000' : '#1a1d21');
+    }
+
+    // ================= معرض الصور =================
+    let galleryImages = []; // [{id, data}]
+
+    function loadGallery() {
+        galleryImages = getData('gallery', []);
+        const grid = document.getElementById('galleryGrid');
+        const empty = document.getElementById('emptyGallery');
+        const countEl = document.getElementById('galleryCount');
+
+        countEl.textContent = galleryImages.length > 0 ? `(${galleryImages.length})` : '';
+
+        if (galleryImages.length === 0) {
+            grid.innerHTML = '';
+            grid.style.display = 'none';
+            empty.style.display = 'block';
+            return;
+        }
+
+        grid.style.display = 'grid';
+        empty.style.display = 'none';
+        grid.innerHTML = galleryImages.map((img, idx) => `
+            <div class="gallery-item" onclick="openLightbox(${idx})">
+                <img src="${img.data}" alt="صورة ${idx + 1}" loading="lazy">
+                <button class="delete-btn" onclick="event.stopPropagation(); deleteImage(${img.id})" title="حذف">🗑️</button>
+            </div>
+        `).join('');
+    }
+
+    function handleImageUpload(event) {
+        const files = event.target.files;
+        if (!files || files.length === 0) return;
+
+        let successCount = 0;
+        let errorCount = 0;
+        let pending = files.length;
+
+        Array.from(files).forEach(file => {
+            // تحقق من النوع
+            if (!file.type.startsWith('image/')) {
+                errorCount++;
+                pending--;
+                if (pending === 0) finishUpload(successCount, errorCount);
+                return;
+            }
+
+            // تحقق من الحجم (2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                showToast('⚠️ "' + file.name + '" كبيرة جداً (الحد 2MB)', 'error');
+                errorCount++;
+                pending--;
+                if (pending === 0) finishUpload(successCount, errorCount);
+                return;
+            }
+
+            // ضغط الصورة قبل الحفظ
+            compressImage(file, 800, 0.7, (base64) => {
+                if (!base64) {
+                    errorCount++;
+                } else {
+                    galleryImages.unshift({
+                        id: Date.now() + Math.random(),
+                        data: base64,
+                        date: new Date().toLocaleDateString('ar-DZ')
+                    });
+                    successCount++;
+                }
+                pending--;
+                if (pending === 0) finishUpload(successCount, errorCount);
+            });
+        });
+
+        event.target.value = '';
+    }
+
+    function finishUpload(successCount, errorCount) {
+        if (successCount > 0) {
+            const ok = setData('gallery', galleryImages);
+            if (ok) {
+                showToast('✅ تمت إضافة ' + successCount + ' صورة');
+                loadGallery();
+            } else {
+                // نرجع للقائمة القديمة
+                galleryImages = getData('gallery', []);
+                loadGallery();
+            }
+        }
+        if (errorCount > 0 && successCount === 0) {
+            showToast('⚠️ فشل رفع الصور', 'error');
+        }
+    }
+
+    // ضغط الصورة
+    function compressImage(file, maxWidth, quality, callback) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                let w = img.width;
+                let h = img.height;
+
+                if (w > maxWidth) {
+                    h = Math.round(h * maxWidth / w);
+                    w = maxWidth;
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+
+                try {
+                    const base64 = canvas.toDataURL('image/jpeg', quality);
+                    callback(base64);
+                } catch(err) {
+                    callback(null);
+                }
+            };
+            img.onerror = () => callback(null);
+            img.src = e.target.result;
+        };
+        reader.onerror = () => callback(null);
+        reader.readAsDataURL(file);
+    }
+
+    function deleteImage(id) {
+        if (!confirm('حذف هذه الصورة؟')) return;
+        galleryImages = galleryImages.filter(img => img.id !== id);
+        setData('gallery', galleryImages);
+        loadGallery();
+        showToast('🗑️ تم حذف الصورة');
+    }
+
+    // ================= Lightbox =================
+    let currentLightboxIdx = 0;
+
+    function openLightbox(idx) {
+        if (galleryImages.length === 0) return;
+        currentLightboxIdx = idx;
+        document.getElementById('lightboxImg').src = galleryImages[idx].data;
+        document.getElementById('lightbox').classList.add('active');
+    }
+
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('active');
+    }
+
+    function navLightbox(dir) {
+        if (galleryImages.length <= 1) return;
+        currentLightboxIdx = (currentLightboxIdx + dir + galleryImages.length) % galleryImages.length;
+        document.getElementById('lightboxImg').src = galleryImages[currentLightboxIdx].data;
+    }
+
+    // دعم لوحة المفاتيح
+    document.addEventListener('keydown', (e) => {
+        if (!document.getElementById('lightbox').classList.contains('active')) return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') navLightbox(-1);
+        if (e.key === 'ArrowRight') navLightbox(1);
+    });
+
+    // ================= الآراء =================
+    let currentRating = 5;
+
+    function setRating(val) {
+        currentRating = val;
+        document.querySelectorAll('#ratingInput span').forEach((el, idx) => {
+            el.classList.toggle('on', idx < val);
+        });
+    }
+
     function addReview() {
         const name = document.getElementById('reviewName').value.trim();
-        const rating = parseInt(document.getElementById('reviewRating').value) || 5;
         const text = document.getElementById('reviewText').value.trim();
 
         if (!name || !text) {
@@ -170,17 +554,20 @@
         let reviews = getData('reviews', []);
         reviews.unshift({
             id: Date.now(),
-            name,
-            rating,
-            text,
-            date: new Date().toLocaleDateString('ar-DZ')
+            name: name,
+            rating: currentRating,
+            text: text,
+            date: new Date().toLocaleDateString('ar-DZ'),
+            approved: true // الآراء من داخل التطبيق تُقبل تلقائياً
         });
 
         setData('reviews', reviews);
+
         document.getElementById('reviewName').value = '';
         document.getElementById('reviewText').value = '';
-        
-        showToast('✅ شكراً لك! تم إضافة تقييمك بنجاح');
+        setRating(5);
+
+        showToast('✅ شكراً لك! تم إضافة تقييمك');
         loadReviews();
     }
 
@@ -191,34 +578,58 @@
         showToast('🗑️ تم حذف التقييم');
     }
 
+    function toggleApproved(id) {
+        let reviews = getData('reviews', []);
+        const r = reviews.find(x => x.id === id);
+        if (!r) return;
+        r.approved = !r.approved;
+        setData('reviews', reviews);
+        loadReviews();
+        showToast(r.approved ? '✅ تم اعتماد الرأي' : '🚫 تم إخفاء الرأي');
+    }
+
     function loadReviews() {
         const reviews = getData('reviews', []);
-        const container = document.getElementById('reviewsList');
-        
+        const box = document.getElementById('reviewsList');
+        const countEl = document.getElementById('reviewsCount');
+
+        countEl.textContent = reviews.length > 0 ? `(${reviews.length})` : '';
+
         if (reviews.length === 0) {
-            container.innerHTML = '<div class="empty-state">⭐ كن أول من يشاركنا رأيه بعد الافتتاح</div>';
+            box.innerHTML = '<div class="empty-state">⭐ كن أول من يشاركنا رأيه</div>';
             return;
         }
 
-        container.innerHTML = reviews.map(r => `
-            <div class="list-row">
-                <div class="stars">${'⭐'.repeat(r.rating)}</div>
-                <strong>👤 ${escapeHtml(r.name)}</strong><br>
-                <span style="color:#f1f5f9;">"${escapeHtml(r.text)}"</span>
-                <div style="margin-top:6px; display:flex; justify-content:space-between; align-items:center;">
-                    <span style="color:#94a3b8; font-size:10px;">${r.date}</span>
-                    <button onclick="deleteReview(${r.id})" style="background:#dc2626; color:#fff; border:none; padding:3px 6px; border-radius:4px; cursor:pointer; font-size:10px;">🗑️ حذف</button>
+        box.innerHTML = reviews.map(r => {
+            const approved = r.approved !== false;
+            return `
+                <div class="list-row" style="${!approved ? 'opacity:0.5; border-style:dashed;' : ''}">
+                    <div class="stars">${'⭐'.repeat(r.rating || 5)}</div>
+                    <strong>👤 ${escapeHtml(r.name)}</strong>
+                    ${!approved ? ' <span style="color:#f87171; font-size:10px;">[مخفي]</span>' : ''}<br>
+                    <span style="color:#f1f5f9;">"${escapeHtml(r.text)}"</span>
+                    <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+                        <span style="color:#94a3b8; font-size:10px;">${escapeHtml(r.date)}</span>
+                        <div style="display:flex; gap:6px;">
+                            <button onclick="toggleApproved(${r.id})" class="btn btn-sm ${approved ? 'btn-warning' : 'btn-success'}">${approved ? '🚫 إخفاء' : '✅ اعتماد'}</button>
+                            <button onclick="deleteReview(${r.id})" class="btn btn-sm btn-danger">🗑️</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
+    // ================= تحميل الصفحة =================
     window.onload = function() {
-        loadReviews();
         try {
             const savedTheme = localStorage.getItem('medgarage_theme');
-            if (savedTheme) document.getElementById('htmlRoot').setAttribute('data-theme', savedTheme);
+            if (savedTheme) applyTheme(savedTheme);
         } catch(e) {}
+
+        loadGallery();
+        loadReviews();
+        setRating(5);
     };
 </script>
 
