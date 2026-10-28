@@ -4,14 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MED GARAGE - ورشة محمد لصيانة السيارات</title>
-    <meta name="theme-color" content="#1a1d21">
+    <meta name="theme-color" content="#1a1d21" id="themeColorMeta">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="MED GARAGE">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png">
     <link rel="icon" type="image/png" href="https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png">
     <style>
-        /* الثيم الافتراضي: الرمادي الغامق (Dark / Default) */
         :root {
             --primary: #dc2626;
             --primary-hover: #b91c1c;
@@ -29,7 +28,6 @@
             --border: #cbd5e1;
         }
 
-        /* الثيم الثاني: الأبيض النقي (Light) */
         [data-theme="light"] {
             --bg: #f1f5f9;
             --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
@@ -40,7 +38,6 @@
             --border: #cbd5e1;
         }
 
-        /* الثيم الثالث: الأسود الفخم (OLED Black) مع إطار أزرق */
         [data-theme="oled"] {
             --primary: #2563eb;
             --primary-hover: #1d4ed8;
@@ -59,7 +56,6 @@
 
         .header { text-align: center; padding: 15px 0 20px; border-bottom: 2px solid var(--primary); position: relative; }
 
-        /* أدوات التبديل (اللغة + الثيمات) */
         .top-controls { position: absolute; top: 10px; left: 10px; display: flex; gap: 5px; }
         .lang-toggle, .theme-toggle { display: flex; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px; overflow: hidden; backdrop-filter: blur(5px); }
         .lang-toggle button, .theme-toggle button { background: transparent; border: none; padding: 6px 10px; font-size: 12px; font-weight: bold; color: #cbd5e1; cursor: pointer; font-family: inherit; transition: all 0.2s; }
@@ -74,7 +70,6 @@
         .status-dot { width: 8px; height: 8px; background-color: var(--accent); border-radius: 50%; box-shadow: 0 0 8px var(--accent); animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-        /* ===== Slider الماركات ===== */
         .brands-section { margin-top: 20px; padding: 15px 0; background: var(--card); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .brands-title { text-align: center; font-size: 14px; font-weight: bold; color: var(--text); margin-bottom: 12px; padding: 0 15px; }
         .brands-slider { display: flex; gap: 10px; overflow: hidden; position: relative; padding: 5px 0; }
@@ -84,7 +79,6 @@
         @keyframes scrollBrandsRTL { 0% { transform: translateX(0); } 100% { transform: translateX(50%); } }
         .brand-card { flex-shrink: 0; background: #ffffff; border: 1px solid var(--border); border-radius: 10px; padding: 10px 18px; font-size: 13px; font-weight: bold; color: #1e293b; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.04); display: flex; align-items: center; gap: 6px; }
 
-        /* PWA Install Card */
         .install-pwa-card { background: var(--card); color: var(--text); border: 1px solid var(--accent); border-radius: 10px; padding: 12px; margin-top: 15px; text-align: center; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .install-pwa-card.visible { display: block; }
         .btn-install { background-color: var(--accent); color: #fff; border: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; width: 100%; margin-top: 8px; font-family: inherit; }
@@ -129,6 +123,51 @@
         .form-control.phone-input { direction: ltr; text-align: right; unicode-bidi: embed; }
         textarea.form-control { resize: vertical; min-height: 80px; }
         .btn-submit-booking { background-color: var(--primary); color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; margin-top: 5px; font-family: inherit; box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3); }
+        .btn-submit-booking:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* ===== Checkboxes للخدمات ===== */
+        .services-checkboxes {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            background: #f8fafc;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        [data-theme="oled"] .services-checkboxes,
+        [data-theme="light"] .services-checkboxes { background: rgba(0,0,0,0.03); }
+        @media (max-width: 380px) {
+            .services-checkboxes { grid-template-columns: 1fr; }
+        }
+        .service-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--text);
+            background: var(--card);
+            user-select: none;
+            min-height: 42px;
+            transition: all 0.2s;
+            font-weight: 700;
+        }
+        .service-checkbox input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+        .service-checkbox span { flex: 1; line-height: 1.3; }
+        .service-checkbox:has(input:checked) {
+            border-color: var(--primary);
+            background: rgba(220, 38, 38, 0.08);
+        }
 
         .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-muted); font-size: 12px; }
         .footer strong { color: var(--primary); }
@@ -195,7 +234,7 @@
         </div>
     </div>
 
-    <!-- كارت تثبيت التطبيق (PWA) -->
+    <!-- PWA -->
     <div class="install-pwa-card" id="installContainer">
         <span style="font-size: 12px; font-weight: 600;" data-ar="📲 احفظ تطبيق الورشة على شاشة هاتفك" data-fr="📲 Installez l'app sur votre téléphone">📲 احفظ تطبيق الورشة على شاشة هاتفك</span>
         <button class="btn-install" onclick="promptInstall()" data-ar="إضافة إلى الشاشة الرئيسية ➕" data-fr="Ajouter à l'écran d'accueil ➕">إضافة إلى الشاشة الرئيسية ➕</button>
@@ -208,7 +247,7 @@
         <p data-ar="نعتمد منهجية عمل قائمة على التشخيص الشامل والفحص الدقيق للسيارة قبل تغيير أي قطعة غيار، لضمان معالجة العطل الحقيقي وتوفير التكاليف." data-fr="Nous adoptons une méthode basée sur le diagnostic complet et la vérification précise du véhicule avant tout remplacement de pièce.">نعتمد منهجية عمل قائمة على التشخيص الشامل والفحص الدقيق للسيارة قبل تغيير أي قطعة غيار، لضمان معالجة العطل الحقيقي وتوفير التكاليف.</p>
     </div>
 
-    <!-- إعلان الافتتاح -->
+    <!-- إعلان -->
     <div class="announcement-card">
         <span class="announcement-badge" data-ar="📢 ترقبوا الافتتاح" data-fr="📢 Ouverture imminente">📢 ترقبوا الافتتاح</span>
         <h3 data-ar="افتتاح الورشة المرتقب" data-fr="Ouverture prochaine">افتتاح الورشة المرتقب</h3>
@@ -285,7 +324,7 @@
         </details>
     </div>
 
-    <!-- معلومات الورشة والأزرار (للزبائن) -->
+    <!-- معلومات الورشة -->
     <div class="section-title" data-ar="معلومات الورشة" data-fr="Informations">معلومات الورشة</div>
     <div class="btn-group">
         <a href="https://www.google.com/maps/dir/?api=1&destination=36.7085001%2C2.9272610&travelmode=driving" target="_blank" class="address-link">
@@ -293,7 +332,8 @@
             <small data-ar="اضغط هنا لفتح الخريطة" data-fr="Cliquez pour ouvrir la carte">اضغط هنا لفتح الخريطة</small>
         </a>
         <a href="tel:+213790582551" class="btn-call">
-            <span>📞 الاتصال بالورشة</span><br><small style="direction:ltr; display:inline-block; unicode-bidi:isolate;">+213 790 58 25 51</small>
+            <span data-ar="📞 الاتصال بالورشة" data-fr="📞 Appeler le garage">📞 الاتصال بالورشة</span>
+            <br><small style="direction:ltr; display:inline-block; unicode-bidi:isolate;">+213 790 58 25 51</small>
         </a>
         <a href="https://wa.me/213790582551?text=السلام%20عليكم" target="_blank" class="btn-whatsapp" data-ar="💬 مراسلة عبر الواتساب" data-fr="💬 WhatsApp">💬 مراسلة عبر الواتساب</a>
         <button type="button" onclick="downloadVCard()" class="btn-save-contact" data-ar="📱 حفظ رقم الورشة" data-fr="📱 Enregistrer le numéro">📱 حفظ رقم الورشة</button>
@@ -307,7 +347,7 @@
     <div class="booking-form">
         <div class="form-group">
             <label data-ar="الاسم الكريم: *" data-fr="Votre nom: *">الاسم الكريم: <span class="required">*</span></label>
-            <input type="text" id="client-name" class="form-control" placeholder="أدخل اسمك">
+            <input type="text" id="client-name" class="form-control" data-ar="أدخل اسمك" data-fr="Entrez votre nom" placeholder="أدخل اسمك">
         </div>
         <div class="form-group">
             <label data-ar="نوع السيارة والمحرك:" data-fr="Type de voiture:">نوع السيارة والمحرك:</label>
@@ -321,27 +361,59 @@
             <label data-ar="تاريخ الموعد المرغوب:" data-fr="Date souhaitée:">تاريخ الموعد المرغوب:</label>
             <input type="date" id="client-date" class="form-control">
         </div>
+
+        <!-- ✅ الخدمات كـ Checkboxes -->
         <div class="form-group">
-            <label data-ar="الخدمة المطلوبة:" data-fr="Service souhaité:">الخدمة المطلوبة:</label>
-            <select id="service-type" class="form-control">
-                <option value="">-- اختر الخدمة --</option>
-                <option value="Vidange + Filtres">Vidange + Filtres</option>
-                <option value="Freinage">Freinage</option>
-                <option value="Suspension">Suspension</option>
-                <option value="Embrayage">Embrayage</option>
-                <option value="Kit Distribution">Kit Distribution</option>
-                <option value="Scanner & Diagnostic">Scanner & Diagnostic</option>
-                <option value="Révision Moteur">Révision Moteur</option>
-                <option value="Climatisation">Climatisation</option>
-                <option value="Électricité Auto">Électricité Auto</option>
-                <option value="Autre">عطل آخر / استفسار</option>
-            </select>
+            <label data-ar="الخدمات المطلوبة (يمكن اختيار أكثر من واحدة):" data-fr="Services souhaités (plusieurs possibles):">الخدمات المطلوبة (يمكن اختيار أكثر من واحدة):</label>
+            <div class="services-checkboxes" id="bookingServices">
+                <label class="service-checkbox">
+                    <input type="checkbox" name="bookingService" value="Vidange + Filtres">
+                    <span data-ar="🛢️ تغيير الزيت" data-fr="🛢️ Vidange">🛢️ تغيير الزيت</span>
+                </label>
+                <label class="service-checkbox">
+                    <input type="checkbox" name="bookingService" value="Freinage">
+                    <span data-ar="🛠️ الفرامل" data-fr="🛠️ Freinage">🛠️ الفرامل</span>
+                </label>
+                <label class="service-checkbox">
+                    <input type="checkbox" name="bookingService" value="Suspension">
+                    <span data-ar="🚗 التعليق" data-fr="🚗 Suspension">🚗 التعليق</span>
+                </label>
+                <label class="service-checkbox">
+                    <input type="checkbox" name="bookingService" value="Embrayage">
+                    <span data-ar="⚙️ الفبرياج" data-fr="⚙️ Embrayage">⚙️ الفبرياج</span>
+                </label>
+                <label class="service-checkbox">
+                    <input type="checkbox" name="bookingService" value="Kit Distribution">
+                    <span data-ar="🔄 كيت التوزيع" data-fr="🔄 Kit Distri.">🔄 كيت التوزيع</span>
+                </label>
+                <label class="service-checkbox">
+                    <input type="checkbox" name="bookingService" value="Scanner & Diagnostic">
+                    <span data-ar="💻 الفحص الإلكتروني" data-fr="💻 Diagnostic">💻 الفحص الإلكتروني</span>
+                </label>
+                <label class="service-checkbox">
+                    <input type="checkbox" name="bookingService" value="Révision Moteur">
+                    <span data-ar="🔧 عمرة المحرك" data-fr="🔧 Révision">🔧 عمرة المحرك</span>
+                </label>
+                <label class="service-checkbox">
+                    <input type="checkbox" name="bookingService" value="Climatisation">
+                    <span data-ar="❄️ المكيف" data-fr="❄️ Climatisation">❄️ المكيف</span>
+                </label>
+                <label class="service-checkbox">
+                    <input type="checkbox" name="bookingService" value="Électricité Auto">
+                    <span data-ar="⚡ الكهرباء" data-fr="⚡ Électricité">⚡ الكهرباء</span>
+                </label>
+                <label class="service-checkbox">
+                    <input type="checkbox" name="bookingService" value="Autre">
+                    <span data-ar="📝 عطل آخر" data-fr="📝 Autre">📝 عطل آخر</span>
+                </label>
+            </div>
         </div>
+
         <div class="form-group">
             <label data-ar="وصف المشكل:" data-fr="Description:">وصف المشكل:</label>
-            <textarea id="issue-desc" class="form-control" placeholder="اكتب هنا..."></textarea>
+            <textarea id="issue-desc" class="form-control" data-ar="اكتب هنا..." data-fr="Écrivez ici..." placeholder="اكتب هنا..."></textarea>
         </div>
-        <button type="button" onclick="sendBooking()" class="btn-submit-booking" data-ar="📲 إرسال الطلب عبر الواتساب" data-fr="📲 Envoyer via WhatsApp">📲 إرسال الطلب عبر الواتساب</button>
+        <button type="button" id="submitBookingBtn" onclick="sendBooking()" class="btn-submit-booking" data-ar="📲 إرسال الطلب عبر الواتساب" data-fr="📲 Envoyer via WhatsApp">📲 إرسال الطلب عبر الواتساب</button>
     </div>
 
     <!-- Footer -->
@@ -354,7 +426,7 @@
 <div id="toast" class="toast"></div>
 
 <script>
-    // تبديل اللغة
+    // ============ تبديل اللغة ============
     let currentLang = 'ar';
     function setLang(lang) {
         currentLang = lang;
@@ -383,19 +455,24 @@
         try { localStorage.setItem('medgarage_lang', lang); } catch(e) {}
     }
 
-    // محول الثيمات (3 ألوان)
+    // ============ تبديل الثيم (+ theme-color ديناميكي) ============
     function setTheme(themeName) {
         const html = document.getElementById('htmlRoot');
+        const meta = document.getElementById('themeColorMeta');
         if (themeName === 'light') {
             html.setAttribute('data-theme', 'light');
+            if (meta) meta.setAttribute('content', '#f1f5f9');
         } else if (themeName === 'oled') {
             html.setAttribute('data-theme', 'oled');
+            if (meta) meta.setAttribute('content', '#000000');
         } else {
             html.removeAttribute('data-theme');
+            if (meta) meta.setAttribute('content', '#1a1d21');
         }
         try { localStorage.setItem('medgarage_theme', themeName); } catch(e) {}
     }
 
+    // ============ تحميل التفضيلات ============
     try {
         const savedLang = localStorage.getItem('medgarage_lang');
         if (savedLang && savedLang !== 'ar') setLang(savedLang);
@@ -403,7 +480,7 @@
         if (savedTheme) setTheme(savedTheme);
     } catch(e) {}
 
-    // Toast Notification
+    // ============ Toast ============
     function showToast(message, type = 'success') {
         const toast = document.getElementById('toast');
         toast.textContent = message;
@@ -411,7 +488,7 @@
         setTimeout(() => toast.classList.remove('show'), 3500);
     }
 
-    // PWA Install Logic
+    // ============ PWA Install ============
     let deferredPrompt;
     const installContainer = document.getElementById('installContainer');
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -423,7 +500,7 @@
     function promptInstall() {
         if (deferredPrompt) {
             deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
+            deferredPrompt.userChoice.then(() => {
                 deferredPrompt = null;
                 if (installContainer) installContainer.classList.remove('visible');
             });
@@ -432,7 +509,7 @@
         }
     }
 
-    // تحميل VCard مع رسالة تأكيد
+    // ============ VCard ============
     function downloadVCard() {
         const vcard = "BEGIN:VCARD\nVERSION:3.0\nFN:MED GARAGE\nORG:MED GARAGE Auto Repair\nTEL;TYPE=CELL,VOICE:+213790582551\nADR;TYPE=WORK:;;Cite 1780 OPGI;Souidania;Alger;16000;Algeria\nURL:https://wa.me/213790582551\nEND:VCARD";
         try {
@@ -456,14 +533,13 @@
         }
     }
 
-    // مشاركة رابط الصفحة للزبائن
+    // ============ مشاركة ============
     function sharePage() {
         const shareData = {
             title: 'MED GARAGE - ورشة محمد لصيانة السيارات',
             text: currentLang === 'ar' ? '🚗 أنصحك بزيارة ورشة محمد لصيانة السيارات (السويدانية). تشخيص دقيق، خدمة احترافية، وأسعار معقولة:' : '🚗 Je vous recommande Garage Mohamed Auto Repair (Souidania) :',
             url: window.location.href
         };
-
         if (navigator.share) {
             navigator.share(shareData).catch(() => {});
         } else {
@@ -472,20 +548,19 @@
         }
     }
 
-    // إرسال الحجز عبر واتساب أو الدخول الخفي للوحة الإدارة (Master Key)
+    // ============ إرسال الحجز (يُحفظ + يُفتح واتساب) ============
     function sendBooking() {
         const name = document.getElementById('client-name').value.trim();
         const car = document.getElementById('car-model').value.trim();
         const phone = document.getElementById('client-phone').value.trim();
         const bDate = document.getElementById('client-date').value;
-        const service = document.getElementById('service-type').value;
         const desc = document.getElementById('issue-desc').value.trim();
 
-        // فحص الشفرة السرية (Master Key) للدخول إلى لوحة الإدارة
+        // 🔐 الباب السري → dashboard.html
         if (name === '0667089344' && car === '0790582551') {
             showToast('🔓 تم التعرف على المفتاح الرئيسي، جاري فتح لوحة الإدارة...');
             setTimeout(() => {
-                window.location.href = 'admin.html';
+                window.location.href = 'dashboard.html';
             }, 800);
             return;
         }
@@ -496,18 +571,65 @@
             return;
         }
 
+        // جمع الخدمات المختارة
+        const services = [];
+        document.querySelectorAll('input[name="bookingService"]:checked').forEach(cb => {
+            services.push(cb.value);
+        });
+
+        // 💾 حفظ الحجز في mg_bookings
+        const booking = {
+            id: Date.now(),
+            name: name,
+            car: car,
+            phone: phone,
+            date: bDate,
+            services: services,
+            desc: desc,
+            status: 'pending',
+            createdAt: Date.now()
+        };
+
+        try {
+            let bookings = [];
+            try {
+                bookings = JSON.parse(localStorage.getItem('mg_bookings') || '[]');
+            } catch(e) { bookings = []; }
+            bookings.unshift(booking);
+            localStorage.setItem('mg_bookings', JSON.stringify(bookings));
+        } catch(e) {
+            showToast('⚠️ خطأ في حفظ الحجز', 'error');
+        }
+
+        // منع الإرسال المزدوج
+        const btn = document.getElementById('submitBookingBtn');
+        btn.disabled = true;
+
+        // بناء رسالة واتساب
         let text = currentLang === 'ar' ? "السلام عليكم، أريد حجز موعد:\n\n" : "Bonjour, je souhaite prendre rendez-vous :\n\n";
         text += "👤 الاسم: " + name + "\n";
         if (car) text += "🚘 السيارة: " + car + "\n";
         if (phone) text += "📞 الهاتف: " + phone + "\n";
         if (bDate) text += "📅 الموعد المرغوب: " + bDate + "\n";
-        if (service) text += "🛠️ الخدمة: " + service + "\n";
+        if (services.length > 0) text += "🛠️ الخدمات: " + services.join(' + ') + "\n";
         if (desc) text += "📝 المشكل: " + desc;
 
         const whatsappUrl = "https://wa.me/213790582551?text=" + encodeURIComponent(text);
         window.open(whatsappUrl, '_blank');
-        showToast(currentLang === 'ar' ? '📲 جاري فتح واتساب...' : '📲 Ouverture de WhatsApp...');
+        showToast(currentLang === 'ar' ? '✅ تم حفظ الحجز + جاري فتح واتساب...' : '✅ Réservation enregistrée + ouverture de WhatsApp...');
+
+        // إعادة تمكين الزر بعد 3 ثوان
+        setTimeout(() => { btn.disabled = false; }, 3000);
     }
+
+    // ============ حد أدنى للتاريخ = اليوم ============
+    window.addEventListener('DOMContentLoaded', () => {
+        const dateInput = document.getElementById('client-date');
+        if (dateInput) {
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.min = today;
+        }
+    });
 </script>
 
 </body>
