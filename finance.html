@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MED GARAGE - الخزينة والمصاريف (Finance)</title>
-    <meta name="theme-color" content="#1a1d21">
+    <title>MED GARAGE - المالية</title>
+    <meta name="theme-color" content="#1a1d21" id="themeColorMeta">
     <link rel="icon" type="image/png" href="https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png">
     <style>
         :root {
@@ -21,6 +21,7 @@
             --accent: #f59e0b;
             --success: #16a34a;
             --danger: #dc2626;
+            --info: #2563eb;
             --border: #cbd5e1;
             --border-dark: #374151;
         }
@@ -53,96 +54,192 @@
         .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: var(--card-dark); border-radius: 12px; border: 1px solid var(--border-dark); margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
         .admin-header h2 { margin: 0; font-size: 16px; color: #fff; }
         .btn-back-admin { background: transparent; border: 1px solid var(--border-dark); color: var(--text-muted); padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-block; }
+        .btn-back-admin:hover { color: var(--text-light); }
 
-        .section-title { font-size: 18px; margin: 20px 0 12px; color: var(--text-light); border-right: 4px solid var(--primary); padding-right: 10px; font-weight: 900; }
-        html[dir="ltr"] .section-title { border-right: none; border-left: 4px solid var(--primary); padding-right: 0; padding-left: 10px; }
+        .section-title { font-size: 16px; margin: 22px 0 12px; color: var(--text-light); border-right: 4px solid var(--primary); padding-right: 10px; font-weight: 900; display: flex; justify-content: space-between; align-items: center; }
+        .section-title small { font-size: 12px; color: var(--text-muted); font-weight: normal; }
 
         .booking-form, .admin-card { background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 13px; color: var(--text); margin-bottom: 5px; font-weight: 700; }
         .form-control { width: 100%; padding: 11px; background: #ffffff; border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px; font-family: inherit; font-weight: 700; box-sizing: border-box; }
-        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1); }
-        .btn-submit-booking { background-color: var(--primary); color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; font-family: inherit; box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3); }
+        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(220,38,38,0.1); }
 
+        .btn-submit-booking { background-color: var(--primary); color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; font-family: inherit; box-shadow: 0 4px 10px rgba(220,38,38,0.3); }
+
+        .btn { border: none; padding: 10px 18px; border-radius: 6px; font-weight: 900; cursor: pointer; font-family: inherit; color: #fff; }
+        .btn-sm { padding: 6px 10px; font-size: 11px; }
+        .btn-success { background: var(--success); }
+        .btn-warning { background: var(--accent); }
+        .btn-info { background: var(--info); }
+        .btn-danger { background: var(--danger); }
+
+        /* ===== بطاقات الإحصائيات ===== */
         .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
         .stat-box { padding: 15px 12px; border-radius: 12px; text-align: center; }
         .stat-box.income { background: rgba(22, 163, 74, 0.15); border: 1px solid var(--success); }
         .stat-box.expense { background: rgba(220, 38, 38, 0.15); border: 1px solid var(--danger); }
-        .stat-box.profit { background: rgba(217, 119, 6, 0.15); border: 1px solid var(--accent); grid-column: 1 / -1; }
+        .stat-box.profit { background: rgba(245, 158, 11, 0.15); border: 1px solid var(--accent); grid-column: 1 / -1; }
+        .stat-box.pending { background: rgba(139, 92, 246, 0.15); border: 1px solid #8b5cf6; grid-column: 1 / -1; }
         .stat-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
         .stat-value { font-size: 20px; font-weight: 900; }
         .stat-box.income .stat-value { color: #4ade80; }
         .stat-box.expense .stat-value { color: #f87171; }
         .stat-box.profit .stat-value { color: #fbbf24; }
+        .stat-box.pending .stat-value { color: #a78bfa; }
 
-        .list-box { background: #181b20; border: 1px solid var(--border-dark); border-radius: 10px; padding: 10px; max-height: 400px; overflow-y: auto; margin-top: 10px; }
+        /* ===== فلتر الشهر ===== */
+        .month-filter { display: flex; gap: 8px; margin-bottom: 15px; }
+        .month-filter .form-control { background: #0f1115; color: #fff; border-color: var(--border-dark); }
+
+        /* ===== القوائم ===== */
+        .list-box { background: #181b20; border: 1px solid var(--border-dark); border-radius: 10px; padding: 10px; max-height: 500px; overflow-y: auto; margin-top: 10px; }
         .list-row { background: #0f1115; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; border: 1px solid var(--border-dark); color: #f1f5f9; line-height: 1.6; }
+        .list-row:last-child { margin-bottom: 0; }
         .empty-state { text-align: center; padding: 25px 15px; color: var(--text-muted); font-size: 12px; }
 
-        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: #fff; padding: 12px 20px; border-radius: 8px; font-weight: 900; font-size: 14px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); z-index: 9999; transition: transform 0.3s ease; max-width: 90%; text-align: center; }
+        .expense-amount { color: #f87171; font-weight: 900; font-size: 15px; }
+        .income-amount { color: #4ade80; font-weight: 900; font-size: 15px; }
+
+        /* ===== Modal ===== */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; padding: 15px; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: var(--card-dark); border: 2px solid var(--primary); border-radius: 15px; padding: 20px; width: 100%; max-width: 420px; max-height: 92vh; overflow-y: auto; color: #fff; }
+        .modal-content h3 { margin-top: 0; color: var(--accent); text-align: center; }
+        .modal-content .form-group label { color: #cbd5e1; font-size: 12px; }
+        .modal-content .form-control { background: #0f1115; color: #fff; }
+
+        .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); font-size: 12px; }
+        .footer strong { color: var(--primary); }
+
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: #fff; padding: 12px 20px; border-radius: 8px; font-weight: 900; font-size: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 9999; transition: transform 0.3s ease; max-width: 90%; text-align: center; }
         .toast.show { transform: translateX(-50%) translateY(0); }
         .toast.error { background: var(--primary); }
+
+        /* ===== Tabs ===== */
+        .tabs { display: flex; gap: 6px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 10px; background: var(--card-dark); border: 1px solid var(--border-dark); color: var(--text-muted); border-radius: 8px; font-weight: 900; cursor: pointer; font-family: inherit; font-size: 13px; transition: all 0.2s; }
+        .tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
     </style>
 </head>
 <body id="htmlRoot">
 
 <div class="container">
-    <!-- هيدر القائمة -->
     <div class="admin-header">
-        <h2>💰 الخزينة والمصاريف (Finance)</h2>
-        <a href="index.html" class="btn-back-admin">⬅️ الرئيسية</a>
+        <h2>💰 المالية</h2>
+        <a href="dashboard.html" class="btn-back-admin">← رجوع</a>
     </div>
 
-    <!-- الملخص المالي -->
+    <!-- فلتر الشهر -->
+    <div class="month-filter">
+        <input type="month" id="monthFilter" class="form-control" onchange="loadAll()">
+        <button class="btn btn-sm btn-info" onclick="clearMonthFilter()">الكل</button>
+        <button class="btn btn-sm btn-success" onclick="exportCSV()">📤 CSV</button>
+    </div>
+
+    <!-- الإحصائيات -->
     <div class="stats-grid">
         <div class="stat-box income">
-            <div class="stat-label">إجمالي المداخيل</div>
-            <div class="stat-value" id="rTotalIncome">0 دج</div>
+            <div class="stat-label">💵 المداخيل</div>
+            <div class="stat-value" id="statIncome">0 دج</div>
         </div>
         <div class="stat-box expense">
-            <div class="stat-label">إجمالي المصاريف</div>
-            <div class="stat-value" id="rTotalExpense">0 دج</div>
+            <div class="stat-label">💸 المصاريف</div>
+            <div class="stat-value" id="statExpense">0 دج</div>
         </div>
         <div class="stat-box profit">
-            <div class="stat-label">📈 صافي الأرباح (المداخيل - المصاريف)</div>
-            <div class="stat-value" id="rNetProfit">0 دج</div>
+            <div class="stat-label">📈 صافي الربح</div>
+            <div class="stat-value" id="statProfit">0 دج</div>
+        </div>
+        <div class="stat-box pending">
+            <div class="stat-label">⏳ قيمة الفواتير غير المدفوعة (Devis)</div>
+            <div class="stat-value" id="statPending">0 دج</div>
         </div>
     </div>
 
-    <!-- تسجيل مصروف جديد -->
-    <div class="section-title">➕ تسجيل مصروف يومي جديد</div>
-    <div class="booking-form">
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab-btn active" id="tabExpenses" onclick="switchTab('expenses')">💸 المصاريف</button>
+        <button class="tab-btn" id="tabInvoices" onclick="switchTab('invoices')">🧾 الفواتير</button>
+    </div>
+
+    <!-- قسم المصاريف -->
+    <div id="expensesSection">
+        <div class="section-title">➕ تسجيل مصروف جديد</div>
+        <div class="booking-form">
+            <div class="form-group">
+                <label>تفاصيل المصروف *</label>
+                <input type="text" id="expDesc" class="form-control" placeholder="Ex: شراء أدوات صيانة / فاتورة كهرباء...">
+            </div>
+            <div class="form-group">
+                <label>المبلغ (دج) *</label>
+                <input type="number" id="expAmount" class="form-control" placeholder="0" min="0">
+            </div>
+            <div class="form-group">
+                <label>الفئة</label>
+                <select id="expCategory" class="form-control">
+                    <option value="📦">📦 شراء قطع أو سلع</option>
+                    <option value="🏠">🏠 كراء الورشة</option>
+                    <option value="💡">💡 كهرباء وماء</option>
+                    <option value="🔧">🔧 عداد وأدوات ورشة</option>
+                    <option value="🚗">🚗 نقل ومواصلات</option>
+                    <option value="📋">📋 أخرى</option>
+                </select>
+            </div>
+            <button type="button" onclick="addExpense()" class="btn-submit-booking">💾 تسجيل المصروف</button>
+        </div>
+
+        <div class="section-title">📋 قائمة المصاريف <small id="expCount"></small></div>
+        <div class="list-box" id="expensesList">
+            <div class="empty-state">جاري التحميل...</div>
+        </div>
+    </div>
+
+    <!-- قسم الفواتير -->
+    <div id="invoicesSection" style="display:none;">
+        <div class="section-title">🧾 الفواتير المكتملة <small id="invCount"></small></div>
+        <div class="list-box" id="invoicesList">
+            <div class="empty-state">جاري التحميل...</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <strong>MED GARAGE</strong> © 2027 — المالية
+    </div>
+</div>
+
+<!-- Modal تعديل مصروف -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal-content">
+        <h3>✏️ تعديل المصروف</h3>
         <div class="form-group">
-            <label>تفاصيل المصروف *</label>
-            <input type="text" id="expDesc" class="form-control" placeholder="Ex: شراء أدوات صيانة / فاتورة كهرباء...">
+            <label>التفاصيل</label>
+            <input type="text" id="editDesc" class="form-control">
         </div>
         <div class="form-group">
-            <label>المبلغ (دج) *</label>
-            <input type="number" id="expAmount" class="form-control" placeholder="0">
+            <label>المبلغ (دج)</label>
+            <input type="number" id="editAmount" class="form-control" min="0">
         </div>
         <div class="form-group">
             <label>الفئة</label>
-            <select id="expCategory" class="form-control">
-                <option value="📦">📦 شراء قطع أو سلع</option>
-                <option value="🏠">🏠 كراء الورشة</option>
-                <option value="💡">💡 كهرباء وماء</option>
-                <option value="🔧">🔧 عداد وأدوات ورشة</option>
+            <select id="editCategory" class="form-control">
+                <option value="📦">📦 شراء قطع</option>
+                <option value="🏠">🏠 كراء</option>
+                <option value="💡">💡 كهرباء/ماء</option>
+                <option value="🔧">🔧 عداد/أدوات</option>
+                <option value="🚗">🚗 نقل</option>
                 <option value="📋">📋 أخرى</option>
             </select>
         </div>
-        <button type="button" onclick="addExpense()" class="btn-submit-booking">💾 تسجيل المصروف</button>
-    </div>
-
-    <!-- قائمة المصاريف -->
-    <div class="section-title">📋 قائمة المصاريف المسجلة</div>
-    <div class="list-box" id="expensesList">
-        <!-- يتم تعبئتها ديناميكياً -->
+        <button onclick="saveEdit()" class="btn-submit-booking" style="margin-bottom:8px;">💾 حفظ</button>
+        <button onclick="closeEditModal()" class="btn-back-admin" style="width:100%; text-align:center;">إلغاء</button>
     </div>
 </div>
 
 <div id="toast" class="toast"></div>
 
 <script>
+    // ================= أدوات =================
     function getData(key, def = []) {
         try {
             const v = localStorage.getItem('mg_' + key);
@@ -158,7 +255,7 @@
 
     function escapeHtml(str) {
         if (!str) return '';
-        return String(str).replace(/&/g, '&amp;').replace(/</g,'&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
     function showToast(msg, type = 'success') {
@@ -168,14 +265,56 @@
         setTimeout(() => toast.classList.remove('show'), 3500);
     }
 
-    // تسجيل مصروف جديد
+    function applyTheme(theme) {
+        if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        else if (theme === 'oled') document.documentElement.setAttribute('data-theme', 'oled');
+        else document.documentElement.removeAttribute('data-theme');
+        const meta = document.getElementById('themeColorMeta');
+        if (meta) meta.setAttribute('content', theme === 'light' ? '#f1f5f9' : theme === 'oled' ? '#000000' : '#1a1d21');
+    }
+
+    // ================= تبديل Tab =================
+    let currentTab = 'expenses';
+    function switchTab(tab) {
+        currentTab = tab;
+        document.getElementById('expensesSection').style.display = tab === 'expenses' ? 'block' : 'none';
+        document.getElementById('invoicesSection').style.display = tab === 'invoices' ? 'block' : 'none';
+        document.getElementById('tabExpenses').classList.toggle('active', tab === 'expenses');
+        document.getElementById('tabInvoices').classList.toggle('active', tab === 'invoices');
+    }
+
+    // ================= فلترة الشهر =================
+    function clearMonthFilter() {
+        document.getElementById('monthFilter').value = '';
+        loadAll();
+    }
+
+    function isInMonth(item, monthStr) {
+        if (!monthStr) return true;
+        // item.date إما DD/MM/YYYY (من old) أو نستخدم createdAt (timestamp)
+        let date;
+        if (item.createdAt) {
+            date = new Date(item.createdAt);
+        } else if (item.date) {
+            // محاولة تحويل DD/MM/YYYY
+            const parts = String(item.date).split('/');
+            if (parts.length === 3) {
+                date = new Date(parts[2] + '-' + parts[1] + '-' + parts[0]);
+            }
+        }
+        if (!date || isNaN(date)) return true;
+        const ym = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+        return ym === monthStr;
+    }
+
+    // ================= إضافة مصروف =================
     function addExpense() {
         const desc = document.getElementById('expDesc').value.trim();
         const amount = parseFloat(document.getElementById('expAmount').value);
         const category = document.getElementById('expCategory').value;
 
         if (!desc || isNaN(amount) || amount <= 0) {
-            showToast('⚠️ أدخل تفاصيل المصروف والمبلغ بشكل صحيح', 'error');
+            showToast('⚠️ أدخل التفاصيل والمبلغ بشكل صحيح', 'error');
             return;
         }
 
@@ -185,69 +324,209 @@
             desc,
             amount,
             category,
-            date: new Date().toLocaleDateString('ar-DZ')
+            date: new Date().toLocaleDateString('ar-DZ'),
+            createdAt: Date.now()
         });
 
         setData('expenses', expenses);
         document.getElementById('expDesc').value = '';
         document.getElementById('expAmount').value = '';
-        
-        showToast('✅ تم تسجيل المصروف بنجاح');
-        loadFinanceData();
+
+        showToast('✅ تم تسجيل المصروف');
+        loadAll();
     }
 
-    // حذف مصروف
+    // ================= حذف مصروف =================
     function deleteExpense(id) {
-        if (!confirm('هل تريد حذف هذا المصروف؟')) return;
+        if (!confirm('حذف هذا المصروف؟')) return;
         setData('expenses', getData('expenses', []).filter(e => e.id !== id));
-        loadFinanceData();
+        loadAll();
         showToast('🗑️ تم حذف المصروف');
     }
 
-    // تحميل وتحديث بيانات الخزينة والأرباح والمصاريف
-    function loadFinanceData() {
-        const invoices = getData('invoices', []);
+    // ================= تعديل مصروف =================
+    let editingExpId = null;
+
+    function openEditExpense(id) {
         const expenses = getData('expenses', []);
+        const e = expenses.find(x => x.id === id);
+        if (!e) return;
 
-        // حساب المداخيل (فقط الفواتير المكتملة والخالصة، استثناء الـ Devis)
-        const totalInc = invoices.filter(i => i.status !== 'devis').reduce((s, i) => s + (i.total || 0), 0);
-        // حساب المصاريف
-        const totalExp = expenses.reduce((s, e) => s + (e.amount || 0), 0);
-        // صافي الربح
-        const netProfit = totalInc - totalExp;
+        editingExpId = id;
+        document.getElementById('editDesc').value = e.desc || '';
+        document.getElementById('editAmount').value = e.amount || 0;
+        document.getElementById('editCategory').value = e.category || '📋';
+        document.getElementById('editModal').classList.add('active');
+    }
 
-        document.getElementById('rTotalIncome').textContent = totalInc.toLocaleString() + ' دج';
-        document.getElementById('rTotalExpense').textContent = totalExp.toLocaleString() + ' دج';
-        
-        const netEl = document.getElementById('rNetProfit');
-        netEl.textContent = netProfit.toLocaleString() + ' دج';
-        netEl.style.color = netProfit >= 0 ? '#4ade80' : '#f87171';
+    function closeEditModal() {
+        document.getElementById('editModal').classList.remove('active');
+        editingExpId = null;
+    }
 
-        // عرض قائمة المصاريف
-        const container = document.getElementById('expensesList');
-        if (expenses.length === 0) {
-            container.innerHTML = '<div class="empty-state">لا توجد مصاريف مسجلة</div>';
+    function saveEdit() {
+        if (!editingExpId) return;
+        const desc = document.getElementById('editDesc').value.trim();
+        const amount = parseFloat(document.getElementById('editAmount').value);
+
+        if (!desc || isNaN(amount) || amount <= 0) {
+            showToast('⚠️ بيانات غير صالحة', 'error');
             return;
         }
 
-        container.innerHTML = expenses.map(e => `
+        let expenses = getData('expenses', []);
+        const idx = expenses.findIndex(x => x.id === editingExpId);
+        if (idx === -1) return;
+
+        expenses[idx].desc = desc;
+        expenses[idx].amount = amount;
+        expenses[idx].category = document.getElementById('editCategory').value;
+
+        setData('expenses', expenses);
+        closeEditModal();
+        loadAll();
+        showToast('✅ تم تعديل المصروف');
+    }
+
+    // ================= تحميل الكل =================
+    function loadAll() {
+        const monthStr = document.getElementById('monthFilter').value;
+
+        const expenses = getData('expenses', []).filter(e => isInMonth(e, monthStr));
+        const invoices = getData('invoices', []).filter(i => isInMonth(i, monthStr));
+
+        // المداخيل = الفواتير المكتملة فقط
+        const paidInvoices = invoices.filter(i => i.status !== 'devis');
+        const devisInvoices = invoices.filter(i => i.status === 'devis');
+
+        const totalIncome = paidInvoices.reduce((s, i) => s + (Number(i.total) || 0), 0);
+        const totalExpense = expenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
+        const totalPending = devisInvoices.reduce((s, i) => s + (Number(i.total) || 0), 0);
+        const profit = totalIncome - totalExpense;
+
+        // عرض الإحصائيات
+        document.getElementById('statIncome').textContent = totalIncome.toLocaleString() + ' دج';
+        document.getElementById('statExpense').textContent = totalExpense.toLocaleString() + ' دج';
+        document.getElementById('statPending').textContent = totalPending.toLocaleString() + ' دج';
+
+        const profitEl = document.getElementById('statProfit');
+        profitEl.textContent = profit.toLocaleString() + ' دج';
+        profitEl.style.color = profit >= 0 ? '#4ade80' : '#f87171';
+
+        // عرض المصاريف
+        renderExpenses(expenses);
+
+        // عرض الفواتير
+        renderInvoices(paidInvoices);
+    }
+
+    function renderExpenses(expenses) {
+        const box = document.getElementById('expensesList');
+        document.getElementById('expCount').textContent = `(${expenses.length})`;
+
+        if (expenses.length === 0) {
+            box.innerHTML = '<div class="empty-state">لا توجد مصاريف مسجلة</div>';
+            return;
+        }
+
+        box.innerHTML = expenses.map(e => `
             <div class="list-row">
-                <strong>${e.category} ${escapeHtml(e.desc)}</strong><br>
-                <span style="color:#f87171; font-weight:bold;">- ${e.amount.toLocaleString()} دج</span>
-                <span style="color:#94a3b8; font-size:11px;"> | ${e.date}</span>
-                <div style="margin-top:6px;">
-                    <button onclick="deleteExpense(${e.id})" style="background:#dc2626; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:10px;">🗑️ حذف</button>
+                <strong>${escapeHtml(e.category || '📋')} ${escapeHtml(e.desc)}</strong><br>
+                <span class="expense-amount">- ${(Number(e.amount) || 0).toLocaleString()} دج</span>
+                <span style="color:#94a3b8; font-size:11px;"> | ${escapeHtml(e.date)}</span>
+                <div style="margin-top:6px; display:flex; gap:6px;">
+                    <button onclick="openEditExpense(${e.id})" class="btn btn-sm btn-info">✏️ تعديل</button>
+                    <button onclick="deleteExpense(${e.id})" class="btn btn-sm btn-danger">🗑️ حذف</button>
                 </div>
             </div>
         `).join('');
     }
 
+    function renderInvoices(invoices) {
+        const box = document.getElementById('invoicesList');
+        document.getElementById('invCount').textContent = `(${invoices.length})`;
+
+        if (invoices.length === 0) {
+            box.innerHTML = '<div class="empty-state">لا توجد فواتير</div>';
+            return;
+        }
+
+        box.innerHTML = invoices.map(inv => `
+            <div class="list-row">
+                <strong>${escapeHtml(inv.code)}</strong> — 👤 ${escapeHtml(inv.client)}
+                ${inv.car ? ` | 🚗 ${escapeHtml(inv.car)}` : ''}<br>
+                <span class="income-amount">+ ${(Number(inv.total) || 0).toLocaleString()} دج</span>
+                <span style="color:#94a3b8; font-size:11px;"> | ${escapeHtml(inv.date || '')}</span>
+            </div>
+        `).join('');
+    }
+
+    // ================= تصدير CSV =================
+    function exportCSV() {
+        const monthStr = document.getElementById('monthFilter').value;
+        const expenses = getData('expenses', []).filter(e => isInMonth(e, monthStr));
+        const invoices = getData('invoices', []).filter(i => isInMonth(i, monthStr) && i.status !== 'devis');
+
+        if (expenses.length === 0 && invoices.length === 0) {
+            showToast('⚠️ لا توجد بيانات للتصدير', 'error');
+            return;
+        }
+
+        let csv = '\uFEFF';
+
+        // قسم الفواتير
+        csv += '=== الفواتير ===\n';
+        csv += 'الرقم,الزبون,السيارة,المبلغ,التاريخ\n';
+        invoices.forEach(inv => {
+            csv += [
+                '"' + (inv.code || '').replace(/"/g, '""') + '"',
+                '"' + (inv.client || '').replace(/"/g, '""') + '"',
+                '"' + (inv.car || '').replace(/"/g, '""') + '"',
+                inv.total || 0,
+                inv.date || ''
+            ].join(',') + '\n';
+        });
+
+        csv += '\n=== المصاريف ===\n';
+        csv += 'الفئة,التفاصيل,المبلغ,التاريخ\n';
+        expenses.forEach(e => {
+            csv += [
+                '"' + (e.category || '').replace(/"/g, '""') + '"',
+                '"' + (e.desc || '').replace(/"/g, '""') + '"',
+                e.amount || 0,
+                e.date || ''
+            ].join(',') + '\n';
+        });
+
+        // الإجماليات
+        const totalIncome = invoices.reduce((s, i) => s + (Number(i.total) || 0), 0);
+        const totalExpense = expenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
+        csv += '\n=== الملخص ===\n';
+        csv += `المداخيل,${totalIncome}\n`;
+        csv += `المصاريف,${totalExpense}\n`;
+        csv += `صافي الربح,${totalIncome - totalExpense}\n`;
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const suffix = monthStr ? '_' + monthStr : '_' + new Date().toISOString().slice(0, 10);
+        a.download = 'med-garage-finance' + suffix + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+
+        showToast('✅ تم تصدير الملف');
+    }
+
+    // ================= تحميل الصفحة =================
     window.onload = function() {
-        loadFinanceData();
         try {
             const savedTheme = localStorage.getItem('medgarage_theme');
-            if (savedTheme) document.getElementById('htmlRoot').setAttribute('data-theme', savedTheme);
+            if (savedTheme) applyTheme(savedTheme);
         } catch(e) {}
+
+        loadAll();
     };
 </script>
 
