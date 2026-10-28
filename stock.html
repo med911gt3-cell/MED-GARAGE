@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MED GARAGE - المخزن (Stock)</title>
-    <meta name="theme-color" content="#1a1d21">
+    <title>MED GARAGE - المخزن</title>
+    <meta name="theme-color" content="#1a1d21" id="themeColorMeta">
     <link rel="icon" type="image/png" href="https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png">
     <style>
         :root {
@@ -21,6 +21,7 @@
             --accent: #f59e0b;
             --success: #16a34a;
             --danger: #dc2626;
+            --info: #2563eb;
             --border: #cbd5e1;
             --border-dark: #374151;
         }
@@ -53,37 +54,99 @@
         .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: var(--card-dark); border-radius: 12px; border: 1px solid var(--border-dark); margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
         .admin-header h2 { margin: 0; font-size: 16px; color: #fff; }
         .btn-back-admin { background: transparent; border: 1px solid var(--border-dark); color: var(--text-muted); padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-block; }
+        .btn-back-admin:hover { color: var(--text-light); }
 
-        .section-title { font-size: 18px; margin: 20px 0 12px; color: var(--text-light); border-right: 4px solid var(--primary); padding-right: 10px; font-weight: 900; }
-        html[dir="ltr"] .section-title { border-right: none; border-left: 4px solid var(--primary); padding-right: 0; padding-left: 10px; }
+        .section-title { font-size: 16px; margin: 22px 0 12px; color: var(--text-light); border-right: 4px solid var(--primary); padding-right: 10px; font-weight: 900; display: flex; justify-content: space-between; align-items: center; }
+        .section-title small { font-size: 12px; color: var(--text-muted); font-weight: normal; }
 
         .booking-form, .admin-card { background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 13px; color: var(--text); margin-bottom: 5px; font-weight: 700; }
         .form-control { width: 100%; padding: 11px; background: #ffffff; border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px; font-family: inherit; font-weight: 700; box-sizing: border-box; }
-        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1); }
-        .btn-submit-booking { background-color: var(--primary); color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; font-family: inherit; box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3); }
-        
+        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(220,38,38,0.1); }
+
+        .btn-submit-booking { background-color: var(--primary); color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; font-family: inherit; box-shadow: 0 4px 10px rgba(220,38,38,0.3); }
+
+        .btn { border: none; padding: 10px 18px; border-radius: 6px; font-weight: 900; cursor: pointer; font-family: inherit; color: #fff; }
+        .btn-sm { padding: 6px 10px; font-size: 11px; }
+        .btn-primary { background: var(--primary); }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-success { background: var(--success); }
+        .btn-warning { background: var(--accent); }
+        .btn-info { background: var(--info); }
+        .btn-danger { background: var(--danger); }
+
+        /* ===== بطاقات الإحصائيات ===== */
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+        .stat-box { padding: 14px 12px; border-radius: 12px; text-align: center; }
+        .stat-box.total { background: rgba(37, 99, 235, 0.15); border: 1px solid var(--info); }
+        .stat-box.value { background: rgba(22, 163, 74, 0.15); border: 1px solid var(--success); }
+        .stat-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+        .stat-value { font-size: 18px; font-weight: 900; }
+        .stat-box.total .stat-value { color: #60a5fa; }
+        .stat-box.value .stat-value { color: #4ade80; }
+
+        /* ===== صندوق البحث ===== */
+        .search-box { display: flex; gap: 8px; margin-bottom: 12px; }
+        .search-box .form-control { flex: 1; }
+
+        /* ===== القائمة ===== */
         .list-box { background: #181b20; border: 1px solid var(--border-dark); border-radius: 10px; padding: 10px; max-height: 500px; overflow-y: auto; margin-top: 10px; }
-        .list-row { background: #0f1115; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; border: 1px solid var(--border-dark); color: #f1f5f9; line-height: 1.6; }
+        .list-row { background: #0f1115; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; border: 1px solid var(--border-dark); color: #f1f5f9; line-height: 1.6; position: relative; }
+        .list-row:last-child { margin-bottom: 0; }
+        .list-row.low-stock { border-color: var(--danger); background: rgba(220, 38, 38, 0.08); }
+        .list-row.out-stock { border-color: var(--danger); background: rgba(220, 38, 38, 0.15); }
         .empty-state { text-align: center; padding: 25px 15px; color: var(--text-muted); font-size: 12px; }
 
-        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: #fff; padding: 12px 20px; border-radius: 8px; font-weight: 900; font-size: 14px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); z-index: 9999; transition: transform 0.3s ease; max-width: 90%; text-align: center; }
+        .stock-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; margin-right: 6px; }
+        .badge-ok { background: rgba(22,163,74,0.2); color: #4ade80; }
+        .badge-low { background: rgba(245,158,11,0.2); color: #fbbf24; }
+        .badge-out { background: rgba(220,38,38,0.3); color: #f87171; }
+
+        .stock-meta { color: #94a3b8; font-size: 12px; margin-top: 4px; }
+        .stock-meta strong { color: #fbbf24; }
+
+        .stock-actions { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+
+        .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); font-size: 12px; }
+        .footer strong { color: var(--primary); }
+
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: #fff; padding: 12px 20px; border-radius: 8px; font-weight: 900; font-size: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 9999; transition: transform 0.3s ease; max-width: 90%; text-align: center; }
         .toast.show { transform: translateX(-50%) translateY(0); }
         .toast.error { background: var(--primary); }
+
+        /* ===== Modal ===== */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; padding: 15px; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: var(--card-dark); border: 2px solid var(--primary); border-radius: 15px; padding: 20px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; color: #fff; }
+        .modal-content h3 { margin-top: 0; color: var(--accent); text-align: center; }
+        .modal-content .form-group label { color: #cbd5e1; font-size: 12px; }
+        .modal-content .form-control { background: #0f1115; color: #fff; }
+        .modal-content .form-control.mono { direction: ltr; text-align: right; unicode-bidi: embed; }
     </style>
 </head>
 <body id="htmlRoot">
 
 <div class="container">
-    <!-- هيدر القائمة -->
     <div class="admin-header">
-        <h2>📦 تسيير المخزن (Stock)</h2>
-        <a href="index.html" class="btn-back-admin">⬅️ الرئيسية</a>
+        <h2>📦 تسيير المخزن</h2>
+        <a href="dashboard.html" class="btn-back-admin">← رجوع</a>
     </div>
 
-    <!-- إضافة قطعة جديدة للستوك -->
-    <div class="section-title">إضافة قطعة غيار جديدة</div>
+    <!-- إحصائيات -->
+    <div class="stats-grid">
+        <div class="stat-box total">
+            <div class="stat-label">📦 إجمالي القطع</div>
+            <div class="stat-value" id="statTotalQty">0</div>
+        </div>
+        <div class="stat-box value">
+            <div class="stat-label">💰 قيمة البيع الإجمالية</div>
+            <div class="stat-value" id="statTotalValue">0 دج</div>
+        </div>
+    </div>
+
+    <!-- إضافة قطعة -->
+    <div class="section-title">➕ إضافة قطعة جديدة</div>
     <div class="booking-form">
         <div class="form-group">
             <label>اسم القطعة *</label>
@@ -95,39 +158,90 @@
                 <option value="🛢️">🛢️ زيت (Huile)</option>
                 <option value="🔘">🔘 فلتر (Filtre)</option>
                 <option value="🛑">🛑 فرامل (Plaquettes / Disques)</option>
-                <option value="⚙️">⚙️ تعليق / ميكانيك (Suspension / Embrayage)</option>
-                <option value="📋">📋 أخرى (Autre)</option>
+                <option value="⚙️">⚙️ تعليق / ميكانيك</option>
+                <option value="📋">📋 أخرى</option>
             </select>
         </div>
         <div class="form-group">
             <label>الكمية الأولية *</label>
-            <input type="number" id="stockQty" class="form-control" value="10">
+            <input type="number" id="stockQty" class="form-control" value="10" min="0">
         </div>
         <div class="form-group">
             <label>سعر الشراء (دج)</label>
-            <input type="number" id="stockBuyPrice" class="form-control" placeholder="0">
+            <input type="number" id="stockBuyPrice" class="form-control" placeholder="0" min="0">
         </div>
         <div class="form-group">
             <label>سعر البيع للزبون (دج)</label>
-            <input type="number" id="stockSellPrice" class="form-control" placeholder="0">
+            <input type="number" id="stockSellPrice" class="form-control" placeholder="0" min="0">
         </div>
         <button type="button" onclick="addStockItem()" class="btn-submit-booking">💾 إضافة للستوك</button>
     </div>
 
-    <!-- قائمة القطع الحالية -->
-    <div class="section-title">قائمة قطع الغيار المتوفرة</div>
-    <div class="form-group">
-        <input type="text" id="stockSearch" class="form-control" placeholder="🔍 بحث عن قطعة في الستوك..." oninput="loadStock()">
+    <!-- البحث + تصدير -->
+    <div class="section-title">
+        📋 قائمة القطع
+        <small id="stockCount"></small>
     </div>
+    <div class="search-box">
+        <input type="text" id="stockSearch" class="form-control" placeholder="🔍 بحث..." oninput="loadStock()">
+        <button class="btn btn-success btn-sm" onclick="exportCSV()" title="تصدير Excel">📤</button>
+    </div>
+
+    <!-- تصفية -->
+    <div class="search-box" style="margin-top:-4px;">
+        <button class="btn btn-sm btn-info" onclick="filterStock('all')" id="filterAll" style="flex:1;">الكل</button>
+        <button class="btn btn-sm btn-warning" onclick="filterStock('low')" id="filterLow" style="flex:1;">⚠️ منخفض</button>
+        <button class="btn btn-sm btn-danger" onclick="filterStock('out')" id="filterOut" style="flex:1;">❌ نافذ</button>
+    </div>
+
     <div class="list-box" id="stockList">
-        <!-- يتم تعبئتها ديناميكياً -->
+        <!-- يتم تعبئتها -->
+    </div>
+
+    <div class="footer">
+        <strong>MED GARAGE</strong> © 2027 — المخزن
+    </div>
+</div>
+
+<!-- Modal التعديل -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal-content">
+        <h3 id="editModalTitle">✏️ تعديل القطعة</h3>
+        <div class="form-group">
+            <label>اسم القطعة</label>
+            <input type="text" id="editName" class="form-control">
+        </div>
+        <div class="form-group">
+            <label>الفئة</label>
+            <select id="editCategory" class="form-control">
+                <option value="🛢️">🛢️ زيت</option>
+                <option value="🔘">🔘 فلتر</option>
+                <option value="🛑">🛑 فرامل</option>
+                <option value="⚙️">⚙️ تعليق / ميكانيك</option>
+                <option value="📋">📋 أخرى</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>الكمية</label>
+            <input type="number" id="editQty" class="form-control" min="0">
+        </div>
+        <div class="form-group">
+            <label>سعر الشراء (دج)</label>
+            <input type="number" id="editBuyPrice" class="form-control" min="0">
+        </div>
+        <div class="form-group">
+            <label>سعر البيع (دج)</label>
+            <input type="number" id="editSellPrice" class="form-control" min="0">
+        </div>
+        <button onclick="saveEdit()" class="btn-submit-booking" style="margin-bottom:8px;">💾 حفظ</button>
+        <button onclick="closeEditModal()" class="btn-back-admin" style="width:100%; text-align:center;">إلغاء</button>
     </div>
 </div>
 
 <div id="toast" class="toast"></div>
 
 <script>
-    // وظائف مساعدة للتعامل مع localStorage
+    // ================= أدوات =================
     function getData(key, def = []) {
         try {
             const v = localStorage.getItem('mg_' + key);
@@ -143,7 +257,7 @@
 
     function escapeHtml(str) {
         if (!str) return '';
-        return String(str).replace(/&/g, '&amp;').replace(/</g,'&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
     function showToast(msg, type = 'success') {
@@ -153,7 +267,33 @@
         setTimeout(() => toast.classList.remove('show'), 3500);
     }
 
-    // إضافة قطعة للستوك
+    // ================= الثيم =================
+    function applyTheme(theme) {
+        if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        else if (theme === 'oled') document.documentElement.setAttribute('data-theme', 'oled');
+        else document.documentElement.removeAttribute('data-theme');
+        const meta = document.getElementById('themeColorMeta');
+        if (meta) {
+            meta.setAttribute('content', theme === 'light' ? '#f1f5f9' : theme === 'oled' ? '#000000' : '#1a1d21');
+        }
+    }
+
+    // ================= تصفية =================
+    let currentFilter = 'all';
+
+    function filterStock(type) {
+        currentFilter = type;
+        ['filterAll', 'filterLow', 'filterOut'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.opacity = '0.5';
+        });
+        const btn = type === 'all' ? 'filterAll' : type === 'low' ? 'filterLow' : 'filterOut';
+        const active = document.getElementById(btn);
+        if (active) active.style.opacity = '1';
+        loadStock();
+    }
+
+    // ================= إضافة قطعة =================
     function addStockItem() {
         const name = document.getElementById('stockName').value.trim();
         const category = document.getElementById('stockCategory').value;
@@ -182,37 +322,81 @@
         document.getElementById('stockQty').value = '10';
         document.getElementById('stockBuyPrice').value = '';
         document.getElementById('stockSellPrice').value = '';
-        
-        showToast('✅ تمت الإضافة للستوك بنجاح');
+
+        showToast('✅ تمت الإضافة للستوك');
         loadStock();
     }
 
-    // تحميل وعرض الستوك مع محرك البحث
+    // ================= تحميل القائمة =================
     function loadStock() {
         const stock = getData('stock', []);
         const search = (document.getElementById('stockSearch').value || '').toLowerCase();
-        let filtered = search ? stock.filter(s => s.name.toLowerCase().includes(search)) : stock;
 
+        // تطبيق البحث
+        let filtered = search ? stock.filter(s => (s.name || '').toLowerCase().includes(search)) : stock;
+
+        // تطبيق الفلتر
+        if (currentFilter === 'low') {
+            filtered = filtered.filter(s => s.qty > 0 && s.qty <= 3);
+        } else if (currentFilter === 'out') {
+            filtered = filtered.filter(s => s.qty === 0);
+        }
+
+        // تحديث العداد
+        document.getElementById('stockCount').textContent = `(${filtered.length} من ${stock.length})`;
+
+        // تحديث الإحصائيات
+        const totalQty = stock.reduce((sum, s) => sum + (s.qty || 0), 0);
+        const totalValue = stock.reduce((sum, s) => sum + ((s.qty || 0) * (s.sellPrice || 0)), 0);
+        document.getElementById('statTotalQty').textContent = totalQty;
+        document.getElementById('statTotalValue').textContent = totalValue.toLocaleString() + ' دج';
+
+        // العرض
         const container = document.getElementById('stockList');
         if (filtered.length === 0) {
-            container.innerHTML = '<div class="empty-state">لا توجد قطع غيار مسجلة</div>';
+            container.innerHTML = '<div class="empty-state">لا توجد قطع مطابقة</div>';
             return;
         }
 
-        container.innerHTML = filtered.map(s => `
-            <div class="list-row">
-                <strong>${s.category} ${escapeHtml(s.name)}</strong><br>
-                <span style="color:#94a3b8;">الكمية المتوفرة: <strong style="color:${s.qty > 0 ? '#4ade80' : '#f87171'};">${s.qty}</strong> | شراء: ${s.buyPrice}دج | بيع: <strong style="color:#fbbf24;">${s.sellPrice}دج</strong></span>
-                <div style="margin-top:8px; display:flex; gap:6px;">
-                    <button onclick="updateStockQty(${s.id})" style="background:#2563eb; color:#fff; border:none; padding:5px 8px; border-radius:5px; cursor:pointer;">➕ كمية</button>
-                    <button onclick="updateStockPrice(${s.id})" style="background:#f59e0b; color:#fff; border:none; padding:5px 8px; border-radius:5px; cursor:pointer;">💰 سعر</button>
-                    <button onclick="deleteStock(${s.id})" style="background:#dc2626; color:#fff; border:none; padding:5px 8px; border-radius:5px; cursor:pointer;">🗑️ حذف</button>
+        // ترتيب: النافذ أولاً، ثم المنخفض، ثم العادي
+        const sorted = [...filtered].sort((a, b) => {
+            if (a.qty === 0 && b.qty > 0) return -1;
+            if (a.qty > 0 && b.qty === 0) return 1;
+            return a.qty - b.qty;
+        });
+
+        container.innerHTML = sorted.map(s => {
+            let rowClass = '';
+            let badge = '';
+            if (s.qty === 0) {
+                rowClass = 'out-stock';
+                badge = '<span class="stock-badge badge-out">❌ نافذ</span>';
+            } else if (s.qty <= 3) {
+                rowClass = 'low-stock';
+                badge = '<span class="stock-badge badge-low">⚠️ منخفض</span>';
+            } else {
+                badge = '<span class="stock-badge badge-ok">✅ متوفر</span>';
+            }
+
+            return `
+                <div class="list-row ${rowClass}">
+                    <strong>${s.category || '📋'} ${escapeHtml(s.name)}</strong> ${badge}<br>
+                    <div class="stock-meta">
+                        الكمية: <strong>${s.qty}</strong> &nbsp;|&nbsp;
+                        شراء: ${s.buyPrice || 0} دج &nbsp;|&nbsp;
+                        بيع: <strong>${s.sellPrice || 0} دج</strong>
+                    </div>
+                    <div class="stock-actions">
+                        <button onclick="openEditModal(${s.id})" class="btn btn-sm btn-info">✏️ تعديل</button>
+                        <button onclick="updateStockQty(${s.id})" class="btn btn-sm btn-primary">➕ كمية</button>
+                        <button onclick="deleteStock(${s.id})" class="btn btn-sm btn-danger">🗑️</button>
+                    </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
-    // تعديل كمية القطعة
+    // ================= تعديل كمية سريع =================
     function updateStockQty(id) {
         let stock = getData('stock', []);
         const s = stock.find(x => x.id === id);
@@ -220,29 +404,67 @@
         const val = prompt('أدخل الكمية الجديدة:', s.qty);
         if (val === null) return;
         const q = parseInt(val);
-        if (isNaN(q) || q < 0) return;
+        if (isNaN(q) || q < 0) {
+            showToast('⚠️ كمية غير صالحة', 'error');
+            return;
+        }
         s.qty = q;
         setData('stock', stock);
         loadStock();
         showToast('✅ تم تحديث الكمية');
     }
 
-    // تعديل سعر البيع للقطعة
-    function updateStockPrice(id) {
-        let stock = getData('stock', []);
+    // ================= Modal التعديل =================
+    let editingId = null;
+
+    function openEditModal(id) {
+        const stock = getData('stock', []);
         const s = stock.find(x => x.id === id);
         if (!s) return;
-        const val = prompt('أدخل سعر البيع الجديد (دج):', s.sellPrice);
-        if (val === null) return;
-        const p = parseFloat(val);
-        if (isNaN(p) || p < 0) return;
-        s.sellPrice = p;
-        setData('stock', stock);
-        loadStock();
-        showToast('✅ تم تحديث سعر البيع');
+
+        editingId = id;
+        document.getElementById('editModalTitle').textContent = '✏️ تعديل: ' + s.name;
+        document.getElementById('editName').value = s.name || '';
+        document.getElementById('editCategory').value = s.category || '📋';
+        document.getElementById('editQty').value = s.qty || 0;
+        document.getElementById('editBuyPrice').value = s.buyPrice || 0;
+        document.getElementById('editSellPrice').value = s.sellPrice || 0;
+        document.getElementById('editModal').classList.add('active');
     }
 
-    // حذف قطعة من المخزن
+    function closeEditModal() {
+        document.getElementById('editModal').classList.remove('active');
+        editingId = null;
+    }
+
+    function saveEdit() {
+        if (!editingId) return;
+        const name = document.getElementById('editName').value.trim();
+        if (!name) {
+            showToast('⚠️ الاسم مطلوب', 'error');
+            return;
+        }
+
+        let stock = getData('stock', []);
+        const idx = stock.findIndex(x => x.id === editingId);
+        if (idx === -1) return;
+
+        stock[idx] = {
+            ...stock[idx],
+            name: name,
+            category: document.getElementById('editCategory').value,
+            qty: parseInt(document.getElementById('editQty').value) || 0,
+            buyPrice: parseFloat(document.getElementById('editBuyPrice').value) || 0,
+            sellPrice: parseFloat(document.getElementById('editSellPrice').value) || 0
+        };
+
+        setData('stock', stock);
+        closeEditModal();
+        loadStock();
+        showToast('✅ تم حفظ التعديلات');
+    }
+
+    // ================= حذف =================
     function deleteStock(id) {
         if (!confirm('هل تريد حذف هذه القطعة من الستوك؟')) return;
         setData('stock', getData('stock', []).filter(s => s.id !== id));
@@ -250,13 +472,53 @@
         showToast('🗑️ تم حذف القطعة');
     }
 
-    // تحميل الستوك عند فتح الصفحة
+    // ================= تصدير CSV =================
+    function exportCSV() {
+        const stock = getData('stock', []);
+        if (stock.length === 0) {
+            showToast('⚠️ لا توجد بيانات للتصدير', 'error');
+            return;
+        }
+
+        // BOM لضمان قراءة العربية في Excel
+        let csv = '\uFEFF';
+        csv += 'الفئة,اسم القطعة,الكمية,سعر الشراء,سعر البيع,القيمة الإجمالية,الحالة\n';
+
+        stock.forEach(s => {
+            const status = s.qty === 0 ? 'نافذ' : s.qty <= 3 ? 'منخفض' : 'متوفر';
+            const total = (s.qty || 0) * (s.sellPrice || 0);
+            csv += [
+                s.category || '',
+                '"' + (s.name || '').replace(/"/g, '""') + '"',
+                s.qty || 0,
+                s.buyPrice || 0,
+                s.sellPrice || 0,
+                total,
+                status
+            ].join(',') + '\n';
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'med-garage-stock-' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+
+        showToast('✅ تم تصدير الملف');
+    }
+
+    // ================= تحميل الصفحة =================
     window.onload = function() {
-        loadStock();
         try {
             const savedTheme = localStorage.getItem('medgarage_theme');
-            if (savedTheme) document.getElementById('htmlRoot').setAttribute('data-theme', savedTheme);
+            if (savedTheme) applyTheme(savedTheme);
         } catch(e) {}
+
+        filterStock('all');
+        loadStock();
     };
 </script>
 
