@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="htmlRoot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MED GARAGE - الإعدادات</title>
+    <meta name="theme-color" content="#1a1d21">
+    <link rel="icon" type="image/png" href="https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png">
+    <style>
+        :root {
+            --primary: #dc2626;
+            --primary-hover: #b91c1c;
+            --bg: #1f242b;
+            --bg-gradient: linear-gradient(135deg, #2a2f38 0%, #181b20 100%);
+            --card: #ffffff;
+            --card-dark: #2a2f36;
+            --card-darker: #181b20;
+            --text: #1e293b;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #f59e0b;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --info: #2563eb;
+            --border: #cbd5e1;
+            --border-dark: #374151;
+        }
+
+        [data-theme="light"] {
+            --bg: #f1f5f9;
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            --card: #ffffff;
+            --text: #0f172a;
+            --text-light: #0f172a;
+            --text-muted: #475569;
+            --border: #cbd5e1;
+        }
+
+        [data-theme="oled"] {
+            --primary: #2563eb;
+            --bg: #000000;
+            --bg-gradient: linear-gradient(135deg, #111111 0%, #000000 100%);
+            --card: #121212;
+            --text: #f8fafc;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Cairo', system-ui, -apple-system, sans-serif; font-weight: 700; background: var(--bg-gradient); background-attachment: fixed; color: var(--text-light); margin: 0; padding: 15px; line-height: 1.6; min-height: 100vh; }
+        .container { max-width: 550px; margin: 0 auto; padding-bottom: 40px; }
+
+        .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: var(--card-dark); border-radius: 12px; border: 1px solid var(--border-dark); margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .admin-header h2 { margin: 0; font-size: 16px; color: #fff; }
+        .btn-back-admin { background: transparent; border: 1px solid var(--border-dark); color: var(--text-muted); padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-block; }
+        .btn-back-admin:hover { color: var(--text-light); }
+
+        .section-title { font-size: 16px; margin: 22px 0 12px; color: var(--text-light); border-right: 4px solid var(--primary); padding-right: 10px; font-weight: 900; }
+
+        .settings-card { background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .settings-card .description { font-size: 12px; color: var(--text-muted); margin: -5px 0 12px; line-height: 1.6; }
+
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 13px; color: var(--text); margin-bottom: 5px; font-weight: 700; }
+        .form-control { width: 100%; padding: 11px; background: #ffffff; border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px; font-family: inherit; font-weight: 700; box-sizing: border-box; }
+        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(220,38,38,0.1); }
+        .form-control.mono { direction: ltr; text-align: right; unicode-bidi: embed; letter-spacing: 2px; }
+
+        .btn-primary { background: var(--primary); color: #fff; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; font-family: inherit; width: 100%; box-shadow: 0 4px 10px rgba(220,38,38,0.3); }
+        .btn-primary:hover { background: var(--primary-hover); }
+
+        .btn-success { background: var(--success); color: #fff; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; font-family: inherit; width: 100%; margin-bottom: 10px; }
+        .btn-info { background: var(--info); color: #fff; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; font-family: inherit; width: 100%; margin-bottom: 10px; }
+        .btn-danger { background: var(--danger); color: #fff; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; font-family: inherit; width: 100%; }
+
+        .theme-selector { display: flex; gap: 8px; margin-top: 8px; }
+        .theme-option { flex: 1; padding: 12px 8px; border: 2px solid var(--border); border-radius: 8px; background: var(--card); cursor: pointer; text-align: center; font-size: 12px; font-weight: bold; color: var(--text); transition: all 0.2s; font-family: inherit; }
+        .theme-option.active { border-color: var(--primary); background: rgba(220,38,38,0.1); }
+        .theme-option:hover { border-color: var(--primary); }
+        .theme-option .icon { font-size: 20px; display: block; margin-bottom: 4px; }
+
+        .lang-selector { display: flex; gap: 8px; margin-top: 8px; }
+        .lang-option { flex: 1; padding: 12px; border: 2px solid var(--border); border-radius: 8px; background: var(--card); cursor: pointer; text-align: center; font-size: 14px; font-weight: bold; color: var(--text); transition: all 0.2s; font-family: inherit; }
+        .lang-option.active { border-color: var(--primary); background: rgba(220,38,38,0.1); }
+
+        .danger-zone { border: 2px dashed var(--danger); background: rgba(220,38,38,0.08); }
+        .danger-zone .section-title { color: var(--danger); border-right-color: var(--danger); }
+
+        .info-box { padding: 12px; background: rgba(37,99,235,0.1); border: 1px solid var(--info); border-radius: 8px; color: #93c5fd; font-size: 12px; line-height: 1.6; margin-bottom: 12px; }
+        [data-theme="light"] .info-box { color: #1e40af; background: rgba(37,99,235,0.08); }
+
+        .data-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0; }
+        .data-stat { background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 10px 6px; text-align: center; }
+        [data-theme="light"] .data-stat, [data-theme="oled"] .data-stat { background: var(--card-dark); border-color: var(--border-dark); }
+        .data-stat .val { font-size: 18px; font-weight: 900; color: var(--primary); }
+        .data-stat .lbl { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+        .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); font-size: 12px; }
+        .footer strong { color: var(--primary); }
+
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: #fff; padding: 12px 20px; border-radius: 8px; font-weight: 900; font-size: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 9999; transition: transform 0.3s ease; max-width: 90%; text-align: center; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--primary); }
+    </style>
+</head>
+<body id="htmlRoot">
+
+<div class="container">
+    <div class="admin-header">
+        <h2>⚙️ الإعدادات</h2>
+        <a href="dashboard.html" class="btn-back-admin">← رجوع</a>
+    </div>
+
+    <!-- ============ 1. تغيير PIN ============ -->
+    <div class="section-title">🔐 تغيير رمز PIN</div>
+    <div class="settings-card">
+        <p class="description">PIN الحالي هو كلمة السر التي تفتح بها لوحة التحكم. الافتراضي هو <strong>911</strong>.</p>
+        <div class="form-group">
+            <label>PIN الحالي *</label>
+            <input type="password" id="oldPin" class="form-control mono" maxlength="6" inputmode="numeric" placeholder="••••">
+        </div>
+        <div class="form-group">
+            <label>PIN الجديد *</label>
+            <input type="password" id="newPin" class="form-control mono" maxlength="6" inputmode="numeric" placeholder="••••">
+        </div>
+        <div class="form-group">
+            <label>تأكيد PIN الجديد *</label>
+            <input type="password" id="confirmPin" class="form-control mono" maxlength="6" inputmode="numeric" placeholder="••••">
+        </div>
+        <button onclick="changePin()" class="btn-primary">💾 تغيير PIN</button>
+    </div>
+
+    <!-- ============ 2. المظهر ============ -->
+    <div class="section-title">🎨 المظهر</div>
+    <div class="settings-card">
+        <div class="form-group">
+            <label>الثيم الافتراضي</label>
+            <div class="theme-selector">
+                <button class="theme-option" data-theme-opt="dark" onclick="setDefaultTheme('dark')">
+                    <span class="icon">🌙</span>داكن
+                </button>
+                <button class="theme-option" data-theme-opt="light" onclick="setDefaultTheme('light')">
+                    <span class="icon">☀️</span>فاتح
+                </button>
+                <button class="theme-option" data-theme-opt="oled" onclick="setDefaultTheme('oled')">
+                    <span class="icon">🖤</span>OLED
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ 3. اللغة ============ -->
+    <div class="section-title">🌐 اللغة</div>
+    <div class="settings-card">
+        <p class="description">تنطبق على واجهة الزبون (index.html). الصفحات الإدارية عربية فقط حالياً.</p>
+        <div class="lang-selector">
+            <button class="lang-option" data-lang-opt="ar" onclick="setDefaultLang('ar')">🇩🇿 عربي</button>
+            <button class="lang-option" data-lang-opt="fr" onclick="setDefaultLang('fr')">🇫🇷 Français</button>
+        </div>
+    </div>
+
+    <!-- ============ 4. معلومات الورشة ============ -->
+    <div class="section-title">🏪 معلومات الورشة</div>
+    <div class="settings-card">
+        <p class="description">هذه المعلومات تظهر في الفواتير المطبوعة.</p>
+        <div class="form-group">
+            <label>اسم الورشة</label>
+            <input type="text" id="shopName" class="form-control" placeholder="MED GARAGE">
+        </div>
+        <div class="form-group">
+            <label>رقم الهاتف</label>
+            <input type="tel" id="shopPhone" class="form-control mono" placeholder="0790582551">
+        </div>
+        <div class="form-group">
+            <label>العنوان</label>
+            <input type="text" id="shopAddress" class="form-control" placeholder="Cité 1780 OPGI - السويدانية">
+        </div>
+        <button onclick="saveShopInfo()" class="btn-primary">💾 حفظ المعلومات</button>
+    </div>
+
+    <!-- ============ 5. إدارة البيانات ============ -->
+    <div class="section-title">💾 إدارة البيانات</div>
+    <div class="settings-card">
+        <div class="info-box">
+            💡 <strong>نصيحة:</strong> قم بتصدير نسخة احتياطية بانتظام — البيانات محفوظة في هذا الجهاز فقط، وإذا مسحت بيانات المتصفح ستضيع.
+        </div>
+
+        <div class="data-stats" id="dataStats">
+            <div class="data-stat">
+                <div class="val" id="cntStock">0</div>
+                <div class="lbl">قطع سطوك</div>
+            </div>
+            <div class="data-stat">
+                <div class="val" id="cntInvoices">0</div>
+                <div class="lbl">فواتير</div>
+            </div>
+            <div class="data-stat">
+                <div class="val" id="cntBookings">0</div>
+                <div class="lbl">حجوزات</div>
+            </div>
+        </div>
+
+        <button onclick="exportData()" class="btn-success">📤 تصدير نسخة احتياطية (JSON)</button>
+        <button onclick="document.getElementById('importFile').click()" class="btn-info">📥 استيراد نسخة احتياطية</button>
+        <input type="file" id="importFile" accept=".json,application/json" style="display:none;" onchange="importData(event)">
+    </div>
+
+    <!-- ============ 6. منطقة الخطر ============ -->
+    <div class="section-title" style="border-right-color:var(--danger); color:var(--danger);">⚠️ منطقة الخطر</div>
+    <div class="settings-card danger-zone">
+        <p class="description" style="color:var(--danger);">
+            ⚠️ هذه العمليات لا يمكن التراجع عنها. تأكد من أنك صدّرت نسخة احتياطية قبل المتابعة.
+        </p>
+        <button onclick="clearBookings()" class="btn-danger" style="margin-bottom:10px;">🗑️ مسح الحجوزات فقط</button>
+        <button onclick="clearInvoices()" class="btn-danger" style="margin-bottom:10px;">🗑️ مسح الفواتير فقط</button>
+        <button onclick="clearAll()" class="btn-danger">🚨 مسح كل البيانات نهائياً</button>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <strong>MED GARAGE</strong> © 2027 — الإعدادات
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+    // ================= أدوات مساعدة =================
+    function getData(key, def = []) {
+        try {
+            const v = localStorage.getItem('mg_' + key);
+            return v ? JSON.parse(v) : def;
+        } catch(e) { return def; }
+    }
+
+    function setData(key, val) {
+        try {
+            localStorage.setItem('mg_' + key, JSON.stringify(val));
+        } catch(e) { showToast('⚠️ خطأ في الحفظ', 'error'); }
+    }
+
+    function showToast(msg, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.className = 'toast show' + (type === 'error' ? ' error' : '');
+        setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    // ================= الثيم =================
+    function applyTheme(theme) {
+        if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        else if (theme === 'oled') document.documentElement.setAttribute('data-theme', 'oled');
+        else document.documentElement.removeAttribute('data-theme');
+        highlightTheme(theme);
+    }
+
+    function highlightTheme(theme) {
+        document.querySelectorAll('.theme-option').forEach(b => {
+            b.classList.toggle('active', b.dataset.themeOpt === theme);
+        });
+    }
+
+    function setDefaultTheme(theme) {
+        localStorage.setItem('medgarage_theme', theme);
+        applyTheme(theme);
+        showToast('🎨 تم حفظ الثيم: ' + theme);
+    }
+
+    // ================= اللغة =================
+    function setDefaultLang(lang) {
+        localStorage.setItem('medgarage_lang', lang);
+        highlightLang(lang);
+        showToast(lang === 'ar' ? '🌐 اللغة: عربي' : '🌐 Langue: Français');
+    }
+
+    function highlightLang(lang) {
+        document.querySelectorAll('.lang-option').forEach(b => {
+            b.classList.toggle('active', b.dataset.langOpt === lang);
+        });
+    }
+
+    // ================= PIN =================
+    function changePin() {
+        const oldPin = document.getElementById('oldPin').value;
+        const newPin = document.getElementById('newPin').value;
+        const confirmPin = document.getElementById('confirmPin').value;
+
+        const currentPin = localStorage.getItem('mg_pin') || '911';
+
+        if (oldPin !== currentPin) {
+            showToast('❌ PIN الحالي غير صحيح', 'error');
+            return;
+        }
+
+        if (newPin.length < 3) {
+            showToast('⚠️ PIN الجديد قصير جداً (3 أرقام على الأقل)', 'error');
+            return;
+        }
+
+        if (newPin !== confirmPin) {
+            showToast('❌ تأكيد PIN غير مطابق', 'error');
+            return;
+        }
+
+        if (newPin === currentPin) {
+            showToast('⚠️ PIN الجديد مطابق للقديم', 'error');
+            return;
+        }
+
+        localStorage.setItem('mg_pin', newPin);
+        document.getElementById('oldPin').value = '';
+        document.getElementById('newPin').value = '';
+        document.getElementById('confirmPin').value = '';
+        showToast('✅ تم تغيير PIN بنجاح');
+    }
+
+    // ================= معلومات الورشة =================
+    function saveShopInfo() {
+        const shop = {
+            name: document.getElementById('shopName').value.trim(),
+            phone: document.getElementById('shopPhone').value.trim(),
+            address: document.getElementById('shopAddress').value.trim()
+        };
+
+        if (!shop.name) {
+            showToast('⚠️ اسم الورشة مطلوب', 'error');
+            return;
+        }
+
+        localStorage.setItem('mg_shop_info', JSON.stringify(shop));
+        showToast('✅ تم حفظ معلومات الورشة');
+    }
+
+    function loadShopInfo() {
+        try {
+            const shop = JSON.parse(localStorage.getItem('mg_shop_info') || '{}');
+            document.getElementById('shopName').value = shop.name || 'MED GARAGE';
+            document.getElementById('shopPhone').value = shop.phone || '0790582551';
+            document.getElementById('shopAddress').value = shop.address || 'Cité 1780 OPGI - السويدانية';
+        } catch(e) {
+            document.getElementById('shopName').value = 'MED GARAGE';
+        }
+    }
+
+    // ================= إحصائيات البيانات =================
+    function loadDataStats() {
+        const stock = getData('stock', []);
+        const invoices = getData('invoices', []);
+        const bookings = getData('bookings', []);
+        const expenses = getData('expenses', []);
+        const reviews = getData('reviews', []);
+
+        document.getElementById('cntStock').textContent = stock.length;
+        document.getElementById('cntInvoices').textContent = invoices.length;
+        document.getElementById('cntBookings').textContent = bookings.length;
+    }
+
+    // ================= تصدير البيانات =================
+    function exportData() {
+        try {
+            const keys = ['stock', 'invoices', 'expenses', 'bookings', 'reviews', 'gallery'];
+            const backup = {
+                version: '1.0',
+                date: new Date().toISOString(),
+                data: {}
+            };
+
+            keys.forEach(k => {
+                const v = localStorage.getItem('mg_' + k);
+                backup.data[k] = v ? JSON.parse(v) : [];
+            });
+
+            // إضافة الإعدادات
+            backup.data._settings = {
+                theme: localStorage.getItem('medgarage_theme') || 'dark',
+                lang: localStorage.getItem('medgarage_lang') || 'ar',
+                shopInfo: localStorage.getItem('mg_shop_info') || null
+            };
+
+            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'med-garage-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+
+            showToast('✅ تم تصدير النسخة الاحتياطية');
+        } catch(e) {
+            showToast('⚠️ خطأ في التصدير', 'error');
+        }
+    }
+
+    // ================= استيراد البيانات =================
+    function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const backup = JSON.parse(e.target.result);
+                if (!backup.data) throw new Error('ملف غير صالح');
+
+                if (!confirm('سيتم استبدال البيانات الحالية بالنسخة الاحتياطية. هل تريد المتابعة؟')) return;
+
+                const keys = ['stock', 'invoices', 'expenses', 'bookings', 'reviews', 'gallery'];
+                keys.forEach(k => {
+                    if (backup.data[k]) {
+                        setData(k, backup.data[k]);
+                    }
+                });
+
+                if (backup.data._settings) {
+                    const s = backup.data._settings;
+                    if (s.theme) localStorage.setItem('medgarage_theme', s.theme);
+                    if (s.lang) localStorage.setItem('medgarage_lang', s.lang);
+                    if (s.shopInfo) localStorage.setItem('mg_shop_info', s.shopInfo);
+                }
+
+                showToast('✅ تم استيراد البيانات بنجاح');
+                loadDataStats();
+                setTimeout(() => location.reload(), 1500);
+            } catch(err) {
+                showToast('❌ ملف غير صالح', 'error');
+            }
+        };
+        reader.readAsText(file);
+        event.target.value = '';
+    }
+
+    // ================= منطقة الخطر =================
+    function clearBookings() {
+        if (!confirm('⚠️ مسح كل الحجوزات؟ لا يمكن التراجع.')) return;
+        localStorage.removeItem('mg_bookings');
+        loadDataStats();
+        showToast('🗑️ تم مسح الحجوزات');
+    }
+
+    function clearInvoices() {
+        if (!confirm('⚠️ مسح كل الفواتير؟ لا يمكن التراجع.')) return;
+        if (!confirm('تأكيد نهائي: مسح كل الفواتير؟')) return;
+        localStorage.removeItem('mg_invoices');
+        loadDataStats();
+        showToast('🗑️ تم مسح الفواتير');
+    }
+
+    function clearAll() {
+        if (!confirm('🚨 تحذير: سيتم مسح كل شيء (سطوك، فواتير، مصاريف، حجوزات، آراء، صور). هل أنت متأكد؟')) return;
+        if (!confirm('🚨 تأكيد نهائي: هل صدّرت نسخة احتياطية؟')) return;
+
+        const keys = ['stock', 'invoices', 'expenses', 'bookings', 'reviews', 'gallery'];
+        keys.forEach(k => localStorage.removeItem('mg_' + k));
+        loadDataStats();
+        showToast('🗑️ تم مسح كل البيانات');
+        setTimeout(() => location.reload(), 1500);
+    }
+
+    // ================= تحميل الصفحة =================
+    window.onload = function() {
+        // تطبيق الثيم
+        const savedTheme = localStorage.getItem('medgarage_theme') || 'dark';
+        applyTheme(savedTheme);
+
+        // اللغة
+        const savedLang = localStorage.getItem('medgarage_lang') || 'ar';
+        highlightLang(savedLang);
+
+        // معلومات الورشة
+        loadShopInfo();
+
+        // إحصائيات
+        loadDataStats();
+    };
+</script>
+
+</body>
+</html>
