@@ -1,424 +1,449 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" id="htmlRoot">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MED GARAGE - لوحة الإدارة الشاملة (Admin ERP)</title>
-    <meta name="theme-color" content="#1a1d21">
-    <link rel="icon" type="image/png" href="https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png">
+    <title>MED-GARAGE - لوحة الإدارة والفوترة</title>
     <style>
         :root {
             --primary: #dc2626;
             --primary-hover: #b91c1c;
-            --bg: #1f242b;
-            --bg-gradient: linear-gradient(135deg, #2a2f38 0%, #181b20 100%);
-            --card: #ffffff;
-            --card-dark: #2a2f36;
-            --card-darker: #181b20;
-            --text: #1e293b;
-            --text-light: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent: #f59e0b;
-            --success: #16a34a;
-            --danger: #dc2626;
-            --border: #cbd5e1;
-            --border-dark: #374151;
-        }
-
-        [data-theme="light"] {
-            --bg: #f1f5f9;
-            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            --bg: #f8fafc;
             --card: #ffffff;
             --text: #0f172a;
-            --text-light: #0f172a;
             --text-muted: #475569;
             --border: #cbd5e1;
         }
 
-        [data-theme="oled"] {
-            --primary: #2563eb;
-            --bg: #000000;
-            --bg-gradient: linear-gradient(135deg, #111111 0%, #000000 100%);
-            --card: #121212;
-            --text: #f8fafc;
-            --text-light: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: #334155;
-        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Cairo', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; direction: rtl; font-weight: 700; }
+        .container { max-width: 900px; margin: 0 auto; padding-bottom: 40px; }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Cairo', system-ui, -apple-system, sans-serif; font-weight: 700; background: var(--bg-gradient); background-attachment: fixed; color: var(--text-light); margin: 0; padding: 15px; line-height: 1.6; min-height: 100vh; }
-        .container { max-width: 550px; margin: 0 auto; padding-bottom: 40px; }
+        .header { text-align: center; padding: 15px 0; border-bottom: 3px solid var(--primary); margin-bottom: 20px; }
+        .header h1 { margin: 0; color: var(--primary); font-size: 24px; font-weight: 900; }
 
-        .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: var(--card-dark); border-radius: 12px; border: 1px solid var(--border-dark); margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-        .admin-header h2 { margin: 0; font-size: 16px; color: #fff; }
-        .btn-back-admin { background: transparent; border: 1px solid var(--border-dark); color: var(--text-muted); padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-block; }
+        /* الأزرار بالاستايل المطلوب: خلفية بيضاء، كتابة واضحة، إطار أحمر */
+        .nav-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px; }
+        .tab-btn { background: #ffffff; color: var(--text); border: 2px solid var(--primary); padding: 15px; border-radius: 10px; font-weight: 900; font-size: 15px; cursor: pointer; text-align: center; transition: all 0.2s; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+        .tab-btn.active, .tab-btn:hover { background: var(--primary); color: #ffffff; }
 
-        .section-title { font-size: 18px; margin: 20px 0 12px; color: var(--text-light); border-right: 4px solid var(--primary); padding-right: 10px; font-weight: 900; }
-        html[dir="ltr"] .section-title { border-right: none; border-left: 4px solid var(--primary); padding-right: 0; padding-left: 10px; }
+        .section-content { display: none; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .section-content.active { display: block; }
 
-        /* شاشة الدخول بالرمز السري PIN */
-        .pin-screen { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 99999; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .pin-box { background: var(--card-dark); border: 2px solid var(--primary); border-radius: 20px; padding: 30px 25px; width: 100%; max-width: 380px; text-align: center; }
-        .pin-input { width: 100%; padding: 15px; background: #0f1115; border: 1px solid var(--border-dark); border-radius: 10px; color: #fff; font-size: 22px; text-align: center; letter-spacing: 6px; font-family: monospace; margin-bottom: 15px; }
+        h3 { margin-top: 0; color: var(--primary); border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; font-weight: 900; }
+        h4 { color: var(--text); }
 
-        .admin-card { background: var(--card-dark); border: 1px solid var(--border-dark); border-radius: 12px; padding: 15px; margin-bottom: 12px; color: #fff; }
-        .admin-card h3 { margin: 0 0 12px; font-size: 15px; color: var(--accent); border-bottom: 1px solid var(--border-dark); padding-bottom: 8px; }
+        /* الجداول ونماذج الإدخال */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
+        th, td { border: 1px solid var(--border); padding: 10px; text-align: center; }
+        th { background: #f1f5f9; color: var(--text); }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
-        .stat-box { padding: 15px 12px; border-radius: 12px; text-align: center; }
-        .stat-box.income { background: rgba(22, 163, 74, 0.15); border: 1px solid var(--success); }
-        .stat-box.count { background: rgba(37, 99, 235, 0.15); border: 1px solid #2563eb; }
-        .stat-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
-        .stat-value { font-size: 20px; font-weight: 900; }
-        .stat-box.income .stat-value { color: #4ade80; }
-        .stat-box.count .stat-value { color: #60a5fa; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px; color: var(--text); }
+        input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; font-family: inherit; font-weight: 700; }
+        input:focus, select:focus { border-color: var(--primary); outline: none; }
 
-        /* أزرار التنقل السريع لملفات الإدارة داخل لوحة التحكم */
-        .erp-links-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
-        .erp-link-btn { background: #181b20; border: 1px solid var(--border-dark); color: #fff; text-decoration: none; padding: 12px; border-radius: 10px; text-align: center; font-size: 13px; font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 5px; transition: border-color 0.2s; }
-        .erp-link-btn:hover { border-color: var(--primary); }
+        .btn { background: var(--primary); color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 900; cursor: pointer; font-family: inherit; }
+        .btn:hover { background: var(--primary-hover); }
+        .btn-sm { padding: 5px 10px; font-size: 12px; }
+        .btn-danger { background: #dc2626; }
+        .btn-warning { background: #d97706; color: #fff; }
 
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 13px; color: #cbd5e1; margin-bottom: 5px; font-weight: 700; }
-        .form-control { width: 100%; padding: 11px; background: #0f1115; border: 1px solid var(--border-dark); border-radius: 6px; color: #fff; font-size: 14px; font-family: inherit; font-weight: 700; box-sizing: border-box; }
-        .form-control.phone-input { direction: ltr; text-align: right; unicode-bidi: embed; }
-        .btn-submit-booking { background-color: var(--primary); color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; font-family: inherit; box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3); }
+        .parts-box { background: #f8fafc; border: 1px solid var(--border); padding: 12px; border-radius: 8px; margin-bottom: 15px; }
+        .part-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
 
-        .list-box { background: #0f1115; border: 1px solid var(--border-dark); border-radius: 10px; padding: 10px; max-height: 400px; overflow-y: auto; margin-top: 10px; }
-        .list-row { background: #181b20; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; border: 1px solid var(--border-dark); color: #f1f5f9; line-height: 1.6; }
-        .empty-state { text-align: center; padding: 25px 15px; color: var(--text-muted); font-size: 12px; }
+        .back-link { display: inline-block; margin-top: 20px; color: var(--primary); text-decoration: none; font-weight: bold; }
 
-        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: #fff; padding: 12px 20px; border-radius: 8px; font-weight: 900; font-size: 14px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); z-index: 99999; transition: transform 0.3s ease; max-width: 90%; text-align: center; }
-        .toast.show { transform: translateX(-50%) translateY(0); }
-        .toast.error { background: var(--primary); }
+        /* نافذة الفاتورة المنبثقة */
+        .invoice-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+        .invoice-content { background: #fff; padding: 25px; border-radius: 12px; width: 450px; max-width: 90%; color: #000; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
+        .invoice-header { text-align: center; border-bottom: 2px dashed #ccc; padding-bottom: 10px; margin-bottom: 15px; }
+        .invoice-body { font-size: 14px; line-height: 1.8; margin-bottom: 20px; }
+        .invoice-footer { display: flex; gap: 10px; }
     </style>
 </head>
-<body id="htmlRoot">
+<body>
 
-<!-- شاشة حماية الإدارة بالرمز السري -->
-<div class="pin-screen" id="pinScreen">
-    <div class="pin-box">
-        <h3 style="color:#fff; margin-top:0;">🔐 دخول لوحة الإدارة</h3>
-        <p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;">الرمز الافتراضي: 911</p>
-        <input type="password" id="pinInput" class="pin-input" placeholder="****" maxlength="6">
-        <button onclick="checkAdminPin()" class="btn-submit-booking" style="margin-bottom:10px;">🔓 دخول</button>
-        <a href="index.html" class="btn-back-admin" style="display:block; text-align:center; padding:10px;">⬅️ العودة للرئيسية</a>
-    </div>
-</div>
-
-<div class="container" style="display:none;" id="adminContent">
-    <!-- هيدر الإدارة -->
-    <div class="admin-header">
-        <h2>⚙️ لوحة الإدارة الشاملة (Admin ERP)</h2>
-        <a href="index.html" class="btn-back-admin">⬅️ الرئيسية</a>
+<div class="container">
+    <div class="header">
+        <h1>⚙️ MED-GARAGE - لوحة الإدارة والفوترة</h1>
     </div>
 
-    <!-- أزرار الوصول السريع لكل ملفات التسيير المحمية -->
-    <div class="admin-card">
-        <h3>📂 أقسام التسيير والتحكم (محمية)</h3>
-        <div class="erp-links-grid">
-            <a href="stock.html" class="erp-link-btn">
-                <span style="font-size:20px;">📦</span>
-                <span>تسيير المخزن</span>
-            </a>
-            <a href="invoices.html" class="erp-link-btn">
-                <span style="font-size:20px;">🧾</span>
-                <span>الفوترة و Devis</span>
-            </a>
-            <a href="finance.html" class="erp-link-btn">
-                <span style="font-size:20px;">💰</span>
-                <span>الخزينة والأرباح</span>
-            </a>
-            <a href="gallery-reviews.html" class="erp-link-btn">
-                <span style="font-size:20px;">⭐</span>
-                <span>معرض الصور والآراء</span>
-            </a>
-        </div>
+    <!-- الأزرار الرئيسية (خلفية بيضاء، كتابة واضحة، إطار أحمر) -->
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('stock', event)">📦 إدارة السطوك</button>
+        <button class="tab-btn" onclick="switchTab('invoice', event)">🧾 الفوترة والخدمات</button>
+        <button class="tab-btn" onclick="switchTab('records', event)">📋 سجل السيارات</button>
     </div>
 
-    <!-- إحصائيات سريعة -->
-    <div class="stats-grid">
-        <div class="stat-box income">
-            <div class="stat-label">💰 مداخيل اليوم</div>
-            <div class="stat-value" id="statIncomeToday">0 دج</div>
-        </div>
-        <div class="stat-box count">
-            <div class="stat-label">📋 فواتير اليوم</div>
-            <div class="stat-value" id="statInvoicesToday">0</div>
-        </div>
-    </div>
-
-    <!-- الحجوزات والمواعيد داخل الورشة -->
-    <div class="admin-card">
-        <h3>📅 إدارة الحجوزات ومواعيد السيارات</h3>
-        <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">حجوزات جديدة:</div>
-        <div class="list-box" id="bookingsNewList"></div>
-        <div style="font-size:12px; color:var(--text-muted); margin:12px 0 8px;">سيارات قيد العمل داخل الورشة:</div>
-        <div class="list-box" id="bookingsWorkingList"></div>
-    </div>
-
-    <!-- قاعدة بيانات الزبائن -->
-    <div class="admin-card">
-        <h3>👥 قاعدة بيانات الزبائن</h3>
-        <div class="form-group" style="margin-bottom:8px;">
-            <input type="text" id="clientSearch" class="form-control" placeholder="🔍 بحث عن زبون..." oninput="loadClients()">
-        </div>
-        <div class="list-box" id="clientsList"></div>
-    </div>
-
-    <!-- الإعدادات والنسخ الاحتياطي -->
-    <div class="admin-card">
-        <h3>⚙️ إعدادات النظام والنسخ الاحتياطي</h3>
-        
-        <div class="form-group">
-            <label>تغيير رمز PIN السري</label>
-            <div style="display:flex; gap:6px;">
-                <input type="password" id="oldPin" class="form-control" placeholder="PIN الحالي">
-                <input type="password" id="newPin" class="form-control" placeholder="PIN الجديد">
+    <!-- 1. قسم إدارة السطوك -->
+    <div id="stock-section" class="section-content active">
+        <h3>إدارة المخزون (Stock Management)</h3>
+        <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border);">
+            <h4>إضافة قطعة جديدة للسطوك</h4>
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 10px; align-items: end;">
+                <div>
+                    <label>اسم القطعة:</label>
+                    <input type="text" id="newPartName" placeholder="مثال: فلتر زيت">
+                </div>
+                <div>
+                    <label>الكمية:</label>
+                    <input type="number" id="newPartQty" min="1" value="1">
+                </div>
+                <div>
+                    <label>ثمن الشراء:</label>
+                    <input type="number" id="newPartBuy" placeholder="دج">
+                </div>
+                <div>
+                    <label>ثمن البيع:</label>
+                    <input type="number" id="newPartSell" placeholder="دج">
+                </div>
+                <button class="btn" onclick="addNewStockPart()">إضافة</button>
             </div>
-            <button onclick="changePin()" class="btn-submit-booking" style="background:#2563eb; margin-top:8px;">🔑 تحديث الرمز</button>
         </div>
 
-        <hr style="border:0; border-top:1px solid var(--border-dark); margin:15px 0;">
+        <h4>قائمة القطع المتوفرة</h4>
+        <table id="stockTable">
+            <thead>
+                <tr>
+                    <th>اسم القطعة</th>
+                    <th>الكمية</th>
+                    <th>ثمن الشراء (دج)</th>
+                    <th>ثمن البيع (دج)</th>
+                    <th>إجراءات التعديل والحذف</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- تتعبى أوماتيكياً -->
+            </tbody>
+        </table>
+    </div>
 
-        <div style="display:flex; gap:10px;">
-            <button onclick="exportBackup()" class="btn-submit-booking" style="background:var(--accent);">📥 تصدير نسخة (JSON)</button>
-            <label class="btn-submit-booking" style="background:#2563eb; text-align:center; cursor:pointer; display:block; padding:12px;">
-                📤 استيراد نسخة
-                <input type="file" id="importFile" style="display:none;" onchange="importBackup(event)" accept=".json">
-            </label>
+    <!-- 2. قسم الفوترة والخدمات -->
+    <div id="invoice-section" class="section-content">
+        <h3>إنشاء فاتورة جديدة (Invoicing)</h3>
+        <div class="form-group">
+            <label>اسم الزبون / نوع السيارة:</label>
+            <input type="text" id="invClient" placeholder="مثال: محمد - سكودا أوكتافيا 2025">
         </div>
 
-        <div style="margin-top:15px;">
-            <button onclick="clearAllData()" class="btn-submit-booking" style="background:var(--danger);">🗑️ حذف كل بيانات النظام نهائياً</button>
+        <!-- اختيار الخدمات المتعددة -->
+        <div class="form-group">
+            <label>الخدمات المقدمة (يمكن اختيار أكثر من خدمة):</label>
+            <div id="servicesCheckboxes" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; background: #f8fafc; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+                <label><input type="checkbox" name="invService" value="Vidange + Filtres" data-price="2000"> Vidange + Filtres (2000 دج)</label>
+                <label><input type="checkbox" name="invService" value="Freinage" data-price="2500"> Freinage (2500 دج)</label>
+                <label><input type="checkbox" name="invService" value="Scanner & Diagnostic" data-price="1500"> Scanner & Diagnostic (1500 دج)</label>
+                <label><input type="checkbox" name="invService" value="Suspension" data-price="3000"> Suspension (3000 دج)</label>
+            </div>
+        </div>
+
+        <!-- القطع المستعملة (سطوك أو حرة) -->
+        <div class="form-group">
+            <label>القطع المستعملة في الإصلاح:</label>
+            <div id="invPartsContainer" class="parts-box">
+                <div class="part-row">
+                    <select class="inv-part-select">
+                        <option value="">اختر من السطوك...</option>
+                    </select>
+                    <input type="number" class="inv-part-qty" min="1" value="1" placeholder="الكمية" style="width: 80px;">
+                    <button class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">حذف</button>
+                </div>
+            </div>
+            <button class="btn btn-sm" onclick="addInvPartRow()">+ إضافة قطعة من السطوك</button>
+            <button class="btn btn-sm btn-warning" onclick="addInvCustomPartRow()" style="background:#16a34a; color:#fff;">+ إضافة قطعة حرة (خارج السطوك)</button>
+        </div>
+
+        <button class="btn" style="width: 100%; padding: 14px; font-size: 16px; margin-top: 15px;" onclick="generateInvoice()">حساب وإصدار الفاتورة 🧾</button>
+    </div>
+
+    <!-- 3. قسم سجل السيارات -->
+    <div id="records-section" class="section-content">
+        <h3>سجل المركبات المسجلة</h3>
+        <table id="recordsTable">
+            <thead>
+                <tr>
+                    <th>التاريخ</th>
+                    <th>الزبون / السيارة</th>
+                    <th>الخدمات والقطع</th>
+                    <th>إجراء</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- تتعبى أوماتيكياً -->
+            </tbody>
+        </table>
+    </div>
+
+    <a href="index.html" class="back-link">← العودة إلى واجهة تسجيل السيارات الرئيسية</a>
+</div>
+
+<!-- نافذة عرض الفاتورة (Modal) -->
+<div id="invoiceModal" class="invoice-modal">
+    <div class="invoice-content">
+        <div class="invoice-header">
+            <h2 style="margin:0; color:#dc2626;">MED-GARAGE</h2>
+            <p style="margin:5px 0 0; font-size:13px;">فاتورة صيانة السيارات - السويدانية</p>
+        </div>
+        <div class="invoice-body" id="invoiceModalBody">
+            <!-- تفاصيل الفاتورة -->
+        </div>
+        <div class="invoice-footer">
+            <button class="btn" style="flex:1;" onclick="window.print()">🖨️ طباعة الفاتورة</button>
+            <button class="btn btn-danger" style="flex:1;" onclick="closeInvoiceModal()">إغلاق</button>
         </div>
     </div>
 </div>
-
-<div id="toast" class="toast"></div>
 
 <script>
-    const CONFIG = { defaultPin: '911', carPrefix: 'MED' };
+    // التنقل بين الأقسام
+    function switchTab(tabName, event) {
+        document.querySelectorAll('.section-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
 
-    function getData(key, def = []) {
-        try {
-            const v = localStorage.getItem('mg_' + key);
-            return v ? JSON.parse(v) : def;
-        } catch(e) { return def; }
-    }
-
-    function setData(key, val) {
-        try {
-            localStorage.setItem('mg_' + key, JSON.stringify(val));
-        } catch(e) { showToast('⚠️ خطأ في الحفظ', 'error'); }
-    }
-
-    function getPin() {
-        return localStorage.getItem('mg_pin') || CONFIG.defaultPin;
-    }
-
-    function setPin(newPin) {
-        localStorage.setItem('mg_pin', newPin);
-    }
-
-    function escapeHtml(str) {
-        if (!str) return '';
-        return String(str).replace(/&/g, '&amp;').replace(/</g,'&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
-
-    function showToast(msg, type = 'success') {
-        const toast = document.getElementById('toast');
-        toast.textContent = msg;
-        toast.className = 'toast show' + (type === 'error' ? ' error' : '');
-        setTimeout(() => toast.classList.remove('show'), 3500);
-    }
-
-    // التحقق من الرمز السري PIN
-    function checkAdminPin() {
-        const pin = document.getElementById('pinInput').value;
-        if (pin === getPin()) {
-            document.getElementById('pinScreen').style.display = 'none';
-            document.getElementById('adminContent').style.display = 'block';
-            loadAdminDashboard();
-            showToast('✅ أهلاً بك يا معلم محمد');
-        } else {
-            showToast('❌ الرمز السري خاطئ', 'error');
-            document.getElementById('pinInput').value = '';
+        if(tabName === 'stock') {
+            document.getElementById('stock-section').classList.add('active');
+            event.currentTarget.classList.add('active');
+            loadStockTable();
+        } else if(tabName === 'invoice') {
+            document.getElementById('invoice-section').classList.add('active');
+            event.currentTarget.classList.add('active');
+            loadInvoiceStockOptions();
+        } else if(tabName === 'records') {
+            document.getElementById('records-section').classList.add('active');
+            event.currentTarget.classList.add('active');
+            loadRecordsTable();
         }
     }
 
-    document.getElementById('pinInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') checkAdminPin();
-    });
-
-    // تحميل لوحة التحكم
-    function loadAdminDashboard() {
-        const invoices = getData('invoices', []);
-        const today = new Date().toLocaleDateString('ar-DZ');
-        const todayInvoices = invoices.filter(i => i.date === today && i.status === 'done');
-        const todayIncome = todayInvoices.reduce((s, i) => s + (i.total || 0), 0);
-
-        document.getElementById('statIncomeToday').textContent = todayIncome.toLocaleString() + ' دج';
-        document.getElementById('statInvoicesToday').textContent = todayInvoices.length;
-
-        loadBookingsAdmin();
-        loadClients();
+    // إدارة السطوك
+    function getStock() {
+        return JSON.parse(localStorage.getItem('med_garage_stock')) || [
+            {id: 1, name: 'فلتر زيت 1.4 TSI', qty: 10, buyPrice: 1200, sellPrice: 2000},
+            {id: 2, name: 'بوجيات (Bougies)', qty: 16, buyPrice: 800, sellPrice: 1500},
+            {id: 3, name: 'بيدون زيت 5W40', qty: 5, buyPrice: 6500, sellPrice: 8500}
+        ];
     }
 
-    // إدارة الحجوزات
-    function loadBookingsAdmin() {
-        const bookings = getData('bookings', []);
-        const newB = bookings.filter(b => b.status === 'new');
-        const workingB = bookings.filter(b => b.status === 'working' || b.status === 'accepted');
-
-        document.getElementById('bookingsNewList').innerHTML = newB.length === 0 ? '<div class="empty-state">لا توجد حجوزات جديدة</div>' : newB.map(b => `
-            <div class="list-row">
-                <strong>👤 ${escapeHtml(b.name)}</strong> — 🚗 ${escapeHtml(b.car || 'غير محدد')}<br>
-                <span style="color:#fbbf24;">📅 الموعد: ${escapeHtml(b.bookingDate || 'غير محدد')}</span><br>
-                <span style="color:#94a3b8;">📞 <span style="direction:ltr; display:inline-block;">${escapeHtml(b.phone || '-')}</span> | 🛠️ ${escapeHtml(b.service || '-')}</span>
-                <div style="margin-top:8px; display:flex; gap:6px;">
-                    <button onclick="acceptBooking(${b.id})" style="background:var(--success); color:#fff; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">✅ قبول الحجز</button>
-                    <button onclick="rejectBooking(${b.id})" style="background:var(--danger); color:#fff; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">❌ رفض</button>
-                </div>
-            </div>
-        `).join('');
-
-        document.getElementById('bookingsWorkingList').innerHTML = workingB.length === 0 ? '<div class="empty-state">لا توجد سيارات قيد العمل حالياً</div>' : workingB.map(b => `
-            <div class="list-row">
-                <strong>🚗 ${escapeHtml(b.car || '-')}</strong> — ${escapeHtml(b.name)}<br>
-                <span style="color:#94a3b8;">🔢 رقم التتبع: ${b.carCode || '-'}</span>
-                <div style="margin-top:8px;">
-                    <button onclick="markDone(${b.id})" style="background:#2563eb; color:#fff; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">✅ تم الإصلاح</button>
-                </div>
-            </div>
-        `).join('');
+    function saveStock(stock) {
+        localStorage.setItem('med_garage_stock', JSON.stringify(stock));
     }
 
-    function acceptBooking(id) {
-        let bookings = getData('bookings', []);
-        const idx = bookings.findIndex(b => b.id === id);
-        if (idx === -1) return;
-        const nextNum = String(bookings.filter(b => b.carCode).length + 1).padStart(4, '0');
-        bookings[idx].status = 'working';
-        bookings[idx].carCode = CONFIG.carPrefix + '-' + nextNum;
-        setData('bookings', bookings);
-        showToast('✅ تم قبول الحجز وتوليد رقم التتبع');
-        loadBookingsAdmin();
+    function loadStockTable() {
+        let stock = getStock();
+        let tbody = document.querySelector('#stockTable tbody');
+        tbody.innerHTML = '';
+        stock.forEach((item, index) => {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" id="name_${index}" value="${item.name}"></td>
+                <td><input type="number" id="qty_${index}" value="${item.qty}" style="width: 70px;"></td>
+                <td><input type="number" id="buy_${index}" value="${item.buyPrice}" style="width: 90px;"></td>
+                <td><input type="number" id="sell_${index}" value="${item.sellPrice}" style="width: 90px;"></td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick="updateStockItem(${index})">تعديل</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteStockItem(${index})">حذف</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
     }
 
-    function rejectBooking(id) {
-        if (!confirm('حذف هذا الحجز؟')) return;
-        setData('bookings', getData('bookings', []).filter(b => b.id !== id));
-        loadBookingsAdmin();
-        showToast('🗑️ تم حذف الحجز');
+    function addNewStockPart() {
+        let name = document.getElementById('newPartName').value.trim();
+        let qty = parseInt(document.getElementById('newPartQty').value) || 1;
+        let buyPrice = parseFloat(document.getElementById('newPartBuy').value) || 0;
+        let sellPrice = parseFloat(document.getElementById('newPartSell').value) || 0;
+
+        if(!name) {
+            alert('أدخل اسم القطعة من فضلك!');
+            return;
+        }
+
+        let stock = getStock();
+        stock.push({ id: Date.now(), name, qty, buyPrice, sellPrice });
+        saveStock(stock);
+
+        document.getElementById('newPartName').value = '';
+        document.getElementById('newPartBuy').value = '';
+        document.getElementById('newPartSell').value = '';
+        loadStockTable();
+        alert('تمت إضافة القطعة بنجاح!');
     }
 
-    function markDone(id) {
-        let bookings = getData('bookings', []);
-        const idx = bookings.findIndex(b => b.id === id);
-        if (idx !== -1) {
-            bookings[idx].status = 'done';
-            setData('bookings', bookings);
-            loadBookingsAdmin();
-            showToast('✅ تم إنهاء العمل على السيارة');
+    function updateStockItem(index) {
+        let stock = getStock();
+        stock[index].name = document.getElementById(`name_${index}`).value;
+        stock[index].qty = parseInt(document.getElementById(`qty_${index}`).value) || 0;
+        stock[index].buyPrice = parseFloat(document.getElementById(`buy_${index}`).value) || 0;
+        stock[index].sellPrice = parseFloat(document.getElementById(`sell_${index}`).value) || 0;
+        
+        saveStock(stock);
+        alert('تم تحديث معلومات القطعة بنجاح!');
+        loadStockTable();
+    }
+
+    function deleteStockItem(index) {
+        if(confirm('هل أنت متأكد من حذف هذه القطعة من السطوك؟')) {
+            let stock = getStock();
+            stock.splice(index, 1);
+            saveStock(stock);
+            loadStockTable();
         }
     }
 
-    // قاعدة بيانات الزبائن
-    function loadClients() {
-        const invoices = getData('invoices', []);
-        const search = (document.getElementById('clientSearch').value || '').toLowerCase();
-        const uniqueClients = [];
-        const map = new Map();
+    // الفوترة
+    function loadInvoiceStockOptions() {
+        let stock = getStock();
+        document.querySelectorAll('.inv-part-select').forEach(select => {
+            let currentVal = select.value;
+            select.innerHTML = '<option value="">اختر من السطوك...</option>';
+            stock.forEach(item => {
+                let opt = document.createElement('option');
+                opt.value = item.name;
+                opt.setAttribute('data-price', item.sellPrice);
+                opt.setAttribute('data-stock-qty', item.qty);
+                opt.textContent = `${item.name} (متوفر: ${item.qty}) - ${item.sellPrice} دج`;
+                select.appendChild(opt);
+            });
+            select.value = currentVal;
+        });
+    }
 
-        invoices.forEach(i => {
-            if (i.client && !map.has(i.client)) {
-                map.set(i.client, true);
-                uniqueClients.push(i);
+    function addInvPartRow() {
+        let container = document.getElementById('invPartsContainer');
+        let div = document.createElement('div');
+        div.className = 'part-row';
+        div.innerHTML = `
+            <select class="inv-part-select">
+                <option value="">اختر من السطوك...</option>
+            </select>
+            <input type="number" class="inv-part-qty" min="1" value="1" placeholder="الكمية" style="width: 80px;">
+            <button class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">حذف</button>
+        `;
+        container.appendChild(div);
+        loadInvoiceStockOptions();
+    }
+
+    function addInvCustomPartRow() {
+        let container = document.getElementById('invPartsContainer');
+        let div = document.createElement('div');
+        div.className = 'part-row';
+        div.innerHTML = `
+            <input type="text" class="inv-custom-name" placeholder="اسم القطعة الخارجية (تاع الزبون)" style="flex:2;">
+            <input type="number" class="inv-custom-price" placeholder="السعر" style="width: 90px;">
+            <input type="number" class="inv-custom-qty" min="1" value="1" placeholder="الكمية" style="width: 70px;">
+            <button class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">حذف</button>
+        `;
+        container.appendChild(div);
+    }
+
+    function generateInvoice() {
+        let client = document.getElementById('invClient').value.trim() || 'زبون عابر';
+        let total = 0;
+        let invoiceHtml = `<strong>الزبون / السيارة:</strong> ${client}<br><hr style="border:0; border-top:1px solid #eee; margin:10px 0;"><strong>الخدمات:</strong><ul style="margin:5px 0; padding-right:20px;">`;
+
+        let selectedServicesList = [];
+        document.querySelectorAll('input[name="invService"]:checked').forEach(cb => {
+            let price = parseFloat(cb.getAttribute('data-price')) || 0;
+            total += price;
+            invoiceHtml += `<li>${cb.value} - ${price} دج</li>`;
+            selectedServicesList.push(cb.value);
+        });
+        invoiceHtml += `</ul><strong>القطع المستعملة:</strong><ul style="margin:5px 0; padding-right:20px;">`;
+
+        let stock = getStock();
+        let usedPartsList = [];
+
+        document.querySelectorAll('.part-row').forEach(row => {
+            let select = row.querySelector('.inv-part-select');
+            let qtyInput = row.querySelector('.inv-part-qty');
+            let customName = row.querySelector('.inv-custom-name');
+            let customPrice = row.querySelector('.inv-custom-price');
+            let customQty = row.querySelector('.inv-custom-qty');
+
+            if(select && select.value) {
+                let selectedOpt = select.options[select.selectedIndex];
+                let price = parseFloat(selectedOpt.getAttribute('data-price')) || 0;
+                let qty = parseInt(qtyInput.value) || 1;
+                let subTotal = price * qty;
+                total += subTotal;
+                invoiceHtml += `<li>${select.value} (الكمية: ${qty}) - ${subTotal} دج</li>`;
+                usedPartsList.push(`${select.value} x${qty}`);
+
+                // خصم الكمية من السطوك تلقائياً
+                let stockItem = stock.find(s => s.name === select.value);
+                if(stockItem) {
+                    stockItem.qty = Math.max(0, stockItem.qty - qty);
+                }
+            } else if(customName && customName.value) {
+                let price = parseFloat(customPrice.value) || 0;
+                let qty = parseInt(customQty.value) || 1;
+                let subTotal = price * qty;
+                total += subTotal;
+                invoiceHtml += `<li>[خارج السطوك] ${customName.value} (الكمية: ${qty}) - ${subTotal} دج</li>`;
+                usedPartsList.push(`[خارج السطوك] ${customName.value} x${qty}`);
             }
         });
+        invoiceHtml += `</ul><hr style="border:0; border-top:1px solid #eee; margin:10px 0;"><h3 style="margin:0; color:#dc2626; text-align:left;">المبلغ الإجمالي: ${total} دج</h3>`;
 
-        let filtered = search ? uniqueClients.filter(c => c.client.toLowerCase().includes(search)) : uniqueClients;
-        const container = document.getElementById('clientsList');
+        // حفظ السطوك المحدث
+        saveStock(stock);
 
-        container.innerHTML = filtered.length === 0 ? '<div class="empty-state">لا يوجد زبائن مسجلين بعد</div>' : filtered.map(i => `
-            <div class="list-row">
-                <strong>👤 ${escapeHtml(i.client)}</strong><br>
-                <span style="color:#94a3b8;">📞 <span style="direction:ltr; display:inline-block;">${escapeHtml(i.phone || '-')}</span> | 🚗 ${escapeHtml(i.car || '-')}</span>
-            </div>
-        `).join('');
+        // حفظ الفاتورة في السجل
+        let record = {
+            date: new Date().toLocaleDateString('ar-DZ') + ' ' + new Date().toLocaleTimeString('ar-DZ', {hour: '2-digit', minute:'2-digit'}),
+            clientName: client,
+            services: selectedServicesList,
+            parts: usedPartsList,
+            total: total
+        };
+        let jobs = JSON.parse(localStorage.getItem('med_garage_jobs')) || [];
+        jobs.unshift(record);
+        localStorage.setItem('med_garage_jobs', JSON.stringify(jobs));
+
+        // عرض الفاتورة في الـ Modal
+        document.getElementById('invoiceModalBody').innerHTML = invoiceHtml;
+        document.getElementById('invoiceModal').style.display = 'flex';
     }
 
-    // تغيير PIN
-    function changePin() {
-        const oldP = document.getElementById('oldPin').value;
-        const newP = document.getElementById('newPin').value;
-        if (oldP !== getPin()) {
-            showToast('❌ الرمز الحالي خاطئ', 'error');
+    function closeInvoiceModal() {
+        document.getElementById('invoiceModal').style.display = 'none';
+        loadStockTable();
+    }
+
+    // سجل السيارات
+    function loadRecordsTable() {
+        let jobs = JSON.parse(localStorage.getItem('med_garage_jobs')) || [];
+        let tbody = document.querySelector('#recordsTable tbody');
+        tbody.innerHTML = '';
+        if(jobs.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4">لا توجد سجلات حالياً.</td></tr>`;
             return;
         }
-        if (newP.length < 3) {
-            showToast('⚠️ الرمز الجديد قصير جداً', 'error');
-            return;
+        jobs.forEach((job, index) => {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${job.date}</td>
+                <td>${job.clientName}</td>
+                <td>الخدمات: ${(job.services || []).join(', ')} <br> القطع: ${(job.parts || []).join(', ')}</td>
+                <td><button class="btn btn-sm btn-danger" onclick="deleteJob(${index})">حذف</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function deleteJob(index) {
+        if(confirm('هل تريد حذف هذا السجل؟')) {
+            let jobs = JSON.parse(localStorage.getItem('med_garage_jobs')) || [];
+            jobs.splice(index, 1);
+            localStorage.setItem('med_garage_jobs', JSON.stringify(jobs));
+            loadRecordsTable();
         }
-        setPin(newP);
-        document.getElementById('oldPin').value = '';
-        document.getElementById('newPin').value = '';
-        showToast('✅ تم تغيير الرمز السري بنجاح');
-    }
-
-    // تصدير واستيراد النسخ الاحتياطي
-    function exportBackup() {
-        const data = {
-            invoices: getData('invoices'),
-            bookings: getData('bookings'),
-            stock: getData('stock'),
-            expenses: getData('expenses'),
-            reviews: getData('reviews')
-        };
-        const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `MED_GARAGE_Backup_${new Date().toISOString().slice(0,10)}.json`;
-        a.click();
-        showToast('✅ تم تصدير النسخة الاحتياطية');
-    }
-
-    function importBackup(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                if (data.invoices) setData('invoices', data.invoices);
-                if (data.bookings) setData('bookings', data.bookings);
-                if (data.stock) setData('stock', data.stock);
-                if (data.expenses) setData('expenses', data.expenses);
-                if (data.reviews) setData('reviews', data.reviews);
-                showToast('✅ تم استيراد البيانات بنجاح');
-                loadAdminDashboard();
-            } catch(err) {
-                showToast('❌ ملف غير صالح', 'error');
-            }
-        };
-        reader.readAsText(file);
-    }
-
-    function clearAllData() {
-        if (!confirm('⚠️ تحذير: سيتم حذف جميع البيانات (فواتير، ستوك، زبائن، مصاريف) نهائياً! هل أنت متأكد؟')) return;
-        if (!confirm('⚠️ تأكيد أخير: لا يمكن التراجع عن هذه الخطوة نهائياً!')) return;
-        localStorage.clear();
-        showToast('🗑️ تم مسح كل البيانات بنجاح');
-        setTimeout(() => window.location.href = 'index.html', 1500);
     }
 
     window.onload = function() {
-        try {
-            const savedTheme = localStorage.getItem('medgarage_theme');
-            if (savedTheme) document.getElementById('htmlRoot').setAttribute('data-theme', savedTheme);
-        } catch(e) {}
+        loadStockTable();
     };
 </script>
 
