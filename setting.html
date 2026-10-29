@@ -67,6 +67,11 @@
         .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(220,38,38,0.1); }
         .form-control.mono { direction: ltr; text-align: right; unicode-bidi: embed; letter-spacing: 2px; }
 
+        /* PIN input with show/hide */
+        .pin-input-wrapper { position: relative; }
+        .pin-input-wrapper .form-control { padding-left: 45px; }
+        .pin-toggle { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: transparent; border: none; font-size: 18px; cursor: pointer; padding: 4px; }
+
         .btn-primary { background: var(--primary); color: #fff; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; font-family: inherit; width: 100%; box-shadow: 0 4px 10px rgba(220,38,38,0.3); }
         .btn-primary:hover { background: var(--primary-hover); }
 
@@ -89,6 +94,8 @@
 
         .info-box { padding: 12px; background: rgba(37,99,235,0.1); border: 1px solid var(--info); border-radius: 8px; color: #93c5fd; font-size: 12px; line-height: 1.6; margin-bottom: 12px; }
         [data-theme="light"] .info-box { color: #1e40af; background: rgba(37,99,235,0.08); }
+
+        .warn-box { padding: 12px; background: rgba(245,158,11,0.1); border: 1px solid var(--accent); border-radius: 8px; color: #fbbf24; font-size: 12px; line-height: 1.6; margin-bottom: 12px; }
 
         .data-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0; }
         .data-stat { background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 10px 6px; text-align: center; }
@@ -116,18 +123,31 @@
     <div class="section-title">🔐 تغيير رمز PIN</div>
     <div class="settings-card">
         <p class="description">PIN الحالي هو كلمة السر التي تفتح بها لوحة التحكم. الافتراضي هو <strong>911</strong>.</p>
+
         <div class="form-group">
             <label>PIN الحالي *</label>
-            <input type="password" id="oldPin" class="form-control mono" maxlength="6" inputmode="numeric" placeholder="••••">
+            <div class="pin-input-wrapper">
+                <input type="password" id="oldPin" class="form-control mono" maxlength="6" inputmode="numeric" placeholder="••••">
+                <button type="button" class="pin-toggle" onclick="togglePin('oldPin')" title="إظهار/إخفاء">👁️</button>
+            </div>
         </div>
+
         <div class="form-group">
             <label>PIN الجديد *</label>
-            <input type="password" id="newPin" class="form-control mono" maxlength="6" inputmode="numeric" placeholder="••••">
+            <div class="pin-input-wrapper">
+                <input type="password" id="newPin" class="form-control mono" maxlength="6" inputmode="numeric" placeholder="••••">
+                <button type="button" class="pin-toggle" onclick="togglePin('newPin')" title="إظهار/إخفاء">👁️</button>
+            </div>
         </div>
+
         <div class="form-group">
             <label>تأكيد PIN الجديد *</label>
-            <input type="password" id="confirmPin" class="form-control mono" maxlength="6" inputmode="numeric" placeholder="••••">
+            <div class="pin-input-wrapper">
+                <input type="password" id="confirmPin" class="form-control mono" maxlength="6" inputmode="numeric" placeholder="••••">
+                <button type="button" class="pin-toggle" onclick="togglePin('confirmPin')" title="إظهار/إخفاء">👁️</button>
+            </div>
         </div>
+
         <button onclick="changePin()" class="btn-primary">💾 تغيير PIN</button>
     </div>
 
@@ -182,8 +202,8 @@
     <!-- ============ 5. إدارة البيانات ============ -->
     <div class="section-title">💾 إدارة البيانات</div>
     <div class="settings-card">
-        <div class="info-box">
-            💡 <strong>نصيحة:</strong> قم بتصدير نسخة احتياطية بانتظام — البيانات محفوظة في هذا الجهاز فقط، وإذا مسحت بيانات المتصفح ستضيع.
+        <div class="warn-box">
+            ⚠️ <strong>مهم:</strong> البيانات محفوظة في هذا الجهاز فقط. إذا مسحت بيانات المتصفح ستضيع. صدّر نسخة احتياطية بانتظام.
         </div>
 
         <div class="data-stats" id="dataStats">
@@ -217,7 +237,6 @@
         <button onclick="clearAll()" class="btn-danger">🚨 مسح كل البيانات نهائياً</button>
     </div>
 
-    <!-- Footer -->
     <div class="footer">
         <strong>MED GARAGE</strong> © 2027 — الإعدادات
     </div>
@@ -245,6 +264,12 @@
         toast.textContent = msg;
         toast.className = 'toast show' + (type === 'error' ? ' error' : '');
         setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    // ================= إظهار/إخفاء PIN =================
+    function togglePin(id) {
+        const input = document.getElementById(id);
+        input.type = input.type === 'password' ? 'text' : 'password';
     }
 
     // ================= الثيم =================
@@ -280,26 +305,36 @@
         });
     }
 
-    // ================= PIN =================
+    // ================= PIN — معدّل مع trim =================
     function changePin() {
-        const oldPin = document.getElementById('oldPin').value;
-        const newPin = document.getElementById('newPin').value;
-        const confirmPin = document.getElementById('confirmPin').value;
+        const oldPin = document.getElementById('oldPin').value.trim();
+        const newPin = document.getElementById('newPin').value.trim();
+        const confirmPin = document.getElementById('confirmPin').value.trim();
 
         const currentPin = localStorage.getItem('mg_pin') || '911';
 
+        if (!oldPin) {
+            showToast('⚠️ أدخل PIN الحالي', 'error');
+            document.getElementById('oldPin').focus();
+            return;
+        }
+
         if (oldPin !== currentPin) {
             showToast('❌ PIN الحالي غير صحيح', 'error');
+            document.getElementById('oldPin').focus();
             return;
         }
 
         if (newPin.length < 3) {
             showToast('⚠️ PIN الجديد قصير جداً (3 أرقام على الأقل)', 'error');
+            document.getElementById('newPin').focus();
             return;
         }
 
         if (newPin !== confirmPin) {
             showToast('❌ تأكيد PIN غير مطابق', 'error');
+            document.getElementById('confirmPin').value = '';
+            document.getElementById('confirmPin').focus();
             return;
         }
 
@@ -308,11 +343,24 @@
             return;
         }
 
-        localStorage.setItem('mg_pin', newPin);
-        document.getElementById('oldPin').value = '';
-        document.getElementById('newPin').value = '';
-        document.getElementById('confirmPin').value = '';
-        showToast('✅ تم تغيير PIN بنجاح');
+        if (!confirm('هل تريد تغيير PIN من "' + currentPin + '" إلى "' + newPin + '"؟')) return;
+
+        try {
+            localStorage.setItem('mg_pin', newPin);
+            document.getElementById('oldPin').value = '';
+            document.getElementById('newPin').value = '';
+            document.getElementById('confirmPin').value = '';
+            showToast('✅ تم تغيير PIN بنجاح!');
+
+            setTimeout(() => {
+                if (confirm('تم تغيير PIN. هل تريد تسجيل الخروج وإعادة الدخول بـ PIN الجديد؟')) {
+                    localStorage.removeItem('mg_session');
+                    window.location.href = 'dashboard.html';
+                }
+            }, 1200);
+        } catch(e) {
+            showToast('⚠️ خطأ في الحفظ', 'error');
+        }
     }
 
     // ================= معلومات الورشة =================
@@ -325,22 +373,25 @@
 
         if (!shop.name) {
             showToast('⚠️ اسم الورشة مطلوب', 'error');
+            document.getElementById('shopName').focus();
             return;
         }
 
-        localStorage.setItem('mg_shop_info', JSON.stringify(shop));
-        showToast('✅ تم حفظ معلومات الورشة');
+        try {
+            localStorage.setItem('mg_shop_info', JSON.stringify(shop));
+            showToast('✅ تم حفظ معلومات الورشة');
+        } catch(e) {
+            showToast('⚠️ خطأ في الحفظ', 'error');
+        }
     }
 
     function loadShopInfo() {
         try {
             const shop = JSON.parse(localStorage.getItem('mg_shop_info') || '{}');
-            document.getElementById('shopName').value = shop.name || 'MED GARAGE';
-            document.getElementById('shopPhone').value = shop.phone || '0790582551';
-            document.getElementById('shopAddress').value = shop.address || 'Cité 1780 OPGI - السويدانية';
-        } catch(e) {
-            document.getElementById('shopName').value = 'MED GARAGE';
-        }
+            document.getElementById('shopName').value = shop.name || '';
+            document.getElementById('shopPhone').value = shop.phone || '';
+            document.getElementById('shopAddress').value = shop.address || '';
+        } catch(e) {}
     }
 
     // ================= إحصائيات البيانات =================
@@ -348,20 +399,18 @@
         const stock = getData('stock', []);
         const invoices = getData('invoices', []);
         const bookings = getData('bookings', []);
-        const expenses = getData('expenses', []);
-        const reviews = getData('reviews', []);
 
         document.getElementById('cntStock').textContent = stock.length;
         document.getElementById('cntInvoices').textContent = invoices.length;
         document.getElementById('cntBookings').textContent = bookings.length;
     }
 
-    // ================= تصدير البيانات =================
+    // ================= تصدير =================
     function exportData() {
         try {
             const keys = ['stock', 'invoices', 'expenses', 'bookings', 'reviews', 'gallery'];
             const backup = {
-                version: '1.0',
+                version: '1.1',
                 date: new Date().toISOString(),
                 data: {}
             };
@@ -371,10 +420,10 @@
                 backup.data[k] = v ? JSON.parse(v) : [];
             });
 
-            // إضافة الإعدادات
             backup.data._settings = {
                 theme: localStorage.getItem('medgarage_theme') || 'dark',
                 lang: localStorage.getItem('medgarage_lang') || 'ar',
+                pin: localStorage.getItem('mg_pin') || '911',
                 shopInfo: localStorage.getItem('mg_shop_info') || null
             };
 
@@ -393,7 +442,7 @@
         }
     }
 
-    // ================= استيراد البيانات =================
+    // ================= استيراد =================
     function importData(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -408,15 +457,14 @@
 
                 const keys = ['stock', 'invoices', 'expenses', 'bookings', 'reviews', 'gallery'];
                 keys.forEach(k => {
-                    if (backup.data[k]) {
-                        setData(k, backup.data[k]);
-                    }
+                    if (backup.data[k]) setData(k, backup.data[k]);
                 });
 
                 if (backup.data._settings) {
                     const s = backup.data._settings;
                     if (s.theme) localStorage.setItem('medgarage_theme', s.theme);
                     if (s.lang) localStorage.setItem('medgarage_lang', s.lang);
+                    if (s.pin) localStorage.setItem('mg_pin', s.pin);
                     if (s.shopInfo) localStorage.setItem('mg_shop_info', s.shopInfo);
                 }
 
@@ -448,30 +496,28 @@
     }
 
     function clearAll() {
-        if (!confirm('🚨 تحذير: سيتم مسح كل شيء (سطوك، فواتير، مصاريف، حجوزات، آراء، صور). هل أنت متأكد؟')) return;
+        if (!confirm('🚨 تحذير: سيتم مسح كل شيء (سطوك، فواتير، مصاريف، حجوزات، آراء، صور، PIN، معلومات الورشة). هل أنت متأكد؟')) return;
         if (!confirm('🚨 تأكيد نهائي: هل صدّرت نسخة احتياطية؟')) return;
 
-        const keys = ['stock', 'invoices', 'expenses', 'bookings', 'reviews', 'gallery'];
+        const keys = ['stock', 'invoices', 'expenses', 'bookings', 'reviews', 'gallery', 'pin', 'shop_info'];
         keys.forEach(k => localStorage.removeItem('mg_' + k));
-        loadDataStats();
+        localStorage.removeItem('mg_session');
+        localStorage.removeItem('medgarage_theme');
+        localStorage.removeItem('medgarage_lang');
+
         showToast('🗑️ تم مسح كل البيانات');
-        setTimeout(() => location.reload(), 1500);
+        setTimeout(() => { window.location.href = 'index.html'; }, 1500);
     }
 
     // ================= تحميل الصفحة =================
     window.onload = function() {
-        // تطبيق الثيم
         const savedTheme = localStorage.getItem('medgarage_theme') || 'dark';
         applyTheme(savedTheme);
 
-        // اللغة
         const savedLang = localStorage.getItem('medgarage_lang') || 'ar';
         highlightLang(savedLang);
 
-        // معلومات الورشة
         loadShopInfo();
-
-        // إحصائيات
         loadDataStats();
     };
 </script>
