@@ -51,7 +51,6 @@
         body { font-family: 'Cairo', system-ui, -apple-system, sans-serif; font-weight: 700; background: var(--bg-gradient); background-attachment: fixed; color: var(--text-light); margin: 0; padding: 15px; line-height: 1.6; min-height: 100vh; }
         .container { max-width: 550px; margin: 0 auto; padding-bottom: 40px; }
 
-        /* ===== شاشة PIN ===== */
         #pinScreen { display: flex; align-items: center; justify-content: center; min-height: 90vh; }
         .pin-card { background: var(--card-dark); border: 2px solid var(--primary); border-radius: 16px; padding: 30px 25px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
         .pin-icon { font-size: 50px; margin-bottom: 10px; }
@@ -63,7 +62,6 @@
         .pin-back { display: inline-block; color: var(--text-muted); text-decoration: none; font-size: 13px; margin-top: 10px; }
         .pin-back:hover { color: var(--text-light); }
 
-        /* ===== الهيدر ===== */
         .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: var(--card-dark); border-radius: 12px; border: 1px solid var(--border-dark); margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
         .admin-header h2 { margin: 0; font-size: 16px; color: #fff; }
         .header-actions { display: flex; gap: 6px; }
@@ -71,7 +69,6 @@
         .header-btn:hover { background: var(--card-darker); color: var(--text-light); }
         .header-btn.danger:hover { background: rgba(220,38,38,0.2); color: #f87171; border-color: var(--danger); }
 
-        /* ===== بطاقات الإحصائيات ===== */
         .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
         .stat-box { padding: 15px 12px; border-radius: 12px; text-align: center; position: relative; }
         .stat-box.stock { background: rgba(37, 99, 235, 0.15); border: 1px solid var(--info); }
@@ -89,7 +86,6 @@
         .stat-box.profit .stat-value { color: #fbbf24; }
         .stat-box.bookings .stat-value { color: #a78bfa; }
 
-        /* ===== الأقسام ===== */
         .section-title { font-size: 18px; margin: 20px 0 12px; color: var(--text-light); border-right: 4px solid var(--primary); padding-right: 10px; font-weight: 900; display: flex; justify-content: space-between; align-items: center; }
         .section-title small { font-size: 12px; color: var(--text-muted); font-weight: normal; }
 
@@ -102,7 +98,6 @@
         .btn-cancel { background: var(--danger); }
         .btn-convert { background: var(--info); }
 
-        /* ===== أزرار التنقل ===== */
         .nav-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .nav-card { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 22px 15px; border-radius: 12px; text-decoration: none; color: #fff; font-weight: 900; font-size: 15px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: 1px solid transparent; }
         .nav-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.35); }
@@ -118,13 +113,24 @@
         .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: #fff; padding: 12px 20px; border-radius: 8px; font-weight: 900; font-size: 14px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); z-index: 9999; transition: transform 0.3s ease; max-width: 90%; text-align: center; }
         .toast.show { transform: translateX(-50%) translateY(0); }
         .toast.error { background: var(--primary); }
+
+        /* ===== Modal ===== */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; padding: 15px; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: var(--card-dark); border: 2px solid var(--primary); border-radius: 15px; padding: 20px; width: 100%; max-width: 380px; color: #fff; }
+        .modal-content h3 { margin-top: 0; color: var(--accent); text-align: center; }
+        .modal-content label { color: #cbd5e1; font-size: 12px; display: block; margin-bottom: 5px; }
+        .modal-content .pin-field { width: 100%; padding: 12px; background: #0f1115; color: #fff; border: 1px solid var(--border-dark); border-radius: 6px; text-align: center; letter-spacing: 8px; font-size: 18px; font-family: inherit; font-weight: 900; box-sizing: border-box; }
+        .modal-content .pin-field:focus { outline: none; border-color: var(--primary); }
+        .modal-btn { background: var(--success); color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; font-family: inherit; margin-top: 10px; }
+        .modal-btn:hover { opacity: 0.9; }
+        .modal-cancel { background: transparent; color: var(--text-muted); border: 1px solid var(--border-dark); width: 100%; padding: 10px; border-radius: 8px; font-weight: 900; font-size: 13px; cursor: pointer; font-family: inherit; margin-top: 8px; }
     </style>
 </head>
 <body id="htmlRoot">
 
 <div class="container">
 
-    <!-- ================= شاشة PIN ================= -->
     <div id="pinScreen">
         <div class="pin-card">
             <div class="pin-icon">🔒</div>
@@ -135,20 +141,18 @@
         </div>
     </div>
 
-    <!-- ================= لوحة التحكم ================= -->
     <div id="dashboardScreen" style="display:none;">
 
-        <!-- الهيدر -->
         <div class="admin-header">
             <h2>📊 لوحة التحكم</h2>
             <div class="header-actions">
                 <button class="header-btn" onclick="cycleTheme()" title="تبديل الثيم">🎨</button>
+                <button class="header-btn" onclick="openChangePinModal()" title="تغيير PIN">🔑</button>
                 <a href="settings.html" class="header-btn" title="الإعدادات" style="text-decoration:none;">⚙️</a>
                 <button class="header-btn danger" onclick="logout()" title="خروج">🚪</button>
             </div>
         </div>
 
-        <!-- الإحصائيات -->
         <div class="section-title">📈 ملخص سريع</div>
         <div class="stats-grid">
             <div class="stat-box stock">
@@ -177,7 +181,6 @@
             </div>
         </div>
 
-        <!-- الحجوزات -->
         <div class="section-title" id="bookingsSection">
             📅 الحجوزات الجديدة
             <small id="bookingsCount"></small>
@@ -186,7 +189,6 @@
             <div class="empty-state">جاري التحميل...</div>
         </div>
 
-        <!-- التنقل -->
         <div class="section-title">🔗 الأقسام</div>
         <div class="nav-grid">
             <a href="stock.html" class="nav-card stock">
@@ -207,7 +209,6 @@
             </a>
         </div>
 
-        <!-- Footer -->
         <div class="footer">
             <strong>MED GARAGE</strong> © 2027 — لوحة الإدارة
         </div>
@@ -215,10 +216,34 @@
 
 </div>
 
+<!-- Modal تغيير PIN -->
+<div id="changePinModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3>🔑 تغيير رمز PIN</h3>
+
+        <div style="margin-bottom:12px;">
+            <label>PIN الحالي *</label>
+            <input type="password" id="cpOld" class="pin-field" maxlength="6" inputmode="numeric" placeholder="••••">
+        </div>
+
+        <div style="margin-bottom:12px;">
+            <label>PIN الجديد *</label>
+            <input type="password" id="cpNew" class="pin-field" maxlength="6" inputmode="numeric" placeholder="••••">
+        </div>
+
+        <div style="margin-bottom:12px;">
+            <label>تأكيد PIN الجديد *</label>
+            <input type="password" id="cpConfirm" class="pin-field" maxlength="6" inputmode="numeric" placeholder="••••">
+        </div>
+
+        <button onclick="saveChangePin()" class="modal-btn">💾 حفظ PIN الجديد</button>
+        <button onclick="closeChangePinModal()" class="modal-cancel">إلغاء</button>
+    </div>
+</div>
+
 <div id="toast" class="toast"></div>
 
 <script>
-    // ================= أدوات مساعدة =================
     function getData(key, def = []) {
         try {
             const v = localStorage.getItem('mg_' + key);
@@ -244,9 +269,8 @@
         setTimeout(() => toast.classList.remove('show'), 3500);
     }
 
-    // ================= PIN والجلسة =================
     const SESSION_KEY = 'mg_session';
-    const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 أيام
+    const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000;
 
     function checkSession() {
         try {
@@ -275,7 +299,6 @@
         }
     }
 
-    // Enter key في PIN
     document.getElementById('pinInput').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') checkPin();
     });
@@ -286,7 +309,6 @@
         location.reload();
     }
 
-    // ================= التبديل بين الشاشات =================
     function showDashboard() {
         document.getElementById('pinScreen').style.display = 'none';
         document.getElementById('dashboardScreen').style.display = 'block';
@@ -294,7 +316,6 @@
         loadBookings();
     }
 
-    // ================= الثيم =================
     function applyTheme(theme) {
         if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
         else if (theme === 'oled') document.documentElement.setAttribute('data-theme', 'oled');
@@ -311,40 +332,32 @@
         showToast(icons[next] + ' ثيم: ' + next);
     }
 
-    // ================= الإحصائيات =================
     function loadStats() {
         const stock = getData('stock', []);
         const invoices = getData('invoices', []);
         const expenses = getData('expenses', []);
         const bookings = getData('bookings', []);
 
-        // السطوك
         document.getElementById('statStock').textContent = stock.length;
 
-        // الفواتير المكتملة (بدون Devis)
         const paidInvoices = invoices.filter(i => i.status !== 'devis');
         document.getElementById('statInvoices').textContent = paidInvoices.length;
 
-        // المداخيل
         const totalIncome = paidInvoices.reduce((s, i) => s + (Number(i.total) || 0), 0);
         document.getElementById('statIncome').textContent = totalIncome.toLocaleString() + ' دج';
 
-        // المصاريف
         const totalExpense = expenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
         document.getElementById('statExpense').textContent = totalExpense.toLocaleString() + ' دج';
 
-        // صافي الربح
         const profit = totalIncome - totalExpense;
         const profitEl = document.getElementById('statProfit');
         profitEl.textContent = profit.toLocaleString() + ' دج';
         profitEl.style.color = profit >= 0 ? '#4ade80' : '#f87171';
 
-        // الحجوزات الجديدة
         const pending = bookings.filter(b => !b.status || b.status === 'pending');
         document.getElementById('statBookings').textContent = pending.length;
     }
 
-    // ================= الحجوزات =================
     function loadBookings() {
         const bookings = getData('bookings', []);
         const container = document.getElementById('bookingsList');
@@ -406,7 +419,6 @@
         const b = bookings.find(x => x.id === id);
         if (!b) return;
 
-        // حفظ مؤقتاً في sessionStorage للفاتورة
         try {
             sessionStorage.setItem('mg_convert_booking', JSON.stringify(b));
         } catch(e) {}
@@ -421,15 +433,74 @@
         document.getElementById('bookingsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    // ================= تحميل الصفحة =================
+    // ================= تغيير PIN =================
+    function openChangePinModal() {
+        document.getElementById('cpOld').value = '';
+        document.getElementById('cpNew').value = '';
+        document.getElementById('cpConfirm').value = '';
+        document.getElementById('changePinModal').classList.add('active');
+        setTimeout(() => document.getElementById('cpOld').focus(), 200);
+    }
+
+    function closeChangePinModal() {
+        document.getElementById('changePinModal').classList.remove('active');
+    }
+
+    function saveChangePin() {
+        const oldPin = document.getElementById('cpOld').value.trim();
+        const newPin = document.getElementById('cpNew').value.trim();
+        const confirmPin = document.getElementById('cpConfirm').value.trim();
+        const currentPin = localStorage.getItem('mg_pin') || '911';
+
+        if (oldPin !== currentPin) {
+            showToast('❌ PIN الحالي غير صحيح', 'error');
+            document.getElementById('cpOld').focus();
+            return;
+        }
+
+        if (newPin.length < 3) {
+            showToast('⚠️ PIN الجديد قصير جداً (3 أرقام على الأقل)', 'error');
+            return;
+        }
+
+        if (newPin !== confirmPin) {
+            showToast('❌ تأكيد PIN غير مطابق', 'error');
+            document.getElementById('cpConfirm').value = '';
+            document.getElementById('cpConfirm').focus();
+            return;
+        }
+
+        if (newPin === currentPin) {
+            showToast('⚠️ PIN الجديد مطابق للقديم', 'error');
+            return;
+        }
+
+        try {
+            localStorage.setItem('mg_pin', newPin);
+            closeChangePinModal();
+            showToast('✅ تم تغيير PIN بنجاح!');
+
+            setTimeout(() => {
+                if (confirm('تم تغيير PIN إلى: ' + newPin + '\n\nهل تريد تسجيل الخروج وإعادة الدخول بـ PIN الجديد؟')) {
+                    localStorage.removeItem(SESSION_KEY);
+                    location.reload();
+                }
+            }, 1200);
+        } catch(e) {
+            showToast('⚠️ خطأ في الحفظ', 'error');
+        }
+    }
+
+    document.getElementById('cpConfirm').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') saveChangePin();
+    });
+
     window.onload = function() {
-        // تطبيق الثيم المحفوظ
         try {
             const savedTheme = localStorage.getItem('medgarage_theme');
             if (savedTheme) applyTheme(savedTheme);
         } catch(e) {}
 
-        // التحقق من الجلسة
         if (checkSession()) {
             showDashboard();
         } else {
