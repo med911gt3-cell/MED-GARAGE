@@ -284,7 +284,634 @@
 <div id="toast" class="toast"></div>
 
 <script>
-// [JavaScript في الجزء 2]
+    // ================= أدوات =================
+    function getData(key, def = []) {
+        try {
+            const v = localStorage.getItem('mg_' + key);
+            return v ? JSON.parse(v) : def;
+        } catch(e) { return def; }
+    }
+
+    function setData(key, val) {
+        try {
+            localStorage.setItem('mg_' + key, JSON.stringify(val));
+        } catch(e) { showToast('⚠️ خطأ في الحفظ', 'error'); }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function showToast(msg, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.className = 'toast show' + (type === 'error' ? ' error' : '');
+        setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    function applyTheme(theme) {
+        if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        else if (theme === 'oled') document.documentElement.setAttribute('data-theme', 'oled');
+        else document.documentElement.removeAttribute('data-theme');
+        const meta = document.getElementById('themeColorMeta');
+        if (meta) meta.setAttribute('content', theme === 'light' ? '#f1f5f9' : theme === 'oled' ? '#000000' : '#1a1d21');
+    }
+
+    // ================= حالة الفاتورة =================
+    let editingInvoiceId = null;
+    let currentItems = [];
+
+    function generateInvoiceCode(status = 'done') {
+        const invoices = getData('invoices', []);
+        const prefix = status === 'devis' ? 'DEV-' : 'INV-';
+        const year = new Date().getFullYear();
+        const sameType = invoices.filter(i => (i.status === 'devis') === (status === 'devis'));
+        const num = String(sameType.length + 1).padStart(6, '0');
+        return `${prefix}${year}-${num}`;
+    }
+
+    function openNewInvoice() {
+        editingInvoiceId = null;
+        currentItems = [];
+        const booking = sessionStorage.getItem('mg_convert_booking');
+
+        document.getElementById('modalTitle').textContent = '🧾 فاتورة جديدة';
+        document.getElementById('invCode').value = generateInvoiceCode('done');
+        document.getElementById('invClient').value = '';
+        document.getElementById('invPhone').value = '';
+        document.getElementById('invCar').value = '';
+        document.getElementById('invVin').value = '';
+        document.getElementById('invPlate').value = '';
+        document.getElementById('invKm').value = '';
+        document.getElementById('invNotes').value = '';
+        document.getElementById('invLabor').value = '0';
+        document.getElementById('invTvaEnabled').checked = false;
+        document.getElementById('invStatus').value = 'done';
+        document.querySelector('input[name="paymentMethod"][value="Espèces"]').checked = true;
+        document.querySelector('input[name="paymentStatus"][value="Payée"]').checked = true;
+
+        if (booking) {
+            try {
+                const b = JSON.parse(booking);
+                document.getElementById('invClient').value = b.name || '';
+                document.getElementById('invPhone').value = b.phone || '';
+                document.getElementById('invCar').value = b.car || '';
+                if (b.desc) document.getElementById('invNotes').value = b.desc;
+
+                if (Array.isArray(b.services) && b.services.length > 0) {
+                    b.services.forEach(svc => {
+                        currentItems.push({ type: 'service', name: svc, qty: 1, price: 0 });
+                    });
+                }
+
+                document.getElementById('bookingHint').classList.add('active');
+                document.getElementById('bookingHintText').textContent = b.name + ' — ' + (b.car || '');
+                sessionStorage.removeItem('mg_convert_booking');
+            } catch(e) {}
+        } else {
+            document.getElementById('bookingHint').classList.remove('active');
+        }
+
+        if (currentItems.length === 0) {
+            currentItems.push({ type: 'part', name: '', qty: 1, price: 0 });
+        }
+
+        renderItems();
+        calcTotal();
+        document.getElementById('invoiceModal').classList.add('active');
+    }
+
+    function editInvoice(id) {
+        const invoices = getData('invoices', []);
+        const inv = invoices.find(i => i.id === id);
+        if (!inv) return;
+
+        editingInvoiceId = id;
+        document.getElementById('modalTitle').textContent = '✏️ تعديل الفاتورة';
+        document.getElementById('invCode').value = inv.code;
+        document.getElementById('invClient').value = inv.client || '';
+        document.getElementById('invPhone').value = inv.phone || '';
+        document.getElementById('invCar').value = inv.car || '';
+        document.getElementById('invVin').value = inv.vin || '';
+        document.getElementById('invPlate').value = inv.plate || '';
+        document.getElementById('invKm').value = inv.km || '';
+        document.getElementById('invNotes').value = inv.notes || '';
+        document.getElementById('invLabor').value = inv.labor || 0;
+        document.getElementById('invTvaEnabled').checked = !!inv.tvaEnabled;
+        document.getElementById('invStatus').value = inv.status || 'done';
+
+        const pm = document.querySelector('input[name="paymentMethod"][value="' + (inv.paymentMethod || 'Espèces') + '"]');
+        if (pm) pm.checked = true;
+        const ps = document.querySelector('input[name="paymentStatus"][value="' + (inv.paymentStatus || 'Payée') + '"]');
+        if (ps) ps.checked = true;
+
+        if (inv.items && Array.isArray(inv.items)) {
+            currentItems = inv.items.map(it => ({ ...it }));
+        } else {
+            currentItems = [];
+        }
+
+        if (currentItems.length === 0) currentItems.push({ type: 'part', name: '', qty: 1, price: 0 });
+
+        renderItems();
+        calcTotal();
+        document.getElementById('bookingHint').classList.remove('active');
+        document.getElementById('invoiceModal').classList.add('active');
+    }
+
+    // ================= رسم صفوف Items =================
+    function renderItems() {
+        const stock = getData('stock', []);
+        const tbody = document.getElementById('itemsBody');
+
+        tbody.innerHTML = currentItems.map((item, idx) => {
+            const typeIcon = item.type === 'part' ? '📦' : '✏️';
+            let inputHTML = '';
+
+            if (item.type === 'part') {
+                const opts = stock.map(s => {
+                    const disabled = s.qty <= 0 ? 'disabled' : '';
+                    const stockLabel = s.qty > 0 ? `متوفر: ${s.qty}` : 'نافذ';
+                    const selected = s.name === item.name ? 'selected' : '';
+                    return `<option value="${escapeHtml(s.name)}" data-price="${s.sellPrice || 0}" data-qty="${s.qty || 0}" ${selected} ${disabled}>${escapeHtml(s.name)} (${stockLabel})</option>`;
+                }).join('');
+                inputHTML = `<select onchange="onItemFromStock(${idx}, this)">
+                    <option value="">-- اختر --</option>
+                    ${opts}
+                </select>`;
+            } else {
+                inputHTML = `<input type="text" value="${escapeHtml(item.name)}" oninput="onItemChange(${idx}, 'name', this.value)" placeholder="اسم الخدمة">`;
+            }
+
+            return `
+                <tr>
+                    <td class="col-type">
+                        <button onclick="toggleItemType(${idx})" title="تحويل" style="background:${item.type === 'part' ? 'var(--info)' : 'var(--accent)'}; color:#fff; border:none; padding:4px 6px; border-radius:4px; cursor:pointer; font-size:14px;">${typeIcon}</button>
+                    </td>
+                    <td class="col-name">${inputHTML}</td>
+                    <td class="col-qty"><input type="number" min="1" value="${item.qty || 1}" oninput="onItemChange(${idx}, 'qty', this.value); calcTotal()"></td>
+                    <td class="col-price"><input type="number" min="0" value="${item.price || 0}" oninput="onItemChange(${idx}, 'price', this.value); calcTotal()"></td>
+                    <td class="col-del"><button onclick="removeItemRow(${idx})" style="background:var(--danger); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;">🗑️</button></td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function addItemRow() {
+        currentItems.push({ type: 'part', name: '', qty: 1, price: 0 });
+        renderItems();
+        calcTotal();
+    }
+
+    function removeItemRow(idx) {
+        if (currentItems.length <= 1) {
+            showToast('⚠️ يجب أن تبقى قطعة واحدة على الأقل', 'error');
+            return;
+        }
+        currentItems.splice(idx, 1);
+        renderItems();
+        calcTotal();
+    }
+
+    function onItemChange(idx, field, value) {
+        if (!currentItems[idx]) return;
+        if (field === 'qty' || field === 'price') {
+            currentItems[idx][field] = parseFloat(value) || 0;
+        } else {
+            currentItems[idx][field] = value;
+        }
+    }
+
+    function onItemFromStock(idx, selectEl) {
+        const opt = selectEl.options[selectEl.selectedIndex];
+        if (!opt) return;
+        const price = parseFloat(opt.getAttribute('data-price')) || 0;
+        const stockQty = parseInt(opt.getAttribute('data-qty')) || 0;
+        if (currentItems[idx]) {
+            currentItems[idx].name = selectEl.value;
+            currentItems[idx].price = price;
+            currentItems[idx].type = 'part';
+            if (currentItems[idx].qty > stockQty && stockQty > 0) {
+                showToast('⚠️ الكمية المطلوبة أكبر من المتوفرة (' + stockQty + ')', 'error');
+                currentItems[idx].qty = stockQty;
+            }
+        }
+        renderItems();
+        calcTotal();
+    }
+
+    function toggleItemType(idx) {
+        if (!currentItems[idx]) return;
+        currentItems[idx].type = currentItems[idx].type === 'part' ? 'service' : 'part';
+        currentItems[idx].name = '';
+        currentItems[idx].price = 0;
+        renderItems();
+        calcTotal();
+    }
+
+    function calcTotal() {
+        let itemsTotal = 0;
+        currentItems.forEach(it => {
+            itemsTotal += (it.qty || 0) * (it.price || 0);
+        });
+        const labor = parseFloat(document.getElementById('invLabor').value) || 0;
+        const subtotal = itemsTotal + labor;
+
+        const tvaEnabled = document.getElementById('invTvaEnabled').checked;
+        const tva = tvaEnabled ? subtotal * 0.19 : 0;
+        const total = subtotal + tva;
+
+        document.getElementById('invSubtotal').textContent = subtotal.toLocaleString() + ' دج';
+        document.getElementById('tvaLine').style.display = tvaEnabled ? 'block' : 'none';
+        document.getElementById('invTva').textContent = tva.toLocaleString() + ' دج';
+        document.getElementById('invTotal').textContent = total.toLocaleString() + ' دج';
+    }
+
+    function saveInvoice() {
+        const code = document.getElementById('invCode').value;
+        const client = document.getElementById('invClient').value.trim();
+        const phone = document.getElementById('invPhone').value.trim();
+        const car = document.getElementById('invCar').value.trim();
+        const vin = document.getElementById('invVin').value.trim();
+        const plate = document.getElementById('invPlate').value.trim();
+        const km = document.getElementById('invKm').value.trim();
+        const notes = document.getElementById('invNotes').value.trim();
+        const labor = parseFloat(document.getElementById('invLabor').value) || 0;
+        const tvaEnabled = document.getElementById('invTvaEnabled').checked;
+        const status = document.getElementById('invStatus').value;
+        const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'Espèces';
+        const paymentStatus = document.querySelector('input[name="paymentStatus"]:checked')?.value || 'Payée';
+
+        if (!client) {
+            showToast('⚠️ يرجى إدخال اسم الزبون', 'error');
+            document.getElementById('invClient').focus();
+            return;
+        }
+
+        const stock = getData('stock', []);
+        for (const it of currentItems) {
+            if (it.type === 'part' && it.name) {
+                const stockItem = stock.find(s => s.name === it.name);
+                if (stockItem && it.qty > stockItem.qty) {
+                    showToast('❌ القطعة "' + it.name + '" الكمية المطلوبة أكبر من المتوفرة', 'error');
+                    return;
+                }
+            }
+        }
+
+        const validItems = currentItems.filter(it => it.name && it.qty > 0);
+        if (validItems.length === 0 && labor === 0) {
+            showToast('⚠️ أضف قطعة أو خدمة واحدة على الأقل', 'error');
+            return;
+        }
+
+        let itemsTotal = 0;
+        validItems.forEach(it => {
+            itemsTotal += it.qty * it.price;
+        });
+        const subtotal = itemsTotal + labor;
+        const tva = tvaEnabled ? subtotal * 0.19 : 0;
+        const total = subtotal + tva;
+
+        let invoices = getData('invoices', []);
+
+        if (editingInvoiceId) {
+            const oldIdx = invoices.findIndex(i => i.id === editingInvoiceId);
+            if (oldIdx === -1) return;
+            const oldInv = invoices[oldIdx];
+
+            if (oldInv.items && oldInv.status !== 'devis') {
+                oldInv.items.forEach(it => {
+                    if (it.type === 'part' && it.name) {
+                        const si = stock.findIndex(s => s.name === it.name);
+                        if (si !== -1) stock[si].qty += it.qty;
+                    }
+                });
+            }
+
+            if (status !== 'devis') {
+                validItems.forEach(it => {
+                    if (it.type === 'part' && it.name) {
+                        const si = stock.findIndex(s => s.name === it.name);
+                        if (si !== -1) stock[si].qty = Math.max(0, stock[si].qty - it.qty);
+                    }
+                });
+            }
+
+            invoices[oldIdx] = {
+                ...oldInv,
+                client, phone, car, vin, plate, km, notes,
+                labor, subtotal, tvaEnabled, tva, total, status,
+                paymentMethod, paymentStatus,
+                items: validItems,
+                updatedAt: Date.now()
+            };
+
+            showToast('✅ تم تعديل الفاتورة');
+        } else {
+            if (status !== 'devis') {
+                validItems.forEach(it => {
+                    if (it.type === 'part' && it.name) {
+                        const si = stock.findIndex(s => s.name === it.name);
+                        if (si !== -1) stock[si].qty = Math.max(0, stock[si].qty - it.qty);
+                    }
+                });
+            }
+
+            const now = new Date();
+            invoices.unshift({
+                id: Date.now(),
+                code,
+                client, phone, car, vin, plate, km, notes,
+                labor, subtotal, tvaEnabled, tva, total, status,
+                paymentMethod, paymentStatus,
+                items: validItems,
+                date: now.toLocaleDateString('ar-DZ'),
+                time: now.toLocaleTimeString('ar-DZ', {hour: '2-digit', minute:'2-digit'}),
+                createdAt: Date.now()
+            });
+
+            showToast(status === 'devis' ? '✅ تم حفظ الـ Devis' : '✅ تم حفظ الفاتورة وخصم الستوك');
+        }
+
+        setData('stock', stock);
+        setData('invoices', invoices);
+        closeInvoiceModal();
+        loadInvoices();
+    }
+
+    function closeInvoiceModal() {
+        document.getElementById('invoiceModal').classList.remove('active');
+        editingInvoiceId = null;
+        currentItems = [];
+    }
+
+    function deleteInvoice(id) {
+        if (!confirm('حذف هذه الفاتورة نهائياً؟')) return;
+        const invoices = getData('invoices', []);
+        const inv = invoices.find(i => i.id === id);
+        if (!inv) return;
+
+        if (inv.status !== 'devis' && inv.items) {
+            const stock = getData('stock', []);
+            inv.items.forEach(it => {
+                if (it.type === 'part' && it.name) {
+                    const si = stock.findIndex(s => s.name === it.name);
+                    if (si !== -1) stock[si].qty += it.qty;
+                }
+            });
+            setData('stock', stock);
+        }
+
+        setData('invoices', invoices.filter(i => i.id !== id));
+        loadInvoices();
+        showToast('🗑️ تم حذف الفاتورة');
+    }
+
+    function loadInvoices() {
+        const invoices = getData('invoices', []);
+        const search = (document.getElementById('invoiceSearch').value || '').toLowerCase();
+
+        let filtered = search ? invoices.filter(i =>
+            (i.client || '').toLowerCase().includes(search) ||
+            (i.code || '').toLowerCase().includes(search)
+        ) : invoices;
+
+        const devis = filtered.filter(i => i.status === 'devis');
+        const devisBox = document.getElementById('devisList');
+        if (devis.length === 0) {
+            devisBox.innerHTML = '<div class="empty-state">لا يوجد Devis حالياً</div>';
+        } else {
+            devisBox.innerHTML = devis.map(inv => `
+                <div class="list-row">
+                    <strong>${escapeHtml(inv.code)}</strong> — 👤 ${escapeHtml(inv.client)}
+                    ${inv.car ? ` | 🚗 ${escapeHtml(inv.car)}` : ''}<br>
+                    <span style="color:#fbbf24;">📄 Devis: <strong>${(inv.total || 0).toLocaleString()} دج</strong></span>
+                    <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
+                        <button onclick="editInvoice(${inv.id})" class="btn btn-sm btn-info">✏️</button>
+                        <button onclick="openPdfPreview(${inv.id})" class="btn btn-sm btn-warning">👁️</button>
+                        <button onclick="printInvoice(${inv.id})" class="btn btn-sm btn-success">🖨️</button>
+                        <button onclick="deleteInvoice(${inv.id})" class="btn btn-sm btn-danger">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        const done = filtered.filter(i => i.status !== 'devis');
+        const doneBox = document.getElementById('doneList');
+        if (done.length === 0) {
+            doneBox.innerHTML = '<div class="empty-state">لا توجد فواتير مكتملة</div>';
+        } else {
+            doneBox.innerHTML = done.map(inv => `
+                <div class="list-row">
+                    <strong>${escapeHtml(inv.code)}</strong> — 👤 ${escapeHtml(inv.client)}
+                    ${inv.car ? ` | 🚗 ${escapeHtml(inv.car)}` : ''}<br>
+                    <span style="color:#4ade80; font-weight:900;">💵 ${(inv.total || 0).toLocaleString()} دج</span>
+                    <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
+                        <button onclick="editInvoice(${inv.id})" class="btn btn-sm btn-info">✏️</button>
+                        <button onclick="openPdfPreview(${inv.id})" class="btn btn-sm btn-warning">👁️</button>
+                        <button onclick="printInvoice(${inv.id})" class="btn btn-sm btn-success">🖨️</button>
+                        <button onclick="deleteInvoice(${inv.id})" class="btn btn-sm btn-danger">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+    }
+
+    // ================= بناء HTML الفاتورة =================
+    function buildInvoiceHTML(inv) {
+        let shop = { name: 'MED GARAGE', phone: '0790582551', address: 'السويدانية - الجزائر العاصمة', email: 'medgarage@gmail.com' };
+        try {
+            const s = JSON.parse(localStorage.getItem('mg_shop_info') || 'null');
+            if (s) shop = { ...shop, ...s };
+        } catch(e) {}
+
+        let itemsHTML = '';
+        let itemsTotal = 0;
+        if (inv.items && inv.items.length > 0) {
+            inv.items.forEach((it, i) => {
+                const lineTotal = (it.qty || 0) * (it.price || 0);
+                itemsTotal += lineTotal;
+                itemsHTML += `<tr>
+                    <td>${i + 1}</td>
+                    <td style="text-align:right; padding-right:12px;">${escapeHtml(it.name)}</td>
+                    <td>${it.qty}</td>
+                    <td>${(it.price || 0).toLocaleString()}</td>
+                    <td>${lineTotal.toLocaleString()}</td>
+                </tr>`;
+            });
+        }
+
+        const isDevis = inv.status === 'devis';
+        const docType = isDevis ? 'DEVIS' : 'FACTURE';
+
+        return `
+            <div style="font-family:'Cairo',sans-serif; color:#0f172a; max-width:100%; background:#fff;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #dc2626; padding-bottom:12px; margin-bottom:15px;">
+                    <div>
+                        <h1 style="margin:0; color:#dc2626; font-size:22px; font-weight:900;">${escapeHtml(shop.name)}</h1>
+                        <div style="font-size:11px; font-weight:800; color:#1e293b; border-right:3px solid #dc2626; padding-right:6px; margin:4px 0;">ورشة صيانة السيارات</div>
+                        <div style="font-size:10px; color:#475569; margin:2px 0;">📍 ${escapeHtml(shop.address)}</div>
+                        <div style="font-size:10px; color:#475569; margin:2px 0;">📞 ${escapeHtml(shop.phone)}</div>
+                    </div>
+                    <div style="text-align:left;">
+                        <div style="background:#181b20; color:#fff; padding:5px 12px; border-radius:6px; font-size:14px; font-weight:900; display:inline-block; margin-bottom:5px;">${docType}</div>
+                        <div style="font-size:11px; color:#334155; margin:2px 0;"><strong>N°:</strong> ${escapeHtml(inv.code)}</div>
+                        <div style="font-size:11px; color:#334155; margin:2px 0;"><strong>Date:</strong> ${escapeHtml(inv.date)}</div>
+                        ${inv.time ? `<div style="font-size:11px; color:#334155; margin:2px 0;"><strong>Heure:</strong> ${escapeHtml(inv.time)}</div>` : ''}
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+                    <div style="border:1px solid #cbd5e1; border-radius:6px; padding:8px; background:#f8fafc;">
+                        <div style="background:#dc2626; color:#fff; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:900; margin-bottom:5px;">Client</div>
+                        <div style="font-size:11px; margin:3px 0;"><strong>Nom:</strong> ${escapeHtml(inv.client)}</div>
+                        ${inv.phone ? `<div style="font-size:11px; margin:3px 0;"><strong>Tél:</strong> ${escapeHtml(inv.phone)}</div>` : ''}
+                    </div>
+                    <div style="border:1px solid #cbd5e1; border-radius:6px; padding:8px; background:#f8fafc;">
+                        <div style="background:#dc2626; color:#fff; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:900; margin-bottom:5px;">Véhicule</div>
+                        ${inv.car ? `<div style="font-size:11px; margin:3px 0;"><strong>Type:</strong> ${escapeHtml(inv.car)}</div>` : ''}
+                        ${inv.vin ? `<div style="font-size:11px; margin:3px 0;"><strong>VIN:</strong> ${escapeHtml(inv.vin)}</div>` : ''}
+                        ${inv.plate ? `<div style="font-size:11px; margin:3px 0;"><strong>Immat:</strong> ${escapeHtml(inv.plate)}</div>` : ''}
+                        ${inv.km ? `<div style="font-size:11px; margin:3px 0;"><strong>KM:</strong> ${escapeHtml(String(inv.km))}</div>` : ''}
+                    </div>
+                </div>
+
+                ${inv.notes ? `<div style="border:1px solid #cbd5e1; border-radius:6px; padding:8px; background:#f8fafc; margin-bottom:12px; font-size:11px;"><strong style="color:#dc2626;">Demande du client:</strong><br>${escapeHtml(inv.notes)}</div>` : ''}
+
+                <table style="width:100%; border-collapse:collapse; font-size:11px; margin-bottom:12px;">
+                    <thead>
+                        <tr style="background:#181b20; color:#fff;">
+                            <th style="padding:6px; border:1px solid #cbd5e1; width:8%;">N°</th>
+                            <th style="padding:6px; border:1px solid #cbd5e1; width:44%;">Désignation</th>
+                            <th style="padding:6px; border:1px solid #cbd5e1; width:12%;">Qté</th>
+                            <th style="padding:6px; border:1px solid #cbd5e1; width:18%;">P.U (DA)</th>
+                            <th style="padding:6px; border:1px solid #cbd5e1; width:18%;">Montant</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${itemsHTML || '<tr><td colspan="5" style="text-align:center; padding:10px;">لا توجد عناصر</td></tr>'}
+                        ${inv.labor > 0 ? `<tr>
+                            <td>${(inv.items?.length || 0) + 1}</td>
+                            <td style="text-align:right; padding-right:12px;"><strong>Main d'œuvre</strong></td>
+                            <td>1</td>
+                            <td>${inv.labor.toLocaleString()}</td>
+                            <td>${inv.labor.toLocaleString()}</td>
+                        </tr>` : ''}
+                    </tbody>
+                </table>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+                    <div style="border:1px solid #cbd5e1; border-radius:6px; padding:8px; background:#f8fafc;">
+                        <div style="background:#181b20; color:#fff; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:900; margin-bottom:5px;">Paiement</div>
+                        <div style="font-size:11px; margin:3px 0;">Mode: <strong>${escapeHtml(inv.paymentMethod || 'Espèces')}</strong></div>
+                        <div style="font-size:11px; margin:3px 0;">État: <strong>${escapeHtml(inv.paymentStatus || 'Payée')}</strong></div>
+                    </div>
+                    <div style="border:1px solid #cbd5e1; border-radius:6px; padding:8px; background:#f8fafc;">
+                        <div style="background:#181b20; color:#fff; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:900; margin-bottom:5px;">Récapitulatif</div>
+                        <div style="display:flex; justify-content:space-between; font-size:11px; margin:2px 0;"><span>Sous-total:</span><span>${(inv.subtotal || itemsTotal).toLocaleString()} DA</span></div>
+                        ${inv.tvaEnabled ? `<div style="display:flex; justify-content:space-between; font-size:11px; margin:2px 0;"><span>TVA (19%):</span><span>${(inv.tva || 0).toLocaleString()} DA</span></div>` : ''}
+                        <div style="display:flex; justify-content:space-between; font-size:13px; margin-top:5px; background:#dc2626; color:#fff; padding:5px 8px; border-radius:4px; font-weight:900;"><span>Total TTC:</span><span>${(inv.total || 0).toLocaleString()} DA</span></div>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:20px; border-top:2px dashed #cbd5e1; padding-top:12px;">
+                    <div style="font-size:10px; color:#475569; font-weight:700;">
+                        Merci pour votre confiance.<br>
+                        ${escapeHtml(shop.name)} © ${new Date().getFullYear()}
+                    </div>
+                    <div style="text-align:center; width:180px; font-size:11px; border:1px solid #cbd5e1; background:#fff; padding:6px; border-radius:6px; color:#64748b;">
+                        Cachet et signature
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // ================= معاينة PDF =================
+    let currentPDFInvoice = null;
+
+    function openPdfPreview(id) {
+        const invoices = getData('invoices', []);
+        const inv = invoices.find(i => i.id === id);
+        if (!inv) return;
+
+        currentPDFInvoice = inv;
+        document.getElementById('pdfPreviewContent').innerHTML = buildInvoiceHTML(inv);
+        document.getElementById('pdfPreviewModal').classList.add('active');
+    }
+
+    function closePdfPreview() {
+        document.getElementById('pdfPreviewModal').classList.remove('active');
+        currentPDFInvoice = null;
+    }
+
+    function downloadPDF() {
+        if (!currentPDFInvoice) return;
+        const element = document.getElementById('pdfPreviewContent');
+        const filename = (currentPDFInvoice.status === 'devis' ? 'devis-' : 'facture-') + currentPDFInvoice.code + '.pdf';
+
+        html2pdf().set({
+            margin: 5,
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        }).from(element).save().then(() => {
+            showToast('✅ تم تحميل PDF');
+        }).catch(() => {
+            showToast('⚠️ خطأ في التحميل', 'error');
+        });
+    }
+
+    function printPDF() {
+        if (!currentPDFInvoice) return;
+        printInvoice(currentPDFInvoice.id);
+    }
+
+    // ================= طباعة الفاتورة (نافذة جديدة) =================
+    function printInvoice(id) {
+        const invoices = getData('invoices', []);
+        const inv = invoices.find(i => i.id === id);
+        if (!inv) return;
+
+        const html = `
+            <!DOCTYPE html>
+            <html dir="rtl" lang="ar">
+            <head>
+                <meta charset="UTF-8">
+                <title>${inv.status === 'devis' ? 'Devis' : 'Facture'} ${inv.code}</title>
+                <style>
+                    * { box-sizing: border-box; }
+                    body { font-family: 'Cairo', Tahoma, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background: #fff; }
+                    @media print { body { padding: 0; } }
+                </style>
+            </head>
+            <body>${buildInvoiceHTML(inv)}</body>
+            </html>
+        `;
+
+        const win = window.open('', '_blank');
+        win.document.write(html);
+        win.document.close();
+        setTimeout(() => win.print(), 600);
+    }
+
+    // ================= تحميل الصفحة =================
+    window.onload = function() {
+        try {
+            const savedTheme = localStorage.getItem('medgarage_theme');
+            if (savedTheme) applyTheme(savedTheme);
+        } catch(e) {}
+
+        const booking = sessionStorage.getItem('mg_convert_booking');
+        if (booking) {
+            setTimeout(() => openNewInvoice(), 300);
+        }
+
+        loadInvoices();
+    };
 </script>
 
 </body>
