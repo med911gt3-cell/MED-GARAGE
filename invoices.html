@@ -719,9 +719,9 @@
         }
     }
 
-    // ================= بناء HTML الفاتورة =================
+    // ================= بناء HTML الفاتورة (التصميم الاحترافي) =================
     function buildInvoiceHTML(inv) {
-        let shop = { name: 'MED GARAGE', phone: '0790582551', address: 'السويدانية - الجزائر العاصمة', email: 'medgarage@gmail.com' };
+        let shop = { name: 'MED GARAGE', phone: '0790 58 25 51', address: 'السويدانية - الجزائر العاصمة', email: 'medgarage@gmail.com' };
         try {
             const s = JSON.parse(localStorage.getItem('mg_shop_info') || 'null');
             if (s) shop = { ...shop, ...s };
@@ -729,102 +729,168 @@
 
         let itemsHTML = '';
         let itemsTotal = 0;
+        
         if (inv.items && inv.items.length > 0) {
             inv.items.forEach((it, i) => {
                 const lineTotal = (it.qty || 0) * (it.price || 0);
                 itemsTotal += lineTotal;
                 itemsHTML += `<tr>
-                    <td>${i + 1}</td>
-                    <td style="text-align:right; padding-right:12px;">${escapeHtml(it.name)}</td>
-                    <td>${it.qty}</td>
-                    <td>${(it.price || 0).toLocaleString()}</td>
-                    <td>${lineTotal.toLocaleString()}</td>
+                    <td style="text-align:center; border: 1px solid #cbd5e1; padding: 6px;">${i + 1}</td>
+                    <td style="text-align:right; padding-right: 10px; border: 1px solid #cbd5e1; padding: 6px;">${escapeHtml(it.name)}</td>
+                    <td style="text-align:center; border: 1px solid #cbd5e1; padding: 6px;">${it.qty}</td>
+                    <td style="text-align:left; border: 1px solid #cbd5e1; padding: 6px;">${(it.price || 0).toLocaleString()}</td>
+                    <td style="text-align:left; border: 1px solid #cbd5e1; padding: 6px;">${lineTotal.toLocaleString()}</td>
                 </tr>`;
             });
         }
 
-        const isDevis = inv.status === 'devis';
-        const docType = isDevis ? 'DEVIS' : 'FACTURE';
+        if (inv.labor > 0) {
+            itemsHTML += `<tr style="background: #f8fafc;">
+                <td style="text-align:center; border: 1px solid #cbd5e1; padding: 6px;">🛠️</td>
+                <td style="text-align:right; padding-right: 10px; border: 1px solid #cbd5e1; padding: 6px;"><strong>Main d'œuvre</strong></td>
+                <td style="text-align:center; border: 1px solid #cbd5e1; padding: 6px;">1</td>
+                <td style="text-align:left; border: 1px solid #cbd5e1; padding: 6px;">${inv.labor.toLocaleString()}</td>
+                <td style="text-align:left; border: 1px solid #cbd5e1; padding: 6px;">${inv.labor.toLocaleString()}</td>
+            </tr>`;
+        }
+
+        const docType = inv.status === 'devis' ? 'DEVIS' : 'FACTURE';
+        
+        const chk = (isChecked) => isChecked ? '<span style="font-size:16px; color:#16a34a;">☑</span>' : '<span style="font-size:16px; color:#94a3b8;">☐</span>';
 
         return `
-            <div style="font-family:'Cairo',sans-serif; color:#0f172a; max-width:100%; background:#fff;">
-                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #dc2626; padding-bottom:12px; margin-bottom:15px;">
-                    <div>
-                        <h1 style="margin:0; color:#dc2626; font-size:22px; font-weight:900;">${escapeHtml(shop.name)}</h1>
-                        <div style="font-size:11px; font-weight:800; color:#1e293b; border-right:3px solid #dc2626; padding-right:6px; margin:4px 0;">ورشة صيانة السيارات</div>
-                        <div style="font-size:10px; color:#475569; margin:2px 0;">📍 ${escapeHtml(shop.address)}</div>
-                        <div style="font-size:10px; color:#475569; margin:2px 0;">📞 ${escapeHtml(shop.phone)}</div>
+            <div style="font-family: Arial, sans-serif; color: #1e293b; max-width: 100%; background: #fff; direction: ltr;">
+                
+                <!-- Header -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #dc2626; padding-bottom: 15px; margin-bottom: 20px;">
+                    <div style="flex: 1;">
+                        <h1 style="margin: 0; color: #dc2626; font-size: 28px; font-weight: 900; letter-spacing: 1px;">MED GARAGE</h1>
+                        <div style="font-size: 14px; font-weight: bold; color: #dc2626; margin: 2px 0 10px 0;">ورشة صيانة السيارات</div>
+                        
+                        <div style="font-size: 11px; color: #333; line-height: 1.6; font-weight: bold;">
+                            <div style="display:flex; gap:5px;"><span>📍</span> <span>${escapeHtml(shop.address)}</span></div>
+                            <div style="display:flex; gap:5px;"><span>📞</span> <span style="direction:ltr;">${escapeHtml(shop.phone)}</span></div>
+                            <div style="display:flex; gap:5px;"><span>✉️</span> <span>${escapeHtml(shop.email)}</span></div>
+                        </div>
                     </div>
-                    <div style="text-align:left;">
-                        <div style="background:#181b20; color:#fff; padding:5px 12px; border-radius:6px; font-size:14px; font-weight:900; display:inline-block; margin-bottom:5px;">${docType}</div>
-                        <div style="font-size:11px; color:#334155; margin:2px 0;"><strong>N°:</strong> ${escapeHtml(inv.code)}</div>
-                        <div style="font-size:11px; color:#334155; margin:2px 0;"><strong>Date:</strong> ${escapeHtml(inv.date)}</div>
-                        ${inv.time ? `<div style="font-size:11px; color:#334155; margin:2px 0;"><strong>Heure:</strong> ${escapeHtml(inv.time)}</div>` : ''}
-                    </div>
-                </div>
-
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
-                    <div style="border:1px solid #cbd5e1; border-radius:6px; padding:8px; background:#f8fafc;">
-                        <div style="background:#dc2626; color:#fff; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:900; margin-bottom:5px;">Client</div>
-                        <div style="font-size:11px; margin:3px 0;"><strong>Nom:</strong> ${escapeHtml(inv.client)}</div>
-                        ${inv.phone ? `<div style="font-size:11px; margin:3px 0;"><strong>Tél:</strong> ${escapeHtml(inv.phone)}</div>` : ''}
-                    </div>
-                    <div style="border:1px solid #cbd5e1; border-radius:6px; padding:8px; background:#f8fafc;">
-                        <div style="background:#dc2626; color:#fff; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:900; margin-bottom:5px;">Véhicule</div>
-                        ${inv.car ? `<div style="font-size:11px; margin:3px 0;"><strong>Type:</strong> ${escapeHtml(inv.car)}</div>` : ''}
-                        ${inv.vin ? `<div style="font-size:11px; margin:3px 0;"><strong>VIN:</strong> ${escapeHtml(inv.vin)}</div>` : ''}
-                        ${inv.plate ? `<div style="font-size:11px; margin:3px 0;"><strong>Immat:</strong> ${escapeHtml(inv.plate)}</div>` : ''}
-                        ${inv.km ? `<div style="font-size:11px; margin:3px 0;"><strong>KM:</strong> ${escapeHtml(String(inv.km))}</div>` : ''}
+                    <div style="flex: 0 0 140px; text-align: right;">
+                        <img src="https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png" alt="Logo" style="width: 130px; height: 130px; object-fit: contain;">
                     </div>
                 </div>
 
-                ${inv.notes ? `<div style="border:1px solid #cbd5e1; border-radius:6px; padding:8px; background:#f8fafc; margin-bottom:12px; font-size:11px;"><strong style="color:#dc2626;">Demande du client:</strong><br>${escapeHtml(inv.notes)}</div>` : ''}
+                <!-- Meta Bar -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div style="background: #1e293b; color: #fff; padding: 8px 20px; border-radius: 8px; display: flex; align-items: center; gap: 15px;">
+                        <span style="font-size: 18px; font-weight: bold;">📄 ${docType}</span>
+                        <span style="color: #dc2626; font-size: 20px; font-weight: 900;">N° : ${escapeHtml(inv.code)}</span>
+                    </div>
+                    <div style="text-align: right; font-size: 12px; font-weight: bold; color: #333; line-height: 1.8;">
+                        <div>📅 Date : ${escapeHtml(inv.date)}</div>
+                        <div>⏰ Heure : ${escapeHtml(inv.time || '--:--')}</div>
+                    </div>
+                </div>
 
-                <table style="width:100%; border-collapse:collapse; font-size:11px; margin-bottom:12px;">
+                <!-- Client & Vehicle Info -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
+                        <div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">👤 Informations du client</div>
+                        <div style="padding: 12px; font-size: 12px; line-height: 2.2;">
+                            <div><strong>Nom :</strong> ${escapeHtml(inv.client)}</div>
+                            <div><strong>Téléphone :</strong> ${escapeHtml(inv.phone || '-')}</div>
+                            <div><strong>Adresse :</strong> -</div>
+                        </div>
+                    </div>
+                    <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
+                        <div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">🚗 Informations du véhicule</div>
+                        <div style="padding: 12px; font-size: 12px; line-height: 2.2;">
+                            <div><strong>Type :</strong> ${escapeHtml(inv.car || '-')}</div>
+                            <div><strong>VIN :</strong> ${escapeHtml(inv.vin || '-')}</div>
+                            <div><strong>Immatriculation :</strong> ${escapeHtml(inv.plate || '-')}</div>
+                            <div><strong>KM :</strong> ${escapeHtml(String(inv.km || '-'))}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; margin-bottom: 15px;">
+                    <div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">📝 Demande du client</div>
+                    <div style="padding: 12px; font-size: 12px; min-height: 40px;">
+                        ${escapeHtml(inv.notes || '-')}
+                    </div>
+                </div>
+
+                <!-- Items Table -->
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 12px;">
                     <thead>
-                        <tr style="background:#181b20; color:#fff;">
-                            <th style="padding:6px; border:1px solid #cbd5e1; width:8%;">N°</th>
-                            <th style="padding:6px; border:1px solid #cbd5e1; width:44%;">Désignation</th>
-                            <th style="padding:6px; border:1px solid #cbd5e1; width:12%;">Qté</th>
-                            <th style="padding:6px; border:1px solid #cbd5e1; width:18%;">P.U (DA)</th>
-                            <th style="padding:6px; border:1px solid #cbd5e1; width:18%;">Montant</th>
+                        <tr style="background: #1e293b; color: #fff;">
+                            <th style="padding: 8px; border: 1px solid #cbd5e1; width: 8%; text-align: center;">N°</th>
+                            <th style="padding: 8px; border: 1px solid #cbd5e1; width: 44%; text-align: center;">Désignation</th>
+                            <th style="padding: 8px; border: 1px solid #cbd5e1; width: 12%; text-align: center;">Quantité</th>
+                            <th style="padding: 8px; border: 1px solid #cbd5e1; width: 18%; text-align: center;">Prix unitaire (DA)</th>
+                            <th style="padding: 8px; border: 1px solid #cbd5e1; width: 18%; text-align: center;">Montant (DA)</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${itemsHTML || '<tr><td colspan="5" style="text-align:center; padding:10px;">لا توجد عناصر</td></tr>'}
-                        ${inv.labor > 0 ? `<tr>
-                            <td>${(inv.items?.length || 0) + 1}</td>
-                            <td style="text-align:right; padding-right:12px;"><strong>Main d'œuvre</strong></td>
-                            <td>1</td>
-                            <td>${inv.labor.toLocaleString()}</td>
-                            <td>${inv.labor.toLocaleString()}</td>
-                        </tr>` : ''}
+                        ${itemsHTML || '<tr><td colspan="5" style="text-align:center; padding:10px; border: 1px solid #cbd5e1;">Aucune pièce</td></tr>'}
                     </tbody>
                 </table>
 
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
-                    <div style="border:1px solid #cbd5e1; border-radius:6px; padding:8px; background:#f8fafc;">
-                        <div style="background:#181b20; color:#fff; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:900; margin-bottom:5px;">Paiement</div>
-                        <div style="font-size:11px; margin:3px 0;">Mode: <strong>${escapeHtml(inv.paymentMethod || 'Espèces')}</strong></div>
-                        <div style="font-size:11px; margin:3px 0;">État: <strong>${escapeHtml(inv.paymentStatus || 'Payée')}</strong></div>
+                <!-- Bottom Section -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
+                            <div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">💳 Mode de paiement</div>
+                            <div style="padding: 12px; font-size: 12px; display: flex; gap: 15px; flex-wrap: wrap;">
+                                <span>${chk(inv.paymentMethod === 'Espèces')} Espèces</span>
+                                <span>${chk(inv.paymentMethod === 'Chèque')} Chèque</span>
+                                <span>${chk(inv.paymentMethod === 'Virement')} Virement</span>
+                                <span>${chk(inv.paymentMethod === 'Crédit')} Crédit</span>
+                            </div>
+                        </div>
+                        <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
+                            <div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">✅ État de la facture</div>
+                            <div style="padding: 12px; font-size: 12px; display: flex; gap: 15px; flex-wrap: wrap;">
+                                <span>${chk(inv.paymentStatus === 'Payée')} Payée</span>
+                                <span>${chk(inv.paymentStatus === 'Partiel')} Paiement partiel</span>
+                                <span>${chk(!inv.paymentStatus || inv.paymentStatus === 'Non payée')} Non payée</span>
+                            </div>
+                        </div>
                     </div>
-                    <div style="border:1px solid #cbd5e1; border-radius:6px; padding:8px; background:#f8fafc;">
-                        <div style="background:#181b20; color:#fff; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:900; margin-bottom:5px;">Récapitulatif</div>
-                        <div style="display:flex; justify-content:space-between; font-size:11px; margin:2px 0;"><span>Sous-total:</span><span>${(inv.subtotal || itemsTotal).toLocaleString()} DA</span></div>
-                        ${inv.tvaEnabled ? `<div style="display:flex; justify-content:space-between; font-size:11px; margin:2px 0;"><span>TVA (19%):</span><span>${(inv.tva || 0).toLocaleString()} DA</span></div>` : ''}
-                        <div style="display:flex; justify-content:space-between; font-size:13px; margin-top:5px; background:#dc2626; color:#fff; padding:5px 8px; border-radius:4px; font-weight:900;"><span>Total TTC:</span><span>${(inv.total || 0).toLocaleString()} DA</span></div>
+
+                    <div>
+                        <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
+                            <div style="background: #1e293b; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">Récapitulatif</div>
+                            <div style="padding: 0;">
+                                <div style="display: flex; justify-content: space-between; padding: 8px 12px; font-size: 13px; border-bottom: 1px solid #cbd5e1;">
+                                    <span>Total pièces</span>
+                                    <strong>${(inv.subtotal - inv.labor || 0).toLocaleString()} DA</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 8px 12px; font-size: 13px; border-bottom: 1px solid #cbd5e1;">
+                                    <span>Main d'œuvre</span>
+                                    <strong>${(inv.labor || 0).toLocaleString()} DA</strong>
+                                </div>
+                                ${inv.tvaEnabled ? `<div style="display: flex; justify-content: space-between; padding: 8px 12px; font-size: 13px; border-bottom: 1px solid #cbd5e1;">
+                                    <span>TVA (19%)</span>
+                                    <strong>${(inv.tva || 0).toLocaleString()} DA</strong>
+                                </div>` : ''}
+                                <div style="display: flex; justify-content: space-between; padding: 12px; font-size: 16px; font-weight: 900; background: #dc2626; color: #fff;">
+                                    <span>Total TTC</span>
+                                    <span>${(inv.total || 0).toLocaleString()} DA</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="border: 1px solid #cbd5e1; border-radius: 8px; height: 80px; margin-top: 15px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #64748b;">
+                            Cachet et signature
+                        </div>
                     </div>
                 </div>
 
-                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:20px; border-top:2px dashed #cbd5e1; padding-top:12px;">
-                    <div style="font-size:10px; color:#475569; font-weight:700;">
-                        Merci pour votre confiance.<br>
-                        ${escapeHtml(shop.name)} © ${new Date().getFullYear()}
-                    </div>
-                    <div style="text-align:center; width:180px; font-size:11px; border:1px solid #cbd5e1; background:#fff; padding:6px; border-radius:6px; color:#64748b;">
-                        Cachet et signature
-                    </div>
+                <!-- Footer -->
+                <div style="text-align: center; background: #1e293b; color: #fff; padding: 15px; border-radius: 8px;">
+                    <div style="font-size: 16px; font-style: italic; margin-bottom: 5px;">Merci pour votre confiance</div>
+                    <div style="font-size: 11px; color: #cbd5e1;">MED GARAGE - Votre véhicule entre de bonnes mains</div>
                 </div>
+
             </div>
         `;
     }
