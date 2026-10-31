@@ -1,14 +1,291 @@
-invoices.html (النسخة النهائية)
-├── HTML (بما فيها المودال الجديد)
-├── CSS (نفس التصميم اللي بعثتلي)
-├── JS:
-│   ├── loadInvoices (مع زر 📄 + 🖨️ + ✏️ + 🗑️)
-│   ├── openNewInvoice / editInvoice
-│   ├── renderItems (سطوك + حرة + كمية)
-│   ├── addItemRow / removeItemRow / toggleItemType
-│   ├── calcTotal (مع TVA)
-│   ├── saveInvoice (يحفظ: items + vin + plate + km + payment + notes + tva)
-│   ├── printInvoice (نافذة جديدة بالتصميم الجديد)
-│   ├── openPdfPreview (modal معاينة)
-│   ├── downloadPDF (html2pdf)
-│   └── buildInvoiceHTML (نفس التصميم)
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="htmlRoot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MED GARAGE - الفوترة</title>
+    <meta name="theme-color" content="#1a1d21" id="themeColorMeta">
+    <link rel="icon" type="image/png" href="https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary: #dc2626;
+            --primary-hover: #b91c1c;
+            --bg: #1f242b;
+            --bg-gradient: linear-gradient(135deg, #2a2f38 0%, #181b20 100%);
+            --card: #ffffff;
+            --card-dark: #2a2f36;
+            --card-darker: #181b20;
+            --text: #1e293b;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #f59e0b;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --info: #2563eb;
+            --border: #cbd5e1;
+            --border-dark: #374151;
+        }
+
+        [data-theme="light"] {
+            --bg: #f1f5f9;
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            --card: #ffffff;
+            --text: #0f172a;
+            --text-light: #0f172a;
+            --text-muted: #475569;
+            --border: #cbd5e1;
+        }
+
+        [data-theme="oled"] {
+            --primary: #2563eb;
+            --bg: #000000;
+            --bg-gradient: linear-gradient(135deg, #111111 0%, #000000 100%);
+            --card: #121212;
+            --text: #f8fafc;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Cairo', system-ui, -apple-system, sans-serif; font-weight: 700; background: var(--bg-gradient); background-attachment: fixed; color: var(--text-light); margin: 0; padding: 15px; line-height: 1.6; min-height: 100vh; }
+        .container { max-width: 550px; margin: 0 auto; padding-bottom: 40px; }
+
+        .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: var(--card-dark); border-radius: 12px; border: 1px solid var(--border-dark); margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .admin-header h2 { margin: 0; font-size: 16px; color: #fff; }
+        .btn-back-admin { background: transparent; border: 1px solid var(--border-dark); color: var(--text-muted); padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-block; }
+        .btn-back-admin:hover { color: var(--text-light); }
+
+        .section-title { font-size: 16px; margin: 22px 0 12px; color: var(--text-light); border-right: 4px solid var(--primary); padding-right: 10px; font-weight: 900; }
+
+        .booking-form, .admin-card { background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 13px; color: var(--text); margin-bottom: 5px; font-weight: 700; }
+        .form-control { width: 100%; padding: 11px; background: #ffffff; border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px; font-family: inherit; font-weight: 700; box-sizing: border-box; }
+        .form-control.phone-input { direction: ltr; text-align: right; unicode-bidi: embed; }
+        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(220,38,38,0.1); }
+
+        .btn-submit-booking { background-color: var(--primary); color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; font-family: inherit; box-shadow: 0 4px 10px rgba(220,38,38,0.3); }
+
+        .btn { border: none; padding: 10px 18px; border-radius: 6px; font-weight: 900; cursor: pointer; font-family: inherit; color: #fff; }
+        .btn-sm { padding: 6px 10px; font-size: 11px; }
+        .btn-success { background: var(--success); }
+        .btn-warning { background: var(--accent); }
+        .btn-info { background: var(--info); }
+        .btn-danger { background: var(--danger); }
+
+        .list-box { background: #181b20; border: 1px solid var(--border-dark); border-radius: 10px; padding: 10px; max-height: 500px; overflow-y: auto; margin-top: 10px; }
+        .list-row { background: #0f1115; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; border: 1px solid var(--border-dark); color: #f1f5f9; line-height: 1.6; }
+        .list-row:last-child { margin-bottom: 0; }
+        .empty-state { text-align: center; padding: 25px 15px; color: var(--text-muted); font-size: 12px; }
+
+        .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); font-size: 12px; }
+        .footer strong { color: var(--primary); }
+
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: #fff; padding: 12px 20px; border-radius: 8px; font-weight: 900; font-size: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 9999; transition: transform 0.3s ease; max-width: 90%; text-align: center; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--primary); }
+
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; padding: 15px; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: var(--card-dark); border: 2px solid var(--primary); border-radius: 15px; padding: 20px; width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto; color: #fff; }
+        .modal-content h3 { margin-top: 0; color: var(--accent); text-align: center; }
+        .modal-content .form-group label { color: #cbd5e1; font-size: 12px; }
+        .modal-content .form-control { background: #0f1115; color: #fff; }
+
+        .items-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        .items-table th, .items-table td { padding: 6px 4px; text-align: center; font-size: 12px; border-bottom: 1px solid var(--border-dark); color: #fff; }
+        .items-table th { background: rgba(255,255,255,0.05); color: var(--accent); font-weight: 900; }
+        .items-table input, .items-table select { width: 100%; padding: 6px; font-size: 12px; background: #0f1115; color: #fff; border: 1px solid var(--border-dark); border-radius: 4px; font-family: inherit; }
+        .items-table input[type="number"] { text-align: center; }
+        .items-table .col-type { width: 12%; }
+        .items-table .col-name { width: 38%; }
+        .items-table .col-qty { width: 15%; }
+        .items-table .col-price { width: 18%; }
+        .items-table .col-del { width: 12%; }
+
+        .add-item-btn { background: var(--info); color: #fff; border: none; padding: 10px; border-radius: 6px; width: 100%; margin-top: 8px; font-weight: 900; cursor: pointer; font-family: inherit; }
+
+        .total-box { background: rgba(22,163,74,0.15); border: 1px solid var(--success); border-radius: 8px; padding: 12px; margin-top: 12px; text-align: center; }
+        .total-box .lbl { font-size: 12px; color: #94a3b8; }
+        .total-box .val { font-size: 22px; font-weight: 900; color: #4ade80; }
+
+        .booking-hint { background: rgba(37,99,235,0.15); border: 1px solid var(--info); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 12px; color: #93c5fd; display: none; }
+        .booking-hint.active { display: block; }
+
+        .checkbox-group { display: flex; gap: 15px; flex-wrap: wrap; padding: 8px 0; }
+        .checkbox-group label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #fff; cursor: pointer; }
+        .checkbox-group input[type="checkbox"], .checkbox-group input[type="radio"] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+    </style>
+</head>
+<body id="htmlRoot">
+
+<div class="container">
+    <div class="admin-header">
+        <h2>🧾 الفوترة والدوفي</h2>
+        <a href="dashboard.html" class="btn-back-admin">← رجوع</a>
+    </div>
+
+    <div class="booking-hint" id="bookingHint">
+        📅 <strong>حجز محوّل:</strong> <span id="bookingHintText"></span>
+    </div>
+
+    <button onclick="openNewInvoice()" class="btn-submit-booking" style="background:var(--success); margin-bottom:20px;">
+        ➕ إنشاء فاتورة أو Devis جديد
+    </button>
+
+    <div class="section-title">📄 عروض الأسعار (Devis)</div>
+    <div class="list-box" id="devisList">
+        <div class="empty-state">جاري التحميل...</div>
+    </div>
+
+    <div class="section-title">✅ الفواتير المكتملة</div>
+    <div class="form-group" style="margin-top:10px;">
+        <input type="text" id="invoiceSearch" class="form-control" placeholder="🔍 بحث بالاسم أو الرقم..." oninput="loadInvoices()" style="background:#0f1115; color:#fff; border-color:var(--border-dark);">
+    </div>
+    <div class="list-box" id="doneList">
+        <div class="empty-state">جاري التحميل...</div>
+    </div>
+
+    <div class="footer">
+        <strong>MED GARAGE</strong> © 2027 — الفوترة
+    </div>
+</div>
+
+<!-- ============ Modal إنشاء/تعديل فاتورة ============ -->
+<div class="modal-overlay" id="invoiceModal">
+    <div class="modal-content">
+        <h3 id="modalTitle">🧾 فاتورة جديدة</h3>
+
+        <div class="form-group">
+            <label>رقم الفاتورة</label>
+            <input type="text" id="invCode" class="form-control" readonly style="color:var(--accent); font-weight:900; direction:ltr; text-align:right;">
+        </div>
+
+        <div class="form-group">
+            <label>اسم الزبون *</label>
+            <input type="text" id="invClient" class="form-control" placeholder="أدخل اسم الزبون">
+        </div>
+
+        <div class="form-group">
+            <label>الهاتف</label>
+            <input type="tel" id="invPhone" class="form-control phone-input" placeholder="05 XX XX XX XX">
+        </div>
+
+        <div class="form-group">
+            <label>السيارة</label>
+            <input type="text" id="invCar" class="form-control" placeholder="Ex: Skoda Octavia 1.4 TSI">
+        </div>
+
+        <div class="form-group">
+            <label>VIN (رقم الهيكل)</label>
+            <input type="text" id="invVin" class="form-control" placeholder="اختياري" style="direction:ltr; text-align:right;">
+        </div>
+
+        <div class="form-group">
+            <label>لوحة السيارة (Immatriculation)</label>
+            <input type="text" id="invPlate" class="form-control" placeholder="اختياري" style="direction:ltr; text-align:right;">
+        </div>
+
+        <div class="form-group">
+            <label>KM (الكيلومترات)</label>
+            <input type="number" id="invKm" class="form-control" placeholder="اختياري" min="0">
+        </div>
+
+        <div class="form-group">
+            <label>ملاحظات / طلب الزبون</label>
+            <textarea id="invNotes" class="form-control" placeholder="اختياري" rows="2" style="resize:vertical;"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>القطع والخدمات</label>
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th class="col-type">النوع</th>
+                        <th class="col-name">البيان</th>
+                        <th class="col-qty">الكمية</th>
+                        <th class="col-price">السعر</th>
+                        <th class="col-del"></th>
+                    </tr>
+                </thead>
+                <tbody id="itemsBody"></tbody>
+            </table>
+            <button type="button" onclick="addItemRow()" class="add-item-btn">➕ إضافة قطعة/خدمة</button>
+        </div>
+
+        <div class="form-group">
+            <label>يد العاملة (دج)</label>
+            <input type="number" id="invLabor" class="form-control" value="0" min="0" oninput="calcTotal()">
+        </div>
+
+        <div class="form-group">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                <input type="checkbox" id="invTvaEnabled" onchange="calcTotal()" style="width:18px; height:18px; accent-color:var(--success);">
+                <span>تفعيل TVA (19%)</span>
+            </label>
+        </div>
+
+        <div class="total-box">
+            <div class="lbl">المجموع الفرعي</div>
+            <div class="val" id="invSubtotal">0 دج</div>
+            <div class="lbl" id="tvaLine" style="margin-top:8px; display:none;">TVA (19%): <span id="invTva">0 دج</span></div>
+            <div class="lbl" style="margin-top:8px; font-size:14px;">المجموع الإجمالي</div>
+            <div class="val" id="invTotal" style="font-size:24px;">0 دج</div>
+        </div>
+
+        <div class="form-group" style="margin-top:12px;">
+            <label>طريقة الدفع</label>
+            <div class="checkbox-group">
+                <label><input type="radio" name="paymentMethod" value="Espèces" checked> 💵 نقداً</label>
+                <label><input type="radio" name="paymentMethod" value="Chèque"> 📝 شيك</label>
+                <label><input type="radio" name="paymentMethod" value="Virement"> 🏦 تحويل</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>حالة الفاتورة</label>
+            <div class="checkbox-group">
+                <label><input type="radio" name="paymentStatus" value="Payée" checked> ✅ مدفوعة</label>
+                <label><input type="radio" name="paymentStatus" value="Partiel"> ⏳ جزئية</label>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-top:12px;">
+            <label>نوع المستند</label>
+            <select id="invStatus" class="form-control">
+                <option value="done">✅ فاتورة مكتملة</option>
+                <option value="devis">📄 Devis (عرض سعر)</option>
+            </select>
+        </div>
+
+        <button onclick="saveInvoice()" class="btn-submit-booking" style="background:var(--success); margin-top:10px;">💾 حفظ الفاتورة</button>
+        <button onclick="closeInvoiceModal()" class="btn-back-admin" style="width:100%; text-align:center; margin-top:8px;">إلغاء</button>
+    </div>
+</div>
+
+<!-- ============ Modal معاينة PDF ============ -->
+<div class="modal-overlay" id="pdfPreviewModal">
+    <div class="modal-content" style="max-width: 95%; max-height: 95vh; padding: 12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h3 style="margin:0; color:var(--accent);">📄 معاينة الفاتورة</h3>
+            <button onclick="closePdfPreview()" style="background:transparent; border:none; color:#fff; font-size:24px; cursor:pointer;">✕</button>
+        </div>
+        <div id="pdfPreviewContent" style="background:#fff; color:#000; padding:15px; border-radius:8px; max-height:70vh; overflow-y:auto;"></div>
+        <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+            <button onclick="downloadPDF()" class="btn-submit-booking" style="background:var(--info); flex:1;">📥 تحميل PDF</button>
+            <button onclick="printPDF()" class="btn-submit-booking" style="background:var(--success); flex:1;">🖨️ طباعة</button>
+            <button onclick="closePdfPreview()" class="btn-back-admin" style="flex:1;">إلغاء</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// [JavaScript في الجزء 2]
+</script>
+
+</body>
+</html>
