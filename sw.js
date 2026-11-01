@@ -1,10 +1,10 @@
 // ============================================
 // MED GARAGE — Service Worker
 // Network-First Strategy
-// Version: 3.0
+// Version: 3.1
 // ============================================
 
-const CACHE_NAME = 'med-garage-v3.0';
+const CACHE_NAME = 'med-garage-v3.1';
 
 const CACHE_URLS = [
   './',
@@ -15,7 +15,11 @@ const CACHE_URLS = [
   './invoices.html',
   './finance.html',
   './gallery-reviews.html',
-  './manifest.json'
+  './manifest.json',
+  './invoice-logo.js',    // اللوقو الخاص بالفاتورة (إذا كان موجود)
+  './icon-192.png',       // أيقونة PWA
+  './icon-512.png',       // أيقونة PWA
+  './icon-maskable.png'   // أيقونة PWA (Maskable)
 ];
 
 // ============================================
@@ -134,4 +138,4 @@ self.addEventListener('sync', (event) => {
   // يمكن استخدامها لاحقاً لمزامنة الحجوزات مع Firebase
 });
 
-console.log('✅ [SW] Service Worker loaded — MED GARAGE v3.0');
+console.log('✅ [SW] Service Worker loaded — MED GARAGE v3.1');
