@@ -9,8 +9,9 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="MED GARAGE">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png">
-    <link rel="icon" type="image/png" href="https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png">
+    <!-- ✅ تم تعديل الأيقونات هنا -->
+    <link rel="apple-touch-icon" href="./icon-192.png">
+    <link rel="icon" type="image/png" href="./icon-192.png">
     <style>
         :root {
             --primary: #dc2626;
@@ -195,7 +196,8 @@
         </div>
 
         <div class="logo-letter">
-            <img src="https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png" alt="Med Garage Logo">
+            <!-- ✅ تم تعديل صورة اللوقو هنا -->
+            <img src="./icon-512.png" alt="Med Garage Logo">
         </div>
         <h1>MED GARAGE</h1>
         <p data-ar="ورشة محمد لصيانة السيارات" data-fr="Garage Mohamed Auto Repair">ورشة محمد لصيانة السيارات</p>
@@ -559,7 +561,7 @@
         if (name === '0667089344' && car === '0790582551') {
             showToast('🔓 تم التعرف على المفتاح الرئيسي، جاري فتح لوحة الإدارة...');
             setTimeout(() => {
-                window.location.href = 'dashboard.html';
+                window.location.href = './dashboard.html';
             }, 800);
             return;
         }
