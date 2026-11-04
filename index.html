@@ -208,115 +208,27 @@
         </div>
     </div>
 
-    <!-- ✅ قسم الماركات مع صور PNG حقيقية من مجلد brands/ -->
-    <div class="brands-section">
+    <!-- ✅ 1) ماركات السيارات (40) -->
+    <div class="brands-section" id="carBrandsSection">
         <div class="brands-title" data-ar="🚗 الماركات التي نتعامل معها" data-fr="🚗 Marques que nous traitons">🚗 الماركات التي نتعامل معها</div>
         <div class="brands-slider">
-            <div class="brands-track">
-                <!-- المجموعة الأولى -->
-                <div class="brand-card">
-                    <img class="brand-logo" src="brands/chery.png" alt="Chery" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-                    <span class="brand-fallback">🇨🇳</span>
-                    <span class="brand-name">Chery</span>
-                </div>
-                <div class="brand-card">
-                    <img class="brand-logo" src="brands/geely.png" alt="Geely" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-                    <span class="brand-fallback">🇨🇳</span>
-                    <span class="brand-name">Geely</span>
-                </div>
-                <div class="brand-card">
-                    <img class="brand-logo" src="brands/changan.png" alt="Changan" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-                    <span class="brand-fallback">🇨🇳</span>
-                    <span class="brand-name">Changan</span>
-                </div>
-                <div class="brand-card">
-                    <img class="brand-logo" src="brands/renault.png" alt="Renault" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-                    <span class="brand-fallback">🇫🇷</span>
-                    <span class="brand-name">Renault</span>
-                </div>
-                <div class="brand-card">
-                    <img class="brand-logo" src="brands/peugeot.png" alt="Peugeot" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-                    <span class="brand-fallback">🇫🇷</span>
-                    <span class="brand-name">Peugeot</span>
-                </div>
-                <div class="brand-card">
-                    <img class="brand-logo" src="brands/volkswagen.png" alt="Volkswagen" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-                    <span class="brand-fallback">🇩🇪</span>
-                    <span class="brand-name">Volkswagen</span>
-                </div>
-                <div class="brand-card">
-                    <img class="brand-logo" src="brands/toyota.png" alt="Toyota" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-                    <span class="brand-fallback">🇯🇵</span>
-                    <span class="brand-name">Toyota</span>
-                </div>
-                <div class="brand-card">
-                    <img class="brand-logo" src="brands/hyundai.png" alt="Hyundai" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-                    <span class="brand-fallback">🇰🇷</span>
-                    <span class="brand-name">Hyundai</span>
-                </div>
-                <div class="brand-card">
-                    <img class="brand-logo" src="brands/kia.png" alt="Kia" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-                    <span class="brand-fallback">🇰🇷</span>
-                    <span class="brand-name">Kia</span>
-                </div>
-                <div class="brand-card">
-                    <img class="brand-logo" src="brands/dacia.png" alt="Dacia" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-                    <span class="brand-fallback">🇷🇴</span>
-                    <span class="brand-name">Dacia</span>
-                </div>
+            <div class="brands-track" id="carBrandsTrack" style="animation-duration: 60s;"></div>
+        </div>
+    </div>
 
-                <!-- المجموعة الثانية (مكررة للتمرير اللانهائي) -->
-                <div class="brand-card">
-                    <img class="brand-logo" src="brands/chery.png" alt="Chery" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-                    <span class="brand-fallback">🇨🇳</span>
-                    <span class="brand-name">Chery</span>
-                </div>
-                <div class="brand-card">
-                    <img class="brand-logo" src="brands/geely.png" alt="Geely" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-                    <span class="brand-fallback">🇨🇳</span>
-                    <span class="brand-name">Geely</span>
-                </div>
-                <div class="brand-card">
-                    <img class="brand-logo" src="brands/changan.png" alt="Changan" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-                    <span class="brand-fallback">🇨🇳</span>
-                    <span class="brand-name">Changan</span>
-                </div>
-                <div class="brand-card">
-                    <img class="brand-logo" src="brands/renault.png" alt="Renault" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-                    <span class="brand-fallback">🇫🇷</span>
-                    <span class="brand-name">Renault</span>
-                </div>
-                <div class="brand-card">
-                    <img class="brand-logo" src="brands/peugeot.png" alt="Peugeot" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-                    <span class="brand-fallback">🇫🇷</span>
-                    <span class="brand-name">Peugeot</span>
-                </div>
-                <div class="brand-card">
-                    <img class="brand-logo" src="brands/volkswagen.png" alt="Volkswagen" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-                    <span class="brand-fallback">🇩🇪</span>
-                    <span class="brand-name">Volkswagen</span>
-                </div>
-                <div class="brand-card">
-                    <img class="brand-logo" src="brands/toyota.png" alt="Toyota" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-                    <span class="brand-fallback">🇯🇵</span>
-                    <span class="brand-name">Toyota</span>
-                </div>
-                <div class="brand-card">
-                    <img class="brand-logo" src="brands/hyundai.png" alt="Hyundai" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-                    <span class="brand-fallback">🇰🇷</span>
-                    <span class="brand-name">Hyundai</span>
-                </div>
-                <div class="brand-card">
-                    <img class="brand-logo" src="brands/kia.png" alt="Kia" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-                    <span class="brand-fallback">🇰🇷</span>
-                    <span class="brand-name">Kia</span>
-                </div>
-                <div class="brand-card">
-                    <img class="brand-logo" src="brands/dacia.png" alt="Dacia" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-                    <span class="brand-fallback">🇷🇴</span>
-                    <span class="brand-name">Dacia</span>
-                </div>
-            </div>
+    <!-- ✅ 2) ماركات قطع الغيار (20) -->
+    <div class="brands-section" id="partsBrandsSection">
+        <div class="brands-title" data-ar="🔧 ماركات قطع الغيار" data-fr="🔧 Marques de pièces">🔧 ماركات قطع الغيار</div>
+        <div class="brands-slider">
+            <div class="brands-track" id="partsBrandsTrack" style="animation-duration: 35s;"></div>
+        </div>
+    </div>
+
+    <!-- ✅ 3) أنواع الزيوت (20) -->
+    <div class="brands-section" id="oilsSection">
+        <div class="brands-title" data-ar="🛢️ أنواع الزيوت" data-fr="🛢️ Types d'huiles">🛢️ أنواع الزيوت</div>
+        <div class="brands-slider">
+            <div class="brands-track" id="oilsTrack" style="animation-duration: 30s;"></div>
         </div>
     </div>
 
@@ -567,7 +479,7 @@
     }
 
     // ============ ✅ إصلاح 6: الباب السري ============
-    // 7 ضغطات عادية + الضغطة الثامنة مطولة 6 ثواني → dashboard.html (المحمي بـ PIN)
+    // 7 ضغطات عادية + الضغطة الثامنة مطولة 6 ثواني → dashboard.html
     (function initSecretDoor() {
         const logo = document.getElementById('logoSecret');
         if (!logo) return;
@@ -645,12 +557,73 @@
         logo.addEventListener('dragstart', e => e.preventDefault());
     })();
 
-    // ============ ✅ إصلاح 2: تواريخ نظيفة DD/MM/YYYY ============
+    // ============ ✅ إصلاح 2: تواريخ نظيفة ============
     function toDisplayDate(isoDate) {
         if (!isoDate) return '';
         const parts = String(isoDate).split('-');
         if (parts.length === 3) return parts[2] + '/' + parts[1] + '/' + parts[0];
         return isoDate;
+    }
+
+    // ============ ✅ اللوقوهات الديناميكية (40 + 20 + 20) ============
+    const CAR_BRANDS = [
+        'Chery', 'Geely', 'Changan', 'Renault', 'Peugeot',
+        'Volkswagen', 'Toyota', 'Hyundai', 'Kia', 'Dacia',
+        'Citroën', 'Fiat', 'Ford', 'Nissan', 'Honda',
+        'Mazda', 'Suzuki', 'Seat', 'Skoda', 'Mercedes',
+        'BMW', 'Audi', 'Opel', 'Chevrolet', 'Mitsubishi',
+        'Subaru', 'Volvo', 'Land Rover', 'Jeep', 'MG',
+        'Faw', 'JAC', 'Haval', 'BYD', 'Great Wall',
+        'Dongfeng', 'Mahindra', 'SsangYong', 'Isuzu', 'Lexus'
+    ];
+
+    const PARTS_BRANDS = [
+        'Bosch', 'Valeo', 'Delphi', 'TRW', 'Brembo',
+        'SKF', 'Continental', 'Denso', 'NGK', 'Gates',
+        'Sachs', 'Monroe', 'Mann Filter', 'Febi Bilstein', 'Mahle',
+        'Magneti Marelli', 'Hella', 'LuK', 'INA', 'SNR'
+    ];
+
+    const OILS_BRANDS = [
+        'Mobil', 'Castrol', 'Total', 'ELF', 'Shell',
+        'Motul', 'Liqui Moly', 'Fuchs', 'Valvoline', 'Gulf',
+        'Nippon', 'Repsol', 'Petronas', 'Comma', 'Mannol',
+        'Wolf', 'Ravenol', 'Eneos', 'Idemitsu', 'Kroon-Oil'
+    ];
+
+    function renderBrandsTrack(containerId, brands, pathPrefix, fallbackEmoji) {
+        const track = document.getElementById(containerId);
+        if (!track) return;
+        const cards = brands.map((name, idx) => {
+            const img = pathPrefix + (idx + 1) + '.png';
+            return '<div class="brand-card">' +
+                '<img class="brand-logo" src="' + img + '" alt="' + name + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline\'">' +
+                '<span class="brand-fallback">' + fallbackEmoji + '</span>' +
+                '<span class="brand-name">' + name + '</span>' +
+            '</div>';
+        }).join('');
+        track.innerHTML = cards + cards;
+    }
+
+    function renderAllBrands() {
+        renderBrandsTrack('carBrandsTrack', CAR_BRANDS, 'brands/icon', '🚗');
+        renderBrandsTrack('partsBrandsTrack', PARTS_BRANDS, 'brands/part', '🔧');
+        renderBrandsTrack('oilsTrack', OILS_BRANDS, 'brands/oil', '🛢️');
+    }
+
+    function applyBrandsVisibility() {
+        if (localStorage.getItem('mg_show_car') === '0') {
+            const el = document.getElementById('carBrandsSection');
+            if (el) el.style.display = 'none';
+        }
+        if (localStorage.getItem('mg_show_parts') === '0') {
+            const el = document.getElementById('partsBrandsSection');
+            if (el) el.style.display = 'none';
+        }
+        if (localStorage.getItem('mg_show_oils') === '0') {
+            const el = document.getElementById('oilsSection');
+            if (el) el.style.display = 'none';
+        }
     }
 
     // ============ PWA Install ============
@@ -774,13 +747,15 @@
         setTimeout(() => { btn.disabled = false; }, 3000);
     }
 
-    // ============ حد أدنى للتاريخ = اليوم ============
+    // ============ DOMContentLoaded ============
     window.addEventListener('DOMContentLoaded', () => {
         const dateInput = document.getElementById('client-date');
         if (dateInput) {
             const today = new Date().toISOString().split('T')[0];
             dateInput.min = today;
         }
+        renderAllBrands();
+        applyBrandsVisibility();
     });
 </script>
 
