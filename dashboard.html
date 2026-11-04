@@ -52,9 +52,11 @@
         .container { max-width: 550px; margin: 0 auto; padding-bottom: 40px; }
 
         #pinScreen { display: flex; align-items: center; justify-content: center; min-height: 90vh; }
+        #pinSetupScreen { display: none; align-items: center; justify-content: center; min-height: 90vh; }
         .pin-card { background: var(--card-dark); border: 2px solid var(--primary); border-radius: 16px; padding: 30px 25px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
         .pin-icon { font-size: 50px; margin-bottom: 10px; }
         .pin-card h2 { margin: 0 0 20px; color: #fff; font-size: 20px; }
+        .pin-hint { color: var(--text-muted); font-size: 12px; margin: 0 0 15px; }
         .pin-input { width: 100%; padding: 15px; text-align: center; font-size: 22px; letter-spacing: 10px; border: 2px solid var(--border-dark); border-radius: 10px; background: #0f1115; color: var(--accent); font-family: inherit; font-weight: 900; margin-bottom: 15px; }
         .pin-input:focus { outline: none; border-color: var(--primary); }
         .pin-btn { width: 100%; padding: 14px; border: none; border-radius: 10px; background: var(--primary); color: #fff; font-weight: 900; font-size: 16px; cursor: pointer; font-family: inherit; margin-bottom: 12px; }
@@ -79,12 +81,15 @@
         .stat-box.bookings { background: rgba(139, 92, 246, 0.15); border: 1px solid #8b5cf6; grid-column: 1 / -1; cursor: pointer; }
         .stat-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
         .stat-value { font-size: 20px; font-weight: 900; }
+        .stat-sub { font-size: 10px; color: var(--text-muted); margin-top: 4px; font-weight: normal; }
         .stat-box.stock .stat-value { color: #60a5fa; }
         .stat-box.invoices .stat-value { color: #4ade80; }
         .stat-box.income .stat-value { color: #4ade80; }
         .stat-box.expense .stat-value { color: #f87171; }
         .stat-box.profit .stat-value { color: #fbbf24; }
         .stat-box.bookings .stat-value { color: #a78bfa; }
+
+        #trashInfo { display: none; text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 8px; padding: 8px; background: rgba(148,163,184,0.1); border-radius: 8px; }
 
         .section-title { font-size: 18px; margin: 20px 0 12px; color: var(--text-light); border-right: 4px solid var(--primary); padding-right: 10px; font-weight: 900; display: flex; justify-content: space-between; align-items: center; }
         .section-title small { font-size: 12px; color: var(--text-muted); font-weight: normal; }
@@ -114,7 +119,6 @@
         .toast.show { transform: translateX(-50%) translateY(0); }
         .toast.error { background: var(--primary); }
 
-        /* ===== Modal ===== */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; padding: 15px; }
         .modal-overlay.active { display: flex; }
         .modal-content { background: var(--card-dark); border: 2px solid var(--primary); border-radius: 15px; padding: 20px; width: 100%; max-width: 380px; color: #fff; }
@@ -141,6 +145,18 @@
         </div>
     </div>
 
+    <div id="pinSetupScreen">
+        <div class="pin-card">
+            <div class="pin-icon">🔐</div>
+            <h2>إنشاء PIN الإدارة</h2>
+            <p class="pin-hint">أول مرة — عيّن رمز حماية (3 أرقام على الأقل)</p>
+            <input type="password" id="setupPin1" class="pin-input" maxlength="6" inputmode="numeric" placeholder="PIN جديد" autocomplete="off">
+            <input type="password" id="setupPin2" class="pin-input" maxlength="6" inputmode="numeric" placeholder="تأكيد PIN" autocomplete="off" style="margin-top:10px;">
+            <button onclick="createFirstPin()" class="pin-btn">💾 حفظ PIN</button>
+            <a href="index.html" class="pin-back">← العودة للرئيسية</a>
+        </div>
+    </div>
+
     <div id="dashboardScreen" style="display:none;">
 
         <div class="admin-header">
@@ -158,6 +174,7 @@
             <div class="stat-box stock">
                 <div class="stat-label">📦 القطع في السطوك</div>
                 <div class="stat-value" id="statStock">0</div>
+                <div class="stat-sub" id="statStockTypes">0 نوع</div>
             </div>
             <div class="stat-box invoices">
                 <div class="stat-label">🧾 الفواتير المكتملة</div>
@@ -179,6 +196,10 @@
                 <div class="stat-label">📅 حجوزات جديدة (اضغط للعرض)</div>
                 <div class="stat-value" id="statBookings">0</div>
             </div>
+        </div>
+
+        <div id="trashInfo">
+            🗑️ يوجد <strong id="trashCount" style="color:var(--accent);">0</strong> عنصر محذوف (مستبعد من الحسابات)
         </div>
 
         <div class="section-title" id="bookingsSection">
@@ -216,7 +237,6 @@
 
 </div>
 
-<!-- Modal تغيير PIN -->
 <div id="changePinModal" class="modal-overlay">
     <div class="modal-content">
         <h3>🔑 تغيير رمز PIN</h3>
@@ -288,7 +308,12 @@
 
     function checkPin() {
         const input = document.getElementById('pinInput').value;
-        const correctPin = localStorage.getItem('mg_pin') || '911';
+        const correctPin = localStorage.getItem('mg_pin');
+        if (!correctPin) {
+            showToast('⚠️ لم يتم تعيين PIN بعد', 'error');
+            setTimeout(() => location.reload(), 800);
+            return;
+        }
         if (input === correctPin) {
             createSession();
             showDashboard();
@@ -299,8 +324,40 @@
         }
     }
 
+    function createFirstPin() {
+        const p1 = document.getElementById('setupPin1').value.trim();
+        const p2 = document.getElementById('setupPin2').value.trim();
+        if (p1.length < 3) {
+            showToast('⚠️ PIN قصير جداً (3 أرقام على الأقل)', 'error');
+            return;
+        }
+        if (!/^\d+$/.test(p1)) {
+            showToast('⚠️ PIN يجب أن يحتوي على أرقام فقط', 'error');
+            return;
+        }
+        if (p1 !== p2) {
+            showToast('❌ تأكيد PIN غير مطابق', 'error');
+            document.getElementById('setupPin2').value = '';
+            return;
+        }
+        try {
+            localStorage.setItem('mg_pin', p1);
+            showToast('✅ تم تعيين PIN بنجاح!');
+            setTimeout(() => {
+                document.getElementById('pinSetupScreen').style.display = 'none';
+                document.getElementById('pinScreen').style.display = 'flex';
+                setTimeout(() => document.getElementById('pinInput').focus(), 200);
+            }, 800);
+        } catch(e) {
+            showToast('⚠️ خطأ في الحفظ', 'error');
+        }
+    }
+
     document.getElementById('pinInput').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') checkPin();
+    });
+    document.getElementById('setupPin2').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') createFirstPin();
     });
 
     function logout() {
@@ -311,6 +368,7 @@
 
     function showDashboard() {
         document.getElementById('pinScreen').style.display = 'none';
+        document.getElementById('pinSetupScreen').style.display = 'none';
         document.getElementById('dashboardScreen').style.display = 'block';
         loadStats();
         loadBookings();
@@ -338,15 +396,24 @@
         const expenses = getData('expenses', []);
         const bookings = getData('bookings', []);
 
-        document.getElementById('statStock').textContent = stock.length;
+        // ✅ إصلاح 3: مجموع الكميات بدل عدد الأنواع + استبعاد المحذوف
+        const activeStock = stock.filter(i => !i.deleted);
+        const totalQty = activeStock.reduce((s, item) => s + (Number(item.qty) || 0), 0);
+        document.getElementById('statStock').textContent = totalQty.toLocaleString();
+        const typesEl = document.getElementById('statStockTypes');
+        if (typesEl) typesEl.textContent = activeStock.length + ' نوع';
 
-        const paidInvoices = invoices.filter(i => i.status !== 'devis');
+        // ✅ إصلاح 5: استبعاد المحذوفة (Soft delete) من كل الحسابات
+        const activeInvoices = invoices.filter(i => !i.deleted);
+        const activeExpenses = expenses.filter(e => !e.deleted);
+
+        const paidInvoices = activeInvoices.filter(i => i.status !== 'devis');
         document.getElementById('statInvoices').textContent = paidInvoices.length;
 
         const totalIncome = paidInvoices.reduce((s, i) => s + (Number(i.total) || 0), 0);
         document.getElementById('statIncome').textContent = totalIncome.toLocaleString() + ' دج';
 
-        const totalExpense = expenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
+        const totalExpense = activeExpenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
         document.getElementById('statExpense').textContent = totalExpense.toLocaleString() + ' دج';
 
         const profit = totalIncome - totalExpense;
@@ -354,8 +421,20 @@
         profitEl.textContent = profit.toLocaleString() + ' دج';
         profitEl.style.color = profit >= 0 ? '#4ade80' : '#f87171';
 
-        const pending = bookings.filter(b => !b.status || b.status === 'pending');
+        const pending = bookings.filter(b => (!b.status || b.status === 'pending') && !b.deleted);
         document.getElementById('statBookings').textContent = pending.length;
+
+        // عرض عدد المحذوفات
+        const totalDeleted = (invoices.length - activeInvoices.length)
+                          + (expenses.length - activeExpenses.length)
+                          + (stock.length - activeStock.length);
+        const trashInfo = document.getElementById('trashInfo');
+        if (totalDeleted > 0) {
+            document.getElementById('trashCount').textContent = totalDeleted;
+            trashInfo.style.display = 'block';
+        } else {
+            trashInfo.style.display = 'none';
+        }
     }
 
     function loadBookings() {
@@ -363,7 +442,7 @@
         const container = document.getElementById('bookingsList');
         const countEl = document.getElementById('bookingsCount');
 
-        const pending = bookings.filter(b => !b.status || b.status === 'pending');
+        const pending = bookings.filter(b => (!b.status || b.status === 'pending') && !b.deleted);
 
         countEl.textContent = pending.length > 0 ? `(${pending.length})` : '';
 
@@ -398,7 +477,7 @@
 
     function bookingAction(id, newStatus) {
         let bookings = getData('bookings', []);
-        const idx = bookings.findIndex(b => b.id === id);
+        const idx = bookings.findIndex(b => Number(b.id) === Number(id));
         if (idx === -1) return;
 
         if (newStatus === 'cancelled') {
@@ -416,7 +495,7 @@
 
     function bookingToInvoice(id) {
         const bookings = getData('bookings', []);
-        const b = bookings.find(x => x.id === id);
+        const b = bookings.find(x => Number(x.id) === Number(id));
         if (!b) return;
 
         try {
@@ -450,7 +529,12 @@
         const oldPin = document.getElementById('cpOld').value.trim();
         const newPin = document.getElementById('cpNew').value.trim();
         const confirmPin = document.getElementById('cpConfirm').value.trim();
-        const currentPin = localStorage.getItem('mg_pin') || '911';
+        const currentPin = localStorage.getItem('mg_pin');
+
+        if (!currentPin) {
+            showToast('⚠️ لم يتم تعيين PIN بعد', 'error');
+            return;
+        }
 
         if (oldPin !== currentPin) {
             showToast('❌ PIN الحالي غير صحيح', 'error');
@@ -460,6 +544,11 @@
 
         if (newPin.length < 3) {
             showToast('⚠️ PIN الجديد قصير جداً (3 أرقام على الأقل)', 'error');
+            return;
+        }
+
+        if (!/^\d+$/.test(newPin)) {
+            showToast('⚠️ PIN يجب أن يحتوي على أرقام فقط', 'error');
             return;
         }
 
@@ -481,7 +570,7 @@
             showToast('✅ تم تغيير PIN بنجاح!');
 
             setTimeout(() => {
-                if (confirm('تم تغيير PIN إلى: ' + newPin + '\n\nهل تريد تسجيل الخروج وإعادة الدخول بـ PIN الجديد؟')) {
+                if (confirm('تم تغيير PIN بنجاح!\n\nهل تريد تسجيل الخروج الآن؟')) {
                     localStorage.removeItem(SESSION_KEY);
                     location.reload();
                 }
@@ -503,8 +592,12 @@
 
         if (checkSession()) {
             showDashboard();
-        } else {
+        } else if (localStorage.getItem('mg_pin')) {
+            document.getElementById('pinScreen').style.display = 'flex';
             setTimeout(() => document.getElementById('pinInput').focus(), 300);
+        } else {
+            document.getElementById('pinSetupScreen').style.display = 'flex';
+            setTimeout(() => document.getElementById('setupPin1').focus(), 300);
         }
     };
 </script>
