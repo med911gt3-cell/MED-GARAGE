@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MED GARAGE - الإعدادات</title>
     <meta name="theme-color" content="#1a1d21">
-    <link rel="icon" type="image/png" href="https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png">
+    <link rel="icon" type="image/png" href="./icon-192.png">
     <style>
         :root {
             --primary: #dc2626;
@@ -67,6 +67,10 @@
         .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(220,38,38,0.1); }
         .form-control.mono { direction: ltr; text-align: right; unicode-bidi: embed; letter-spacing: 2px; }
 
+        .pin-input-wrapper { position: relative; }
+        .pin-input-wrapper .form-control { padding-left: 45px; }
+        .pin-toggle { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: transparent; border: none; font-size: 18px; cursor: pointer; padding: 4px; }
+
         .btn-primary { background: var(--primary); color: #fff; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; font-family: inherit; width: 100%; box-shadow: 0 4px 10px rgba(220,38,38,0.3); }
         .btn-primary:hover { background: var(--primary-hover); }
 
@@ -98,6 +102,10 @@
         .data-stat .val { font-size: 18px; font-weight: 900; color: var(--primary); }
         .data-stat .lbl { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
 
+        .trash-stat { background: rgba(220,38,38,0.1); border: 1px solid var(--danger); border-radius: 8px; padding: 8px 12px; margin-top: 8px; font-size: 11px; color: #fca5a5; text-align: center; display: none; }
+        .trash-stat.active { display: block; }
+        .trash-stat strong { color: var(--accent); }
+
         .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); font-size: 12px; }
         .footer strong { color: var(--primary); }
 
@@ -117,12 +125,12 @@
     <!-- ============ 1. تغيير PIN ============ -->
     <div class="section-title">🔐 تغيير رمز PIN</div>
     <div class="settings-card">
-        <p class="description">PIN الحالي هو كلمة السر التي تفتح بها لوحة التحكم. الافتراضي هو <strong>911</strong>.</p>
+        <p class="description" id="pinStatusText">PIN الحالي هو كلمة السر التي تفتح بها لوحة التحكم.</p>
 
         <div class="form-group">
             <label>PIN الحالي *</label>
             <div class="pin-input-wrapper">
-                <input type="password" id="oldPin" class="form-control mono" maxlength="6" inputmode="numeric" placeholder="••••">
+                <input type="password" id="oldPin" class="form-control mono" maxlength="6" inputmode="numeric" placeholder="••••" autocomplete="off">
                 <button type="button" class="pin-toggle" onclick="togglePin('oldPin')" title="إظهار/إخفاء">👁️</button>
             </div>
         </div>
@@ -130,7 +138,7 @@
         <div class="form-group">
             <label>PIN الجديد *</label>
             <div class="pin-input-wrapper">
-                <input type="password" id="newPin" class="form-control mono" maxlength="6" inputmode="numeric" placeholder="••••">
+                <input type="password" id="newPin" class="form-control mono" maxlength="6" inputmode="numeric" placeholder="••••" autocomplete="off">
                 <button type="button" class="pin-toggle" onclick="togglePin('newPin')" title="إظهار/إخفاء">👁️</button>
             </div>
         </div>
@@ -138,7 +146,7 @@
         <div class="form-group">
             <label>تأكيد PIN الجديد *</label>
             <div class="pin-input-wrapper">
-                <input type="password" id="confirmPin" class="form-control mono" maxlength="6" inputmode="numeric" placeholder="••••">
+                <input type="password" id="confirmPin" class="form-control mono" maxlength="6" inputmode="numeric" placeholder="••••" autocomplete="off">
                 <button type="button" class="pin-toggle" onclick="togglePin('confirmPin')" title="إظهار/إخفاء">👁️</button>
             </div>
         </div>
@@ -191,6 +199,10 @@
             <label>العنوان</label>
             <input type="text" id="shopAddress" class="form-control" placeholder="Cité 1780 OPGI - السويدانية">
         </div>
+        <div class="form-group">
+            <label>البريد الإلكتروني (اختياري)</label>
+            <input type="email" id="shopEmail" class="form-control mono" placeholder="medgarage@gmail.com">
+        </div>
         <button onclick="saveShopInfo()" class="btn-primary">💾 حفظ المعلومات</button>
     </div>
 
@@ -216,6 +228,10 @@
             </div>
         </div>
 
+        <div class="trash-stat" id="trashStat">
+            🗑️ عناصر في سلة المحذوفات: <strong id="cntTrash">0</strong> (مستبعدة من الإحصائيات أعلاه، لكنها محفوظة في النسخة الاحتياطية)
+        </div>
+
         <button onclick="exportData()" class="btn-success">📤 تصدير نسخة احتياطية (JSON)</button>
         <button onclick="document.getElementById('importFile').click()" class="btn-info">📥 استيراد نسخة احتياطية</button>
         <input type="file" id="importFile" accept=".json,application/json" style="display:none;" onchange="importData(event)">
@@ -226,6 +242,7 @@
     <div class="settings-card danger-zone">
         <p class="description" style="color:var(--danger);">
             ⚠️ هذه العمليات لا يمكن التراجع عنها. تأكد من أنك صدّرت نسخة احتياطية قبل المتابعة.
+            <br><small>ملاحظة: العناصر في سلة المحذوفات تُحذف نهائيًا أيضًا مع هذه العمليات.</small>
         </p>
         <button onclick="clearBookings()" class="btn-danger" style="margin-bottom:10px;">🗑️ مسح الحجوزات فقط</button>
         <button onclick="clearInvoices()" class="btn-danger" style="margin-bottom:10px;">🗑️ مسح الفواتير فقط</button>
@@ -240,7 +257,7 @@
 <div id="toast" class="toast"></div>
 
 <script>
-    // ================= أدوات مساعدة =================
+    // ================= أدوات =================
     function getData(key, def = []) {
         try {
             const v = localStorage.getItem('mg_' + key);
@@ -259,6 +276,15 @@
         toast.textContent = msg;
         toast.className = 'toast show' + (type === 'error' ? ' error' : '');
         setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    // ============ ✅ إصلاح 2: تواريخ نظيفة ============
+    function formatDateDDMMYYYY(ts) {
+        const d = new Date(ts);
+        if (isNaN(d.getTime())) return '';
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        return day + '/' + month + '/' + d.getFullYear();
     }
 
     // ================= إظهار/إخفاء PIN =================
@@ -300,13 +326,18 @@
         });
     }
 
-    // ================= PIN — معدّل مع trim =================
+    // ============ ✅ إصلاح 6: PIN آمن (بدون 911 افتراضي، بدون طباعة PIN) ============
     function changePin() {
         const oldPin = document.getElementById('oldPin').value.trim();
         const newPin = document.getElementById('newPin').value.trim();
         const confirmPin = document.getElementById('confirmPin').value.trim();
 
-        const currentPin = localStorage.getItem('mg_pin') || '911';
+        const currentPin = localStorage.getItem('mg_pin');
+
+        if (!currentPin) {
+            showToast('⚠️ لم يتم تعيين PIN بعد. عيّنه أولاً من لوحة التحكم', 'error');
+            return;
+        }
 
         if (!oldPin) {
             showToast('⚠️ أدخل PIN الحالي', 'error');
@@ -326,6 +357,12 @@
             return;
         }
 
+        if (!/^\d+$/.test(newPin)) {
+            showToast('⚠️ PIN يجب أن يحتوي على أرقام فقط', 'error');
+            document.getElementById('newPin').focus();
+            return;
+        }
+
         if (newPin !== confirmPin) {
             showToast('❌ تأكيد PIN غير مطابق', 'error');
             document.getElementById('confirmPin').value = '';
@@ -338,7 +375,7 @@
             return;
         }
 
-        if (!confirm('هل تريد تغيير PIN من "' + currentPin + '" إلى "' + newPin + '"؟')) return;
+        if (!confirm('هل تريد تغيير رمز PIN؟')) return;
 
         try {
             localStorage.setItem('mg_pin', newPin);
@@ -363,7 +400,8 @@
         const shop = {
             name: document.getElementById('shopName').value.trim(),
             phone: document.getElementById('shopPhone').value.trim(),
-            address: document.getElementById('shopAddress').value.trim()
+            address: document.getElementById('shopAddress').value.trim(),
+            email: document.getElementById('shopEmail').value.trim()
         };
 
         if (!shop.name) {
@@ -386,18 +424,43 @@
             document.getElementById('shopName').value = shop.name || '';
             document.getElementById('shopPhone').value = shop.phone || '';
             document.getElementById('shopAddress').value = shop.address || '';
+            document.getElementById('shopEmail').value = shop.email || '';
         } catch(e) {}
     }
 
-    // ================= إحصائيات البيانات =================
+    // ============ ✅ إصلاح 5: إحصائيات تستبعد المحذوف ============
     function loadDataStats() {
         const stock = getData('stock', []);
         const invoices = getData('invoices', []);
         const bookings = getData('bookings', []);
 
-        document.getElementById('cntStock').textContent = stock.length;
-        document.getElementById('cntInvoices').textContent = invoices.length;
-        document.getElementById('cntBookings').textContent = bookings.length;
+        const activeStock = stock.filter(i => !i.deleted);
+        const activeInvoices = invoices.filter(i => !i.deleted);
+        const activeBookings = bookings.filter(i => !i.deleted);
+
+        document.getElementById('cntStock').textContent = activeStock.length;
+        document.getElementById('cntInvoices').textContent = activeInvoices.length;
+        document.getElementById('cntBookings').textContent = activeBookings.length;
+
+        const deletedInvoices = invoices.length - activeInvoices.length;
+        const deletedStock = stock.length - activeStock.length;
+        const totalTrash = deletedInvoices + deletedStock;
+
+        const trashEl = document.getElementById('trashStat');
+        if (totalTrash > 0) {
+            document.getElementById('cntTrash').textContent = totalTrash;
+            trashEl.classList.add('active');
+        } else {
+            trashEl.classList.remove('active');
+        }
+
+        const pinStatusText = document.getElementById('pinStatusText');
+        if (pinStatusText) {
+            const hasPin = !!localStorage.getItem('mg_pin');
+            pinStatusText.textContent = hasPin
+                ? 'PIN الحالي هو كلمة السر التي تفتح بها لوحة التحكم.'
+                : '⚠️ لا يوجد PIN مُعيَّن — عيّنه أولاً من لوحة التحكم.';
+        }
     }
 
     // ================= تصدير =================
@@ -405,8 +468,9 @@
         try {
             const keys = ['stock', 'invoices', 'expenses', 'bookings', 'reviews', 'gallery'];
             const backup = {
-                version: '1.1',
+                version: '1.2',
                 date: new Date().toISOString(),
+                dateDisplay: formatDateDDMMYYYY(Date.now()),
                 data: {}
             };
 
@@ -415,10 +479,10 @@
                 backup.data[k] = v ? JSON.parse(v) : [];
             });
 
+            // ✅ PIN ما يُصدَّرش للأمان
             backup.data._settings = {
                 theme: localStorage.getItem('medgarage_theme') || 'dark',
                 lang: localStorage.getItem('medgarage_lang') || 'ar',
-                pin: localStorage.getItem('mg_pin') || '911',
                 shopInfo: localStorage.getItem('mg_shop_info') || null
             };
 
@@ -426,7 +490,9 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'med-garage-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+            const today = new Date();
+            const suffix = String(today.getFullYear()) + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+            a.download = 'med-garage-backup-' + suffix + '.json';
             document.body.appendChild(a);
             a.click();
             setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
@@ -459,8 +525,8 @@
                     const s = backup.data._settings;
                     if (s.theme) localStorage.setItem('medgarage_theme', s.theme);
                     if (s.lang) localStorage.setItem('medgarage_lang', s.lang);
-                    if (s.pin) localStorage.setItem('mg_pin', s.pin);
                     if (s.shopInfo) localStorage.setItem('mg_shop_info', s.shopInfo);
+                    // ملاحظة: PIN لا يُستورد من النسخة الاحتياطية للأمان
                 }
 
                 showToast('✅ تم استيراد البيانات بنجاح');
@@ -476,21 +542,20 @@
 
     // ================= منطقة الخطر =================
     function clearBookings() {
-        if (!confirm('⚠️ مسح كل الحجوزات؟ لا يمكن التراجع.')) return;
+        if (!confirm('⚠️ مسح كل الحجوزات (بما فيها المحذوفة)؟ لا يمكن التراجع.')) return;
         localStorage.removeItem('mg_bookings');
         loadDataStats();
         showToast('🗑️ تم مسح الحجوزات');
     }
 
     function clearInvoices() {
-        if (!confirm('⚠️ مسح كل الفواتير؟ لا يمكن التراجع.')) return;
+        if (!confirm('⚠️ مسح كل الفواتير (بما فيها سلة المحذوفات)؟ لا يمكن التراجع.')) return;
         if (!confirm('تأكيد نهائي: مسح كل الفواتير؟')) return;
         localStorage.removeItem('mg_invoices');
         loadDataStats();
         showToast('🗑️ تم مسح الفواتير');
     }
 
-    // 🔥 التعديل هنا: زدنا ./ قبل index.html باش ما يربحش 404
     function clearAll() {
         if (!confirm('🚨 تحذير: سيتم مسح كل شيء (سطوك، فواتير، مصاريف، حجوزات، آراء، صور، PIN، معلومات الورشة). هل أنت متأكد؟')) return;
         if (!confirm('🚨 تأكيد نهائي: هل صدّرت نسخة احتياطية؟')) return;
@@ -502,8 +567,6 @@
         localStorage.removeItem('medgarage_lang');
 
         showToast('🗑️ تم مسح كل البيانات');
-        
-        // ✅ هنا صلحنا المشكل
         setTimeout(() => { window.location.href = './index.html'; }, 1500);
     }
 
