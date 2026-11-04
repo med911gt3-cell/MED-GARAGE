@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MED GARAGE - المخزن</title>
     <meta name="theme-color" content="#1a1d21" id="themeColorMeta">
-    <link rel="icon" type="image/png" href="https://i.ibb.co/WNLpSFtT/file-0000000075dc8246b5406b4631a67ae8.png">
+    <link rel="icon" type="image/png" href="./icon-192.png">
     <style>
         :root {
             --primary: #dc2626;
@@ -75,8 +75,8 @@
         .btn-warning { background: var(--accent); }
         .btn-info { background: var(--info); }
         .btn-danger { background: var(--danger); }
+        .btn-trash-empty { opacity: 0.5; }
 
-        /* ===== بطاقات الإحصائيات ===== */
         .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
         .stat-box { padding: 14px 12px; border-radius: 12px; text-align: center; }
         .stat-box.total { background: rgba(37, 99, 235, 0.15); border: 1px solid var(--info); }
@@ -86,11 +86,9 @@
         .stat-box.total .stat-value { color: #60a5fa; }
         .stat-box.value .stat-value { color: #4ade80; }
 
-        /* ===== صندوق البحث ===== */
         .search-box { display: flex; gap: 8px; margin-bottom: 12px; }
         .search-box .form-control { flex: 1; }
 
-        /* ===== القائمة ===== */
         .list-box { background: #181b20; border: 1px solid var(--border-dark); border-radius: 10px; padding: 10px; max-height: 500px; overflow-y: auto; margin-top: 10px; }
         .list-row { background: #0f1115; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; border: 1px solid var(--border-dark); color: #f1f5f9; line-height: 1.6; position: relative; }
         .list-row:last-child { margin-bottom: 0; }
@@ -108,6 +106,9 @@
 
         .stock-actions { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
 
+        .trash-banner { display: none; background: rgba(220,38,38,0.15); border: 1px solid var(--danger); color: #fca5a5; padding: 8px 12px; border-radius: 8px; font-size: 11px; margin-bottom: 8px; text-align: center; }
+        .trash-banner.active { display: block; }
+
         .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); font-size: 12px; }
         .footer strong { color: var(--primary); }
 
@@ -115,7 +116,6 @@
         .toast.show { transform: translateX(-50%) translateY(0); }
         .toast.error { background: var(--primary); }
 
-        /* ===== Modal ===== */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; padding: 15px; }
         .modal-overlay.active { display: flex; }
         .modal-content { background: var(--card-dark); border: 2px solid var(--primary); border-radius: 15px; padding: 20px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; color: #fff; }
@@ -133,7 +133,6 @@
         <a href="dashboard.html" class="btn-back-admin">← رجوع</a>
     </div>
 
-    <!-- إحصائيات -->
     <div class="stats-grid">
         <div class="stat-box total">
             <div class="stat-label">📦 إجمالي القطع</div>
@@ -145,7 +144,6 @@
         </div>
     </div>
 
-    <!-- إضافة قطعة -->
     <div class="section-title">➕ إضافة قطعة جديدة</div>
     <div class="booking-form">
         <div class="form-group">
@@ -177,17 +175,19 @@
         <button type="button" onclick="addStockItem()" class="btn-submit-booking">💾 إضافة للستوك</button>
     </div>
 
-    <!-- البحث + تصدير -->
+    <div class="trash-banner" id="trashBanner">
+        🗑️ أنت في وضع سلة المحذوفات — اضغط زر السلة للعودة
+    </div>
+
     <div class="section-title">
-        📋 قائمة القطع
-        <small id="stockCount"></small>
+        <span id="stockTitle">📋 قائمة القطع <small id="stockCount"></small></span>
+        <button class="btn btn-sm btn-warning" onclick="toggleTrash()" id="trashToggleBtn">🗑️ السلة (0)</button>
     </div>
     <div class="search-box">
         <input type="text" id="stockSearch" class="form-control" placeholder="🔍 بحث..." oninput="loadStock()">
         <button class="btn btn-success btn-sm" onclick="exportCSV()" title="تصدير Excel">📤</button>
     </div>
 
-    <!-- تصفية -->
     <div class="search-box" style="margin-top:-4px;">
         <button class="btn btn-sm btn-info" onclick="filterStock('all')" id="filterAll" style="flex:1;">الكل</button>
         <button class="btn btn-sm btn-warning" onclick="filterStock('low')" id="filterLow" style="flex:1;">⚠️ منخفض</button>
@@ -203,7 +203,6 @@
     </div>
 </div>
 
-<!-- Modal التعديل -->
 <div class="modal-overlay" id="editModal">
     <div class="modal-content">
         <h3 id="editModalTitle">✏️ تعديل القطعة</h3>
@@ -267,7 +266,15 @@
         setTimeout(() => toast.classList.remove('show'), 3500);
     }
 
-    // ================= الثيم =================
+    // ============ ✅ إصلاح 2: تاريخ نظيف DD/MM/YYYY ============
+    function formatDateDDMMYYYY(ts) {
+        const d = new Date(ts);
+        if (isNaN(d.getTime())) return '';
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        return day + '/' + month + '/' + d.getFullYear();
+    }
+
     function applyTheme(theme) {
         if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
         else if (theme === 'oled') document.documentElement.setAttribute('data-theme', 'oled');
@@ -278,8 +285,9 @@
         }
     }
 
-    // ================= تصفية =================
+    // ================= تصفية + سلة =================
     let currentFilter = 'all';
+    let showTrash = false;
 
     function filterStock(type) {
         currentFilter = type;
@@ -290,6 +298,11 @@
         const btn = type === 'all' ? 'filterAll' : type === 'low' ? 'filterLow' : 'filterOut';
         const active = document.getElementById(btn);
         if (active) active.style.opacity = '1';
+        loadStock();
+    }
+
+    function toggleTrash() {
+        showTrash = !showTrash;
         loadStock();
     }
 
@@ -314,7 +327,8 @@
             category,
             qty,
             buyPrice,
-            sellPrice
+            sellPrice,
+            createdAt: Date.now()
         });
 
         setData('stock', stock);
@@ -329,37 +343,57 @@
 
     // ================= تحميل القائمة =================
     function loadStock() {
-        const stock = getData('stock', []);
+        const allStock = getData('stock', []);
+        const activeStock = allStock.filter(s => !s.deleted);
+        const deletedStock = allStock.filter(s => s.deleted);
         const search = (document.getElementById('stockSearch').value || '').toLowerCase();
 
-        // تطبيق البحث
-        let filtered = search ? stock.filter(s => (s.name || '').toLowerCase().includes(search)) : stock;
-
-        // تطبيق الفلتر
-        if (currentFilter === 'low') {
-            filtered = filtered.filter(s => s.qty > 0 && s.qty <= 3);
-        } else if (currentFilter === 'out') {
-            filtered = filtered.filter(s => s.qty === 0);
+        // عدّاد السلة + الوضع
+        const trashBtn = document.getElementById('trashToggleBtn');
+        if (trashBtn) {
+            trashBtn.textContent = '🗑️ السلة (' + deletedStock.length + ')';
+            trashBtn.classList.toggle('btn-trash-empty', deletedStock.length === 0);
+        }
+        const banner = document.getElementById('trashBanner');
+        if (banner) banner.classList.toggle('active', showTrash);
+        const titleEl = document.getElementById('stockTitle');
+        if (titleEl) {
+            titleEl.innerHTML = (showTrash ? '🗑️ سلة المحذوفات ' : '📋 قائمة القطع ') + '<small id="stockCount"></small>';
         }
 
-        // تحديث العداد
-        document.getElementById('stockCount').textContent = `(${filtered.length} من ${stock.length})`;
-
-        // تحديث الإحصائيات
-        const totalQty = stock.reduce((sum, s) => sum + (s.qty || 0), 0);
-        const totalValue = stock.reduce((sum, s) => sum + ((s.qty || 0) * (s.sellPrice || 0)), 0);
-        document.getElementById('statTotalQty').textContent = totalQty;
+        // ✅ الإحصائيات تستبعد المحذوف
+        const totalQty = activeStock.reduce((sum, s) => sum + (s.qty || 0), 0);
+        const totalValue = activeStock.reduce((sum, s) => sum + ((s.qty || 0) * (s.sellPrice || 0)), 0);
+        document.getElementById('statTotalQty').textContent = totalQty.toLocaleString();
         document.getElementById('statTotalValue').textContent = totalValue.toLocaleString() + ' دج';
+
+        // اختيار القائمة (عادي / سلة)
+        let baseList = showTrash ? deletedStock : activeStock;
+
+        // البحث
+        let filtered = search ? baseList.filter(s => (s.name || '').toLowerCase().includes(search)) : baseList;
+
+        // الفلتر (لا يطبق في وضع السلة)
+        if (!showTrash) {
+            if (currentFilter === 'low') {
+                filtered = filtered.filter(s => s.qty > 0 && s.qty <= 3);
+            } else if (currentFilter === 'out') {
+                filtered = filtered.filter(s => s.qty === 0);
+            }
+        }
+
+        const cntEl = document.getElementById('stockCount');
+        if (cntEl) cntEl.textContent = '(' + filtered.length + ' من ' + baseList.length + ')';
 
         // العرض
         const container = document.getElementById('stockList');
         if (filtered.length === 0) {
-            container.innerHTML = '<div class="empty-state">لا توجد قطع مطابقة</div>';
+            container.innerHTML = '<div class="empty-state">' + (showTrash ? 'سلة المحذوفات فارغة' : 'لا توجد قطع مطابقة') + '</div>';
             return;
         }
 
-        // ترتيب: النافذ أولاً، ثم المنخفض، ثم العادي
-        const sorted = [...filtered].sort((a, b) => {
+        // ترتيب: النافذ أولاً (فقط في الوضع العادي)
+        const sorted = showTrash ? filtered : [...filtered].sort((a, b) => {
             if (a.qty === 0 && b.qty > 0) return -1;
             if (a.qty > 0 && b.qty === 0) return 1;
             return a.qty - b.qty;
@@ -368,7 +402,10 @@
         container.innerHTML = sorted.map(s => {
             let rowClass = '';
             let badge = '';
-            if (s.qty === 0) {
+            if (showTrash) {
+                rowClass = '';
+                badge = '<span class="stock-badge badge-out">🗑️ محذوف</span>';
+            } else if (s.qty === 0) {
                 rowClass = 'out-stock';
                 badge = '<span class="stock-badge badge-out">❌ نافذ</span>';
             } else if (s.qty <= 3) {
@@ -378,21 +415,26 @@
                 badge = '<span class="stock-badge badge-ok">✅ متوفر</span>';
             }
 
-            return `
-                <div class="list-row ${rowClass}">
-                    <strong>${s.category || '📋'} ${escapeHtml(s.name)}</strong> ${badge}<br>
-                    <div class="stock-meta">
-                        الكمية: <strong>${s.qty}</strong> &nbsp;|&nbsp;
-                        شراء: ${s.buyPrice || 0} دج &nbsp;|&nbsp;
-                        بيع: <strong>${s.sellPrice || 0} دج</strong>
-                    </div>
-                    <div class="stock-actions">
-                        <button onclick="openEditModal(${s.id})" class="btn btn-sm btn-info">✏️ تعديل</button>
-                        <button onclick="updateStockQty(${s.id})" class="btn btn-sm btn-primary">➕ كمية</button>
-                        <button onclick="deleteStock(${s.id})" class="btn btn-sm btn-danger">🗑️</button>
-                    </div>
-                </div>
-            `;
+            const delDate = s.deletedAt ? ' <span style="color:#f87171; font-size:10px;">(حُذفت: ' + formatDateDDMMYYYY(s.deletedAt) + ')</span>' : '';
+
+            const actions = showTrash ? (
+                '<button onclick="restoreStock(' + s.id + ')" class="btn btn-sm btn-success">♻️ استرجاع</button>' +
+                '<button onclick="permanentDeleteStock(' + s.id + ')" class="btn btn-sm btn-danger">🔥 حذف نهائي</button>'
+            ) : (
+                '<button onclick="openEditModal(' + s.id + ')" class="btn btn-sm btn-info">✏️ تعديل</button>' +
+                '<button onclick="updateStockQty(' + s.id + ')" class="btn btn-sm btn-primary">➕ كمية</button>' +
+                '<button onclick="deleteStock(' + s.id + ')" class="btn btn-sm btn-danger">🗑️</button>'
+            );
+
+            return '<div class="list-row ' + rowClass + '">' +
+                '<strong>' + (s.category || '📋') + ' ' + escapeHtml(s.name) + '</strong> ' + badge + delDate + '<br>' +
+                '<div class="stock-meta">' +
+                    'الكمية: <strong>' + s.qty + '</strong> &nbsp;|&nbsp; ' +
+                    'شراء: ' + (s.buyPrice || 0) + ' دج &nbsp;|&nbsp; ' +
+                    'بيع: <strong>' + (s.sellPrice || 0) + ' دج</strong>' +
+                '</div>' +
+                '<div class="stock-actions">' + actions + '</div>' +
+            '</div>';
         }).join('');
     }
 
@@ -420,7 +462,7 @@
     function openEditModal(id) {
         const stock = getData('stock', []);
         const s = stock.find(x => x.id === id);
-        if (!s) return;
+        if (!s || s.deleted) return;
 
         editingId = id;
         document.getElementById('editModalTitle').textContent = '✏️ تعديل: ' + s.name;
@@ -455,7 +497,8 @@
             category: document.getElementById('editCategory').value,
             qty: parseInt(document.getElementById('editQty').value) || 0,
             buyPrice: parseFloat(document.getElementById('editBuyPrice').value) || 0,
-            sellPrice: parseFloat(document.getElementById('editSellPrice').value) || 0
+            sellPrice: parseFloat(document.getElementById('editSellPrice').value) || 0,
+            updatedAt: Date.now()
         };
 
         setData('stock', stock);
@@ -464,23 +507,46 @@
         showToast('✅ تم حفظ التعديلات');
     }
 
-    // ================= حذف =================
+    // ============ ✅ إصلاح 5: حذف ناعم ============
     function deleteStock(id) {
-        if (!confirm('هل تريد حذف هذه القطعة من الستوك؟')) return;
+        if (!confirm('نقل هذه القطعة إلى السلة؟ (يمكن استرجاعها)')) return;
+        let stock = getData('stock', []);
+        const idx = stock.findIndex(x => x.id === id);
+        if (idx === -1) return;
+        stock[idx].deleted = true;
+        stock[idx].deletedAt = Date.now();
+        setData('stock', stock);
+        loadStock();
+        showToast('🗑️ تم نقل القطعة لسلة المحذوفات');
+    }
+
+    function restoreStock(id) {
+        let stock = getData('stock', []);
+        const idx = stock.findIndex(x => x.id === id);
+        if (idx === -1) return;
+        delete stock[idx].deleted;
+        delete stock[idx].deletedAt;
+        setData('stock', stock);
+        loadStock();
+        showToast('♻️ تم استرجاع القطعة');
+    }
+
+    function permanentDeleteStock(id) {
+        if (!confirm('⚠️ حذف نهائي! لا يمكن الرجوع. متأكد؟')) return;
+        if (!confirm('تأكيد أخير: حذف هذه القطعة من السجل نهائيًا؟')) return;
         setData('stock', getData('stock', []).filter(s => s.id !== id));
         loadStock();
-        showToast('🗑️ تم حذف القطعة');
+        showToast('🔥 تم الحذف النهائي');
     }
 
     // ================= تصدير CSV =================
     function exportCSV() {
-        const stock = getData('stock', []);
+        const stock = getData('stock', []).filter(s => !s.deleted);
         if (stock.length === 0) {
             showToast('⚠️ لا توجد بيانات للتصدير', 'error');
             return;
         }
 
-        // BOM لضمان قراءة العربية في Excel
         let csv = '\uFEFF';
         csv += 'الفئة,اسم القطعة,الكمية,سعر الشراء,سعر البيع,القيمة الإجمالية,الحالة\n';
 
@@ -502,7 +568,9 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'med-garage-stock-' + new Date().toISOString().slice(0, 10) + '.csv';
+        const today = new Date();
+        const suffix = String(today.getFullYear()) + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+        a.download = 'med-garage-stock-' + suffix + '.csv';
         document.body.appendChild(a);
         a.click();
         setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
