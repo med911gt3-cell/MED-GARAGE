@@ -6,6 +6,11 @@
     <title>MED GARAGE - الفوترة</title>
     <meta name="theme-color" content="#1a1d21" id="themeColorMeta">
     <link rel="icon" type="image/png" href="./icon-192.png">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="./icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MED GARAGE">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
@@ -120,6 +125,21 @@
         .checkbox-group { display: flex; gap: 15px; flex-wrap: wrap; padding: 8px 0; }
         .checkbox-group label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #fff; cursor: pointer; }
         .checkbox-group input[type="checkbox"], .checkbox-group input[type="radio"] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+
+        #pdfLangBtn {
+            background: linear-gradient(135deg, var(--info) 0%, #1d4ed8 100%);
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 900;
+            font-size: 13px;
+            font-family: inherit;
+            box-shadow: 0 2px 6px rgba(37,99,235,0.4);
+            transition: transform 0.15s ease;
+        }
+        #pdfLangBtn:active { transform: scale(0.95); }
     </style>
 </head>
 <body id="htmlRoot">
@@ -275,9 +295,12 @@
 
 <div class="modal-overlay" id="pdfPreviewModal">
     <div class="modal-content" style="max-width: 95%; max-height: 95vh; padding: 12px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:8px; flex-wrap:wrap;">
             <h3 style="margin:0; color:var(--accent);">📄 معاينة الفاتورة</h3>
-            <button onclick="closePdfPreview()" style="background:transparent; border:none; color:#fff; font-size:24px; cursor:pointer;">✕</button>
+            <div style="display:flex; gap:8px; align-items:center;">
+                <button onclick="togglePdfLang()" id="pdfLangBtn">🇫🇷 Français</button>
+                <button onclick="closePdfPreview()" style="background:transparent; border:none; color:#fff; font-size:24px; cursor:pointer;">✕</button>
+            </div>
         </div>
         <div id="pdfPreviewContent" style="background:#fff; color:#000; padding:15px; border-radius:8px; max-height:70vh; overflow-y:auto;"></div>
         <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
@@ -325,14 +348,10 @@
         if (meta) meta.setAttribute('content', theme === 'light' ? '#f1f5f9' : theme === 'oled' ? '#000000' : '#1a1d21');
     }
 
-    // ✅ تواريخ نظيفة DD/MM/YYYY
     function formatDateDDMMYYYY(ts) {
         const d = new Date(ts);
         if (isNaN(d.getTime())) return '';
-        const day = String(d.getDate()).padStart(2, '0');
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const year = d.getFullYear();
-        return `${day}/${month}/${year}`;
+        return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
     }
 
     function formatTimeHHMM(ts) {
@@ -349,7 +368,7 @@
         return str;
     }
 
-    // ============ ✅ اللوقو Base64 (لا CORS في html2pdf) ============
+    // ============ اللوقو Base64 ============
     let LOGO_BASE64 = './icon-512.png';
 
     (function preloadLogoBase64() {
@@ -360,12 +379,9 @@
                 const canvas = document.createElement('canvas');
                 canvas.width = img.width;
                 canvas.height = img.height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
+                canvas.getContext('2d').drawImage(img, 0, 0);
                 LOGO_BASE64 = canvas.toDataURL('image/png');
-            } catch(e) {
-                LOGO_BASE64 = './icon-512.png';
-            }
+            } catch(e) { LOGO_BASE64 = './icon-512.png'; }
         };
         img.onerror = function() { LOGO_BASE64 = './icon-512.png'; };
         img.src = './icon-512.png';
@@ -375,28 +391,28 @@
     let editingInvoiceId = null;
     let currentItems = [];
     let showTrash = false;
+    let currentPdfLang = 'fr'; // ← لغة معاينة PDF
 
+    // ✅ ترقيم جديد: M-G 0001 / M-G-D 0001
     function generateInvoiceCode(status = 'done') {
         const invoices = getData('invoices', []);
-        const prefix = status === 'devis' ? 'DEV-' : 'INV-';
-        const year = new Date().getFullYear();
-        // ✅ الفواتير المحذوفة لا تُحسب (لمنع تكرار الأرقام)
+        const prefix = status === 'devis' ? 'M-G-D' : 'M-G';
         const sameType = invoices.filter(i =>
             (i.status === 'devis') === (status === 'devis') && !i.deleted
         );
 
-        // ✅ استخدام أعلى رقم موجود + 1 (أكثر أماناً من length + 1)
         let maxNum = 0;
         sameType.forEach(i => {
-            const m = String(i.code || '').match(/-(\d+)$/);
+            // ✅ يقرأ فقط الترقيم الجديد M-G 0001 / M-G-D 0001
+            const m = String(i.code || '').match(/^M-G(?:-D)?\s+(\d+)$/);
             if (m) {
                 const n = parseInt(m[1], 10);
                 if (n > maxNum) maxNum = n;
             }
         });
 
-        const num = String(maxNum + 1).padStart(6, '0');
-        return `${prefix}${year}-${num}`;
+        const num = String(maxNum + 1).padStart(4, '0');
+        return `${prefix} ${num}`;
     }
 
     function toggleTrash() {
@@ -404,9 +420,8 @@
         loadInvoices();
     }
 
-    // ✅ عند تغيير نوع المستند، يُعاد توليد الرقم (فقط عند إنشاء جديد)
     function onInvoiceTypeChange() {
-        if (editingInvoiceId) return; // لا نغيّر رقم فاتورة قيد التعديل
+        if (editingInvoiceId) return;
         const newType = document.getElementById('invStatus').value;
         document.getElementById('invCode').value = generateInvoiceCode(newType);
     }
@@ -438,13 +453,11 @@
                 document.getElementById('invPhone').value = b.phone || '';
                 document.getElementById('invCar').value = b.car || '';
                 if (b.desc) document.getElementById('invNotes').value = b.desc;
-
                 if (Array.isArray(b.services) && b.services.length > 0) {
                     b.services.forEach(svc => {
                         currentItems.push({ type: 'service', name: svc, qty: 1, price: 0 });
                     });
                 }
-
                 document.getElementById('bookingHint').classList.add('active');
                 document.getElementById('bookingHintText').textContent = b.name + ' — ' + (b.car || '');
                 sessionStorage.removeItem('mg_convert_booking');
@@ -486,12 +499,7 @@
         const ps = document.querySelector(`input[name="paymentStatus"][value="${inv.paymentStatus || 'Payée'}"]`);
         if (ps) ps.checked = true;
 
-        if (inv.items && Array.isArray(inv.items)) {
-            currentItems = inv.items.map(it => ({ ...it }));
-        } else {
-            currentItems = [];
-        }
-
+        currentItems = (inv.items && Array.isArray(inv.items)) ? inv.items.map(it => ({ ...it })) : [];
         if (currentItems.length === 0) currentItems.push({ type: 'part', name: '', qty: 1, price: 0 });
 
         renderItems();
@@ -500,7 +508,6 @@
         document.getElementById('invoiceModal').classList.add('active');
     }
 
-    // ================= رسم صفوف Items (Template Literals من V2) =================
     function renderItems() {
         const stock = getData('stock', []);
         const tbody = document.getElementById('itemsBody');
@@ -511,26 +518,20 @@
 
             if (item.type === 'part') {
                 const opts = stock.map(s => {
-                    // ✅ فحص qty undefined بشكل صحيح
                     const qty = (s.qty || 0);
                     const disabled = qty <= 0 ? 'disabled' : '';
                     const stockLabel = qty > 0 ? `متوفر: ${qty}` : 'نافذ';
                     const selected = s.name === item.name ? 'selected' : '';
                     return `<option value="${escapeHtml(s.name)}" data-price="${s.sellPrice || 0}" data-qty="${qty}" ${selected} ${disabled}>${escapeHtml(s.name)} (${stockLabel})</option>`;
                 }).join('');
-                inputHTML = `<select onchange="onItemFromStock(${idx}, this)">
-                    <option value="">-- اختر --</option>
-                    ${opts}
-                </select>`;
+                inputHTML = `<select onchange="onItemFromStock(${idx}, this)"><option value="">-- اختر --</option>${opts}</select>`;
             } else {
                 inputHTML = `<input type="text" value="${escapeHtml(item.name)}" oninput="onItemChange(${idx}, 'name', this.value)" placeholder="اسم الخدمة">`;
             }
 
             return `
                 <tr>
-                    <td class="col-type">
-                        <button onclick="toggleItemType(${idx})" title="تحويل" style="background:${item.type === 'part' ? 'var(--info)' : 'var(--accent)'}; color:#fff; border:none; padding:4px 6px; border-radius:4px; cursor:pointer; font-size:14px;">${typeIcon}</button>
-                    </td>
+                    <td class="col-type"><button onclick="toggleItemType(${idx})" title="تحويل" style="background:${item.type === 'part' ? 'var(--info)' : 'var(--accent)'}; color:#fff; border:none; padding:4px 6px; border-radius:4px; cursor:pointer; font-size:14px;">${typeIcon}</button></td>
                     <td class="col-name">${inputHTML}</td>
                     <td class="col-qty"><input type="number" min="1" value="${item.qty || 1}" oninput="onItemChange(${idx}, 'qty', this.value); calcTotal()"></td>
                     <td class="col-price"><input type="number" min="0" value="${item.price || 0}" oninput="onItemChange(${idx}, 'price', this.value); calcTotal()"></td>
@@ -540,31 +541,15 @@
         }).join('');
     }
 
-    function addItemRow() {
-        currentItems.push({ type: 'part', name: '', qty: 1, price: 0 });
-        renderItems();
-        calcTotal();
-    }
-
+    function addItemRow() { currentItems.push({ type: 'part', name: '', qty: 1, price: 0 }); renderItems(); calcTotal(); }
     function removeItemRow(idx) {
-        if (currentItems.length <= 1) {
-            showToast('⚠️ يجب أن تبقى قطعة واحدة على الأقل', 'error');
-            return;
-        }
-        currentItems.splice(idx, 1);
-        renderItems();
-        calcTotal();
+        if (currentItems.length <= 1) { showToast('⚠️ يجب أن تبقى قطعة واحدة على الأقل', 'error'); return; }
+        currentItems.splice(idx, 1); renderItems(); calcTotal();
     }
-
     function onItemChange(idx, field, value) {
         if (!currentItems[idx]) return;
-        if (field === 'qty' || field === 'price') {
-            currentItems[idx][field] = parseFloat(value) || 0;
-        } else {
-            currentItems[idx][field] = value;
-        }
+        currentItems[idx][field] = (field === 'qty' || field === 'price') ? (parseFloat(value) || 0) : value;
     }
-
     function onItemFromStock(idx, selectEl) {
         const opt = selectEl.options[selectEl.selectedIndex];
         if (!opt) return;
@@ -579,27 +564,21 @@
                 currentItems[idx].qty = stockQty;
             }
         }
-        renderItems();
-        calcTotal();
+        renderItems(); calcTotal();
     }
-
     function toggleItemType(idx) {
         if (!currentItems[idx]) return;
         currentItems[idx].type = currentItems[idx].type === 'part' ? 'service' : 'part';
         currentItems[idx].name = '';
         currentItems[idx].price = 0;
-        renderItems();
-        calcTotal();
+        renderItems(); calcTotal();
     }
 
     function calcTotal() {
         let itemsTotal = 0;
-        currentItems.forEach(it => {
-            itemsTotal += (it.qty || 0) * (it.price || 0);
-        });
+        currentItems.forEach(it => { itemsTotal += (it.qty || 0) * (it.price || 0); });
         const labor = parseFloat(document.getElementById('invLabor').value) || 0;
         const subtotal = itemsTotal + labor;
-
         const tvaEnabled = document.getElementById('invTvaEnabled').checked;
         const tva = tvaEnabled ? subtotal * 0.19 : 0;
         const total = subtotal + tva;
@@ -649,9 +628,7 @@
         }
 
         let itemsTotal = 0;
-        validItems.forEach(it => {
-            itemsTotal += it.qty * it.price;
-        });
+        validItems.forEach(it => { itemsTotal += it.qty * it.price; });
         const subtotal = itemsTotal + labor;
         const tva = tvaEnabled ? subtotal * 0.19 : 0;
         const total = subtotal + tva;
@@ -663,7 +640,6 @@
             if (oldIdx === -1) return;
             const oldInv = invoices[oldIdx];
 
-            // إعادة ستوك الفاتورة القديمة
             if (oldInv.items && oldInv.status !== 'devis') {
                 oldInv.items.forEach(it => {
                     if (it.type === 'part' && it.name) {
@@ -673,7 +649,6 @@
                 });
             }
 
-            // خصم ستوك الفاتورة الجديدة
             if (status !== 'devis') {
                 validItems.forEach(it => {
                     if (it.type === 'part' && it.name) {
@@ -684,14 +659,10 @@
             }
 
             invoices[oldIdx] = {
-                ...oldInv,
-                client, phone, car, vin, plate, km, notes,
+                ...oldInv, client, phone, car, vin, plate, km, notes,
                 labor, subtotal, tvaEnabled, tva, total, status,
-                paymentMethod, paymentStatus,
-                items: validItems,
-                updatedAt: Date.now()
+                paymentMethod, paymentStatus, items: validItems, updatedAt: Date.now()
             };
-
             showToast('✅ تم تعديل الفاتورة');
         } else {
             if (status !== 'devis') {
@@ -705,15 +676,10 @@
 
             const now = Date.now();
             invoices.unshift({
-                id: now,
-                code,
-                client, phone, car, vin, plate, km, notes,
+                id: now, code, client, phone, car, vin, plate, km, notes,
                 labor, subtotal, tvaEnabled, tva, total, status,
-                paymentMethod, paymentStatus,
-                items: validItems,
-                date: formatDateDDMMYYYY(now),
-                time: formatTimeHHMM(now),
-                createdAt: now
+                paymentMethod, paymentStatus, items: validItems,
+                date: formatDateDDMMYYYY(now), time: formatTimeHHMM(now), createdAt: now
             });
 
             showToast(status === 'devis' ? '✅ تم حفظ الـ Devis' : '✅ تم حفظ الفاتورة وخصم الستوك');
@@ -731,7 +697,6 @@
         currentItems = [];
     }
 
-    // ============ Soft Delete ============
     function deleteInvoice(id) {
         if (!confirm('نقل هذه الفاتورة إلى السلة؟ (يمكن استرجاعها)')) return;
         const invoices = getData('invoices', []);
@@ -772,8 +737,7 @@
             setData('stock', stock);
         }
 
-        delete inv.deleted;
-        delete inv.deletedAt;
+        delete inv.deleted; delete inv.deletedAt;
         setData('invoices', invoices);
         loadInvoices();
         showToast('♻️ تم استرجاع الفاتورة');
@@ -787,7 +751,6 @@
         showToast('🔥 تم الحذف النهائي');
     }
 
-    // ================= عرض القوائم =================
     function loadInvoices() {
         const allInvoices = getData('invoices', []);
         const search = (document.getElementById('invoiceSearch').value || '').toLowerCase();
@@ -801,10 +764,7 @@
         const banner = document.getElementById('trashBanner');
         if (banner) banner.classList.toggle('active', showTrash);
 
-        let baseList = showTrash
-            ? allInvoices.filter(i => i.deleted)
-            : allInvoices.filter(i => !i.deleted);
-
+        let baseList = showTrash ? allInvoices.filter(i => i.deleted) : allInvoices.filter(i => !i.deleted);
         let filtered = search ? baseList.filter(i =>
             (i.client || '').toLowerCase().includes(search) ||
             (i.code || '').toLowerCase().includes(search)
@@ -812,25 +772,19 @@
 
         const devis = filtered.filter(i => i.status === 'devis');
         const devisBox = document.getElementById('devisList');
-        if (devis.length === 0) {
-            devisBox.innerHTML = `<div class="empty-state">${showTrash ? 'سلة Devis فارغة' : 'لا يوجد Devis حالياً'}</div>`;
-        } else {
-            devisBox.innerHTML = devis.map(inv => renderInvoiceRow(inv, true)).join('');
-        }
+        devisBox.innerHTML = devis.length === 0
+            ? `<div class="empty-state">${showTrash ? 'سلة Devis فارغة' : 'لا يوجد Devis حالياً'}</div>`
+            : devis.map(inv => renderInvoiceRow(inv, true)).join('');
 
         const done = filtered.filter(i => i.status !== 'devis');
         const doneBox = document.getElementById('doneList');
-        if (done.length === 0) {
-            doneBox.innerHTML = `<div class="empty-state">${showTrash ? 'سلة الفواتير فارغة' : 'لا توجد فواتير مكتملة'}</div>`;
-        } else {
-            doneBox.innerHTML = done.map(inv => renderInvoiceRow(inv, false)).join('');
-        }
+        doneBox.innerHTML = done.length === 0
+            ? `<div class="empty-state">${showTrash ? 'سلة الفواتير فارغة' : 'لا توجد فواتير مكتملة'}</div>`
+            : done.map(inv => renderInvoiceRow(inv, false)).join('');
     }
 
     function renderInvoiceRow(inv, isDevis) {
-        const delDate = inv.deletedAt
-            ? ` <span style="color:#f87171; font-size:10px;">(حُذفت: ${formatDateDDMMYYYY(inv.deletedAt)})</span>`
-            : '';
+        const delDate = inv.deletedAt ? ` <span style="color:#f87171; font-size:10px;">(حُذفت: ${formatDateDDMMYYYY(inv.deletedAt)})</span>` : '';
         const amountLabel = isDevis
             ? `<span style="color:#fbbf24;">📄 Devis: <strong>${(inv.total || 0).toLocaleString()} دج</strong></span>`
             : `<span style="color:#4ade80; font-weight:900;">💵 ${(inv.total || 0).toLocaleString()} دج</span>`;
@@ -854,13 +808,54 @@
         `;
     }
 
-    // ================= بناء HTML الفاتورة =================
-    function buildInvoiceHTML(inv) {
+    // ============================================================
+    // بناء HTML الفاتورة — يدعم العربية + الفرنسية
+    // ============================================================
+    function buildInvoiceHTML(inv, lang = 'fr') {
+        const isAr = lang === 'ar';
+        const dir = isAr ? 'rtl' : 'ltr';
+        const fontFamily = isAr ? "'Cairo', Arial, sans-serif" : 'Arial, sans-serif';
+
         let shop = { name: 'MED GARAGE', phone: '0790 58 25 51', address: 'السويدانية - الجزائر العاصمة', email: 'medgarage@gmail.com' };
         try {
             const s = JSON.parse(localStorage.getItem('mg_shop_info') || 'null');
             if (s) shop = { ...shop, ...s };
         } catch(e) {}
+
+        // ✅ التسميات حسب اللغة
+        const L = isAr ? {
+            devis: 'عرض سعر', facture: 'فاتورة', num: 'رقم', date: 'التاريخ', time: 'الوقت',
+            clientInfo: '👤 معلومات الزبون', name: 'الاسم', phone: 'الهاتف', address: 'العنوان',
+            vehicleInfo: '🚗 معلومات السيارة', type: 'النوع', vin: 'VIN (الهيكل)', plate: 'اللوحة', km: 'الكيلومترات',
+            clientRequest: '📝 طلب الزبون', numShort: 'رقم', designation: 'البيان', qty: 'الكمية',
+            unitPrice: 'سعر الوحدة (دج)', amount: 'المبلغ (دج)',
+            paymentMode: '💳 طريقة الدفع', cash: 'نقداً', check: 'شيك', transfer: 'تحويل', credit: 'آجل',
+            invoiceState: '✅ حالة الفاتورة', paid: 'مدفوعة', partial: 'دفع جزئي', unpaid: 'غير مدفوعة',
+            summary: 'الملخص', totalPieces: 'مجموع القطع', labor: 'يد العاملة', tva: 'TVA (19%)',
+            totalTTC: 'المجموع الإجمالي', stamp: 'الختم والتوقيع',
+            thanks: 'شكراً لثقتكم', slogan: 'ميد غراج - سيارتك في أيدٍ أمينة',
+            mainOeuvre: 'يد العاملة', noPieces: 'لا توجد قطع', da: 'دج',
+            brandSub: 'ورشة صيانة السيارات'
+        } : {
+            devis: 'DEVIS', facture: 'FACTURE', num: 'N°', date: 'Date', time: 'Heure',
+            clientInfo: '👤 Informations du client', name: 'Nom', phone: 'Téléphone', address: 'Adresse',
+            vehicleInfo: '🚗 Informations du véhicule', type: 'Type', vin: 'VIN', plate: 'Immatriculation', km: 'KM',
+            clientRequest: '📝 Demande du client', numShort: 'N°', designation: 'Désignation', qty: 'Quantité',
+            unitPrice: 'Prix unitaire (DA)', amount: 'Montant (DA)',
+            paymentMode: '💳 Mode de paiement', cash: 'Espèces', check: 'Chèque', transfer: 'Virement', credit: 'Crédit',
+            invoiceState: '✅ État de la facture', paid: 'Payée', partial: 'Paiement partiel', unpaid: 'Non payée',
+            summary: 'Récapitulatif', totalPieces: 'Total pièces', labor: 'Main d\'œuvre', tva: 'TVA (19%)',
+            totalTTC: 'Total TTC', stamp: 'Cachet et signature',
+            thanks: 'Merci pour votre confiance', slogan: 'MED GARAGE - Votre véhicule entre de bonnes mains',
+            mainOeuvre: 'Main d\'œuvre', noPieces: 'Aucune pièce', da: 'DA',
+            brandSub: 'Atelier de réparation auto'
+        };
+
+        // ✅ في الفرنسي: عمود البيان LTR (يسار لليمين)
+        // في العربي: عمود البيان RTL (يمين لليسار)
+        const itemDir = isAr ? 'rtl' : 'ltr';
+        const itemAlign = isAr ? 'right' : 'left';
+        const itemPaddingSide = isAr ? 'padding-right: 10px;' : 'padding-left: 10px;';
 
         let itemsHTML = '';
         if (inv.items && inv.items.length > 0) {
@@ -868,10 +863,10 @@
                 const lineTotal = (it.qty || 0) * (it.price || 0);
                 itemsHTML += `<tr>
                     <td style="text-align:center; border: 1px solid #cbd5e1; padding: 6px;">${i + 1}</td>
-                    <td style="text-align:right; padding-right: 10px; border: 1px solid #cbd5e1; padding: 6px;">${escapeHtml(it.name)}</td>
+                    <td style="text-align:${itemAlign}; ${itemPaddingSide} border: 1px solid #cbd5e1; padding: 6px; direction:${itemDir}; unicode-bidi: plaintext;">${escapeHtml(it.name)}</td>
                     <td style="text-align:center; border: 1px solid #cbd5e1; padding: 6px;">${it.qty}</td>
-                    <td style="text-align:left; border: 1px solid #cbd5e1; padding: 6px;">${(it.price || 0).toLocaleString()}</td>
-                    <td style="text-align:left; border: 1px solid #cbd5e1; padding: 6px;">${lineTotal.toLocaleString()}</td>
+                    <td style="text-align:${itemAlign === 'left' ? 'right' : 'left'}; border: 1px solid #cbd5e1; padding: 6px; direction:ltr;">${(it.price || 0).toLocaleString()}</td>
+                    <td style="text-align:${itemAlign === 'left' ? 'right' : 'left'}; border: 1px solid #cbd5e1; padding: 6px; direction:ltr;">${lineTotal.toLocaleString()}</td>
                 </tr>`;
             });
         }
@@ -879,19 +874,18 @@
         if (inv.labor > 0) {
             itemsHTML += `<tr style="background: #f8fafc;">
                 <td style="text-align:center; border: 1px solid #cbd5e1; padding: 6px;">🛠️</td>
-                <td style="text-align:right; padding-right: 10px; border: 1px solid #cbd5e1; padding: 6px;"><strong>Main d'œuvre</strong></td>
+                <td style="text-align:${itemAlign}; ${itemPaddingSide} border: 1px solid #cbd5e1; padding: 6px; direction:${itemDir};"><strong>${L.mainOeuvre}</strong></td>
                 <td style="text-align:center; border: 1px solid #cbd5e1; padding: 6px;">1</td>
-                <td style="text-align:left; border: 1px solid #cbd5e1; padding: 6px;">${(inv.labor || 0).toLocaleString()}</td>
-                <td style="text-align:left; border: 1px solid #cbd5e1; padding: 6px;">${(inv.labor || 0).toLocaleString()}</td>
+                <td style="text-align:${itemAlign === 'left' ? 'right' : 'left'}; border: 1px solid #cbd5e1; padding: 6px; direction:ltr;">${(inv.labor || 0).toLocaleString()}</td>
+                <td style="text-align:${itemAlign === 'left' ? 'right' : 'left'}; border: 1px solid #cbd5e1; padding: 6px; direction:ltr;">${(inv.labor || 0).toLocaleString()}</td>
             </tr>`;
         }
 
-        const docType = inv.status === 'devis' ? 'DEVIS' : 'FACTURE';
+        const docType = inv.status === 'devis' ? L.devis : L.facture;
         const chk = (isChecked) => isChecked
             ? '<span style="font-size:16px; color:#16a34a;">☑</span>'
             : '<span style="font-size:16px; color:#94a3b8;">☐</span>';
 
-        // ✅ حماية من NaN
         const labor = Number(inv.labor) || 0;
         const subtotal = Number(inv.subtotal) || 0;
         const total = Number(inv.total) || 0;
@@ -899,141 +893,148 @@
         const piecesTotal = Math.max(0, subtotal - labor);
 
         return `
-            <div style="font-family: Arial, sans-serif; color: #1e293b; max-width: 100%; background: #fff; direction: ltr;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #dc2626; padding-bottom: 15px; margin-bottom: 20px;">
-                    <div style="flex: 1;">
+            <div dir="${dir}" style="font-family: ${fontFamily}; color: #1e293b; max-width: 100%; background: #fff; direction: ${dir};">
+                <!-- Header -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #dc2626; padding-bottom: 15px; margin-bottom: 20px; gap: 10px;">
+                    <div style="flex: 1; text-align: ${isAr ? 'right' : 'left'};">
                         <h1 style="margin: 0; color: #dc2626; font-size: 28px; font-weight: 900; letter-spacing: 1px;">MED GARAGE</h1>
-                        <div style="font-size: 14px; font-weight: bold; color: #dc2626; margin: 2px 0 10px 0;">ورشة صيانة السيارات</div>
+                        <div style="font-size: 14px; font-weight: bold; color: #dc2626; margin: 2px 0 10px 0;">${L.brandSub}</div>
                         <div style="font-size: 11px; color: #333; line-height: 1.6; font-weight: bold;">
-                            <div style="display:flex; gap:5px;"><span>📍</span> <span>${escapeHtml(shop.address)}</span></div>
-                            <div style="display:flex; gap:5px;"><span>📞</span> <span style="direction:ltr;">${escapeHtml(shop.phone)}</span></div>
-                            <div style="display:flex; gap:5px;"><span>✉️</span> <span>${escapeHtml(shop.email)}</span></div>
+                            <div style="display:flex; gap:5px; justify-content: ${isAr ? 'flex-end' : 'flex-start'};"><span>📍</span> <span>${escapeHtml(shop.address)}</span></div>
+                            <div style="display:flex; gap:5px; justify-content: ${isAr ? 'flex-end' : 'flex-start'};"><span>📞</span> <span style="direction:ltr; unicode-bidi:embed;">${escapeHtml(shop.phone)}</span></div>
+                            <div style="display:flex; gap:5px; justify-content: ${isAr ? 'flex-end' : 'flex-start'};"><span>✉️</span> <span>${escapeHtml(shop.email)}</span></div>
                         </div>
                     </div>
-                    <div style="flex: 0 0 140px; text-align: right;">
+                    <div style="flex: 0 0 140px; text-align: center;">
                         <img src="${LOGO_BASE64}" alt="Logo" style="width: 130px; height: 130px; object-fit: contain;">
                     </div>
                 </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <!-- Meta -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 10px; flex-wrap: wrap;">
                     <div style="background: #1e293b; color: #fff; padding: 8px 20px; border-radius: 8px; display: flex; align-items: center; gap: 15px;">
                         <span style="font-size: 18px; font-weight: bold;">📄 ${docType}</span>
-                        <span style="color: #dc2626; font-size: 20px; font-weight: 900;">N° : ${escapeHtml(inv.code)}</span>
+                        <span style="color: #dc2626; font-size: 20px; font-weight: 900; direction:ltr;">${L.num} : ${escapeHtml(inv.code)}</span>
                     </div>
-                    <div style="text-align: right; font-size: 12px; font-weight: bold; color: #333; line-height: 1.8;">
-                        <div>📅 Date : ${escapeHtml(cleanDisplayDate(inv.date))}</div>
-                        <div>⏰ Heure : ${escapeHtml(inv.time || '--:--')}</div>
+                    <div style="text-align: ${isAr ? 'left' : 'right'}; font-size: 12px; font-weight: bold; color: #333; line-height: 1.8;">
+                        <div>📅 ${L.date} : <span style="direction:ltr; unicode-bidi:embed;">${escapeHtml(cleanDisplayDate(inv.date))}</span></div>
+                        <div>⏰ ${L.time} : <span style="direction:ltr; unicode-bidi:embed;">${escapeHtml(inv.time || '--:--')}</span></div>
                     </div>
                 </div>
 
+                <!-- Client & Vehicle -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                     <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
-                        <div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">👤 Informations du client</div>
-                        <div style="padding: 12px; font-size: 12px; line-height: 2.2;">
-                            <div><strong>Nom :</strong> ${escapeHtml(inv.client)}</div>
-                            <div><strong>Téléphone :</strong> ${escapeHtml(inv.phone || '-')}</div>
-                            <div><strong>Adresse :</strong> -</div>
+                        <div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold; text-align: ${isAr ? 'right' : 'left'};">${L.clientInfo}</div>
+                        <div style="padding: 12px; font-size: 12px; line-height: 2.2; text-align: ${isAr ? 'right' : 'left'};">
+                            <div><strong>${L.name} :</strong> ${escapeHtml(inv.client)}</div>
+                            <div><strong>${L.phone} :</strong> <span style="direction:ltr; unicode-bidi:embed;">${escapeHtml(inv.phone || '-')}</span></div>
+                            <div><strong>${L.address} :</strong> -</div>
                         </div>
                     </div>
                     <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
-                        <div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">🚗 Informations du véhicule</div>
-                        <div style="padding: 12px; font-size: 12px; line-height: 2.2;">
-                            <div><strong>Type :</strong> ${escapeHtml(inv.car || '-')}</div>
-                            <div><strong>VIN :</strong> ${escapeHtml(inv.vin || '-')}</div>
-                            <div><strong>Immatriculation :</strong> ${escapeHtml(inv.plate || '-')}</div>
-                            <div><strong>KM :</strong> ${escapeHtml(String(inv.km || '-'))}</div>
+                        <div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold; text-align: ${isAr ? 'right' : 'left'};">${L.vehicleInfo}</div>
+                        <div style="padding: 12px; font-size: 12px; line-height: 2.2; text-align: ${isAr ? 'right' : 'left'};">
+                            <div><strong>${L.type} :</strong> ${escapeHtml(inv.car || '-')}</div>
+                            <div><strong>${L.vin} :</strong> <span style="direction:ltr; unicode-bidi:embed;">${escapeHtml(inv.vin || '-')}</span></div>
+                            <div><strong>${L.plate} :</strong> <span style="direction:ltr; unicode-bidi:embed;">${escapeHtml(inv.plate || '-')}</span></div>
+                            <div><strong>${L.km} :</strong> <span style="direction:ltr; unicode-bidi:embed;">${escapeHtml(String(inv.km || '-'))}</span></div>
                         </div>
                     </div>
                 </div>
 
+                <!-- Notes -->
                 <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; margin-bottom: 15px;">
-                    <div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">📝 Demande du client</div>
-                    <div style="padding: 12px; font-size: 12px; min-height: 40px;">${escapeHtml(inv.notes || '-')}</div>
+                    <div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold; text-align: ${isAr ? 'right' : 'left'};">${L.clientRequest}</div>
+                    <div style="padding: 12px; font-size: 12px; min-height: 40px; text-align: ${isAr ? 'right' : 'left'};">${escapeHtml(inv.notes || '-')}</div>
                 </div>
 
+                <!-- Items Table -->
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 12px;">
                     <thead>
                         <tr style="background: #1e293b; color: #fff;">
-                            <th style="padding: 8px; border: 1px solid #cbd5e1; width: 8%; text-align: center;">N°</th>
-                            <th style="padding: 8px; border: 1px solid #cbd5e1; width: 44%; text-align: center;">Désignation</th>
-                            <th style="padding: 8px; border: 1px solid #cbd5e1; width: 12%; text-align: center;">Quantité</th>
-                            <th style="padding: 8px; border: 1px solid #cbd5e1; width: 18%; text-align: center;">Prix unitaire (DA)</th>
-                            <th style="padding: 8px; border: 1px solid #cbd5e1; width: 18%; text-align: center;">Montant (DA)</th>
+                            <th style="padding: 8px; border: 1px solid #cbd5e1; width: 8%; text-align: center;">${L.numShort}</th>
+                            <th style="padding: 8px; border: 1px solid #cbd5e1; width: 44%; text-align: center;">${L.designation}</th>
+                            <th style="padding: 8px; border: 1px solid #cbd5e1; width: 12%; text-align: center;">${L.qty}</th>
+                            <th style="padding: 8px; border: 1px solid #cbd5e1; width: 18%; text-align: center;">${L.unitPrice}</th>
+                            <th style="padding: 8px; border: 1px solid #cbd5e1; width: 18%; text-align: center;">${L.amount}</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${itemsHTML || '<tr><td colspan="5" style="text-align:center; padding:10px; border: 1px solid #cbd5e1;">Aucune pièce</td></tr>'}
+                        ${itemsHTML || `<tr><td colspan="5" style="text-align:center; padding:10px; border: 1px solid #cbd5e1;">${L.noPieces}</td></tr>`}
                     </tbody>
                 </table>
 
+                <!-- Bottom -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
                     <div style="display: flex; flex-direction: column; gap: 15px;">
                         <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
-                            <div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">💳 Mode de paiement</div>
-                            <div style="padding: 12px; font-size: 12px; display: flex; gap: 15px; flex-wrap: wrap;">
-                                <span>${chk(inv.paymentMethod === 'Espèces')} Espèces</span>
-                                <span>${chk(inv.paymentMethod === 'Chèque')} Chèque</span>
-                                <span>${chk(inv.paymentMethod === 'Virement')} Virement</span>
-                                <span>${chk(inv.paymentMethod === 'Crédit')} Crédit</span>
+                            <div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold; text-align: ${isAr ? 'right' : 'left'};">${L.paymentMode}</div>
+                            <div style="padding: 12px; font-size: 12px; display: flex; gap: 15px; flex-wrap: wrap; text-align: ${isAr ? 'right' : 'left'};">
+                                <span>${chk(inv.paymentMethod === 'Espèces')} ${L.cash}</span>
+                                <span>${chk(inv.paymentMethod === 'Chèque')} ${L.check}</span>
+                                <span>${chk(inv.paymentMethod === 'Virement')} ${L.transfer}</span>
+                                <span>${chk(inv.paymentMethod === 'Crédit')} ${L.credit}</span>
                             </div>
                         </div>
                         <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
-                            <div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">✅ État de la facture</div>
-                            <div style="padding: 12px; font-size: 12px; display: flex; gap: 15px; flex-wrap: wrap;">
-                                <span>${chk(inv.paymentStatus === 'Payée')} Payée</span>
-                                <span>${chk(inv.paymentStatus === 'Partiel')} Paiement partiel</span>
-                                <span>${chk(inv.paymentStatus === 'Non payée')} Non payée</span>
+                            <div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold; text-align: ${isAr ? 'right' : 'left'};">${L.invoiceState}</div>
+                            <div style="padding: 12px; font-size: 12px; display: flex; gap: 15px; flex-wrap: wrap; text-align: ${isAr ? 'right' : 'left'};">
+                                <span>${chk(inv.paymentStatus === 'Payée')} ${L.paid}</span>
+                                <span>${chk(inv.paymentStatus === 'Partiel')} ${L.partial}</span>
+                                <span>${chk(inv.paymentStatus === 'Non payée')} ${L.unpaid}</span>
                             </div>
                         </div>
                     </div>
 
                     <div>
                         <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
-                            <div style="background: #1e293b; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">Récapitulatif</div>
+                            <div style="background: #1e293b; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold; text-align: ${isAr ? 'right' : 'left'};">${L.summary}</div>
                             <div style="padding: 0;">
                                 <div style="display: flex; justify-content: space-between; padding: 8px 12px; font-size: 13px; border-bottom: 1px solid #cbd5e1;">
-                                    <span>Total pièces</span>
-                                    <strong>${piecesTotal.toLocaleString()} DA</strong>
+                                    <span>${L.totalPieces}</span>
+                                    <strong style="direction:ltr;">${piecesTotal.toLocaleString()} ${L.da}</strong>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; padding: 8px 12px; font-size: 13px; border-bottom: 1px solid #cbd5e1;">
-                                    <span>Main d'œuvre</span>
-                                    <strong>${labor.toLocaleString()} DA</strong>
+                                    <span>${L.labor}</span>
+                                    <strong style="direction:ltr;">${labor.toLocaleString()} ${L.da}</strong>
                                 </div>
                                 ${inv.tvaEnabled ? `<div style="display: flex; justify-content: space-between; padding: 8px 12px; font-size: 13px; border-bottom: 1px solid #cbd5e1;">
-                                    <span>TVA (19%)</span>
-                                    <strong>${tva.toLocaleString()} DA</strong>
+                                    <span>${L.tva}</span>
+                                    <strong style="direction:ltr;">${tva.toLocaleString()} ${L.da}</strong>
                                 </div>` : ''}
                                 <div style="display: flex; justify-content: space-between; padding: 12px; font-size: 16px; font-weight: 900; background: #dc2626; color: #fff;">
-                                    <span>Total TTC</span>
-                                    <span>${total.toLocaleString()} DA</span>
+                                    <span>${L.totalTTC}</span>
+                                    <span style="direction:ltr;">${total.toLocaleString()} ${L.da}</span>
                                 </div>
                             </div>
                         </div>
                         <div style="border: 1px solid #cbd5e1; border-radius: 8px; height: 80px; margin-top: 15px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #64748b;">
-                            Cachet et signature
+                            ${L.stamp}
                         </div>
                     </div>
                 </div>
 
+                <!-- Footer -->
                 <div style="text-align: center; background: #1e293b; color: #fff; padding: 15px; border-radius: 8px;">
-                    <div style="font-size: 16px; font-style: italic; margin-bottom: 5px;">Merci pour votre confiance</div>
-                    <div style="font-size: 11px; color: #cbd5e1;">MED GARAGE - Votre véhicule entre de bonnes mains</div>
+                    <div style="font-size: 16px; font-style: italic; margin-bottom: 5px;">${L.thanks}</div>
+                    <div style="font-size: 11px; color: #cbd5e1;">${L.slogan}</div>
                 </div>
             </div>
         `;
     }
 
-    // ================= PDF =================
+    // ================= PDF Preview =================
     let currentPDFInvoice = null;
 
     function openPdfPreview(id) {
         const invoices = getData('invoices', []);
         const inv = invoices.find(i => i.id === id);
         if (!inv) return;
-
         currentPDFInvoice = inv;
-        document.getElementById('pdfPreviewContent').innerHTML = buildInvoiceHTML(inv);
+        document.getElementById('pdfPreviewContent').innerHTML = buildInvoiceHTML(inv, currentPdfLang);
         document.getElementById('pdfPreviewModal').classList.add('active');
+        updatePdfLangButton();
     }
 
     function closePdfPreview() {
@@ -1041,56 +1042,92 @@
         currentPDFInvoice = null;
     }
 
-    // ✅ PDF لا يُقصّ: نستخدم clone مخفي بحجم كامل
+    function togglePdfLang() {
+        currentPdfLang = currentPdfLang === 'fr' ? 'ar' : 'fr';
+        updatePdfLangButton();
+        if (currentPDFInvoice) {
+            document.getElementById('pdfPreviewContent').innerHTML = buildInvoiceHTML(currentPDFInvoice, currentPdfLang);
+        }
+    }
+
+    function updatePdfLangButton() {
+        const btn = document.getElementById('pdfLangBtn');
+        if (btn) {
+            btn.textContent = currentPdfLang === 'fr' ? '🇫🇷 Français' : '🇸🇦 عربي';
+        }
+    }
+
+    // ============================================================
+    // ✅ تحميل PDF — إصلاح كامل
+    // ============================================================
     function downloadPDF() {
         if (!currentPDFInvoice) return;
-        const source = document.getElementById('pdfPreviewContent');
-        const filename = (currentPDFInvoice.status === 'devis' ? 'devis-' : 'facture-') + currentPDFInvoice.code + '.pdf';
 
-        // إنشاء clone مخفي بحجم كامل (بدون max-height)
-        const clone = source.cloneNode(true);
-        clone.style.cssText = 'position: fixed; left: -99999px; top: 0; width: ' + source.offsetWidth + 'px; max-height: none; overflow: visible; background: #fff; padding: 15px;';
-        document.body.appendChild(clone);
+        const inv = currentPDFInvoice;
+        const lang = currentPdfLang;
+        const safeCode = String(inv.code || 'facture').replace(/[^\w\-]+/g, '-');
+        const filename = (inv.status === 'devis' ? 'devis-' : 'facture-') + safeCode + '.pdf';
 
-        html2pdf().set({
-            margin: 5,
-            filename: filename,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        }).from(clone).save().then(() => {
-            clone.remove();
+        // ✅ إنشاء حاوية مخفية بعرض A4 (794px = 210mm @ 96dpi)
+        const container = document.createElement('div');
+        container.style.cssText = 'position: absolute; top: 0; left: 0; width: 794px; background: #ffffff; padding: 20px; z-index: -9999; opacity: 0.01; pointer-events: none;';
+        container.innerHTML = buildInvoiceHTML(inv, lang);
+        document.body.appendChild(container);
+
+        // الانتظار لحين تحميل الصور والخطوط
+        const waitForRender = () => new Promise(resolve => setTimeout(resolve, 250));
+
+        waitForRender().then(() => {
+            return html2pdf().set({
+                margin: [8, 8, 8, 8],
+                filename: filename,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#ffffff',
+                    logging: false,
+                    scrollY: 0,
+                    windowWidth: 794,
+                    width: 794
+                },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            }).from(container).save();
+        }).then(() => {
+            document.body.removeChild(container);
             showToast('✅ تم تحميل PDF');
-        }).catch(() => {
-            clone.remove();
-            showToast('⚠️ خطأ في التحميل', 'error');
+        }).catch((err) => {
+            console.error('PDF error:', err);
+            if (container.parentNode) document.body.removeChild(container);
+            showToast('⚠️ خطأ في التحميل، جرب الطباعة', 'error');
         });
     }
 
     function printPDF() {
         if (!currentPDFInvoice) return;
-        printInvoice(currentPDFInvoice.id);
+        printInvoice(currentPDFInvoice.id, currentPdfLang);
     }
 
-    // ✅ الطباعة مع الألوان + A4
-    function printInvoice(id) {
+    function printInvoice(id, lang = 'fr') {
         const invoices = getData('invoices', []);
         const inv = invoices.find(i => i.id === id);
         if (!inv) return;
 
         const html = `<!DOCTYPE html>
-            <html dir="rtl" lang="ar">
+            <html dir="${lang === 'ar' ? 'rtl' : 'ltr'}" lang="${lang}">
             <head>
                 <meta charset="UTF-8">
                 <title>${inv.status === 'devis' ? 'Devis' : 'Facture'} ${inv.code}</title>
+                <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
                 <style>
                     * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
-                    body { font-family: 'Cairo', Tahoma, sans-serif; padding: 15px; max-width: 800px; margin: 0 auto; background: #fff; }
+                    body { font-family: 'Cairo', Tahoma, Arial, sans-serif; padding: 15px; max-width: 800px; margin: 0 auto; background: #fff; }
                     @page { size: A4; margin: 8mm; }
                     @media print { body { padding: 0; } }
                 </style>
             </head>
-            <body>${buildInvoiceHTML(inv)}</body>
+            <body>${buildInvoiceHTML(inv, lang)}</body>
             </html>`;
 
         const win = window.open('', '_blank');
@@ -1100,12 +1137,10 @@
         }
         win.document.write(html);
         win.document.close();
-        setTimeout(() => {
-            try { win.print(); } catch(e) {}
-        }, 700);
+        setTimeout(() => { try { win.print(); } catch(e) {} }, 900);
     }
 
-    // ================= تحميل الصفحة =================
+    // ================= Init =================
     window.onload = function() {
         try {
             const savedTheme = localStorage.getItem('medgarage_theme');
@@ -1113,9 +1148,7 @@
         } catch(e) {}
 
         const booking = sessionStorage.getItem('mg_convert_booking');
-        if (booking) {
-            setTimeout(() => openNewInvoice(), 300);
-        }
+        if (booking) setTimeout(() => openNewInvoice(), 300);
 
         loadInvoices();
     };
