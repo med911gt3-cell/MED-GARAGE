@@ -74,6 +74,7 @@
         .btn-warning { background: var(--accent); }
         .btn-info { background: var(--info); }
         .btn-danger { background: var(--danger); }
+        .btn-trash-empty { opacity: 0.5; }
 
         .list-box { background: #181b20; border: 1px solid var(--border-dark); border-radius: 10px; padding: 10px; max-height: 500px; overflow-y: auto; margin-top: 10px; }
         .list-row { background: #0f1115; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; border: 1px solid var(--border-dark); color: #f1f5f9; line-height: 1.6; }
@@ -114,6 +115,9 @@
         .booking-hint { background: rgba(37,99,235,0.15); border: 1px solid var(--info); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 12px; color: #93c5fd; display: none; }
         .booking-hint.active { display: block; }
 
+        .trash-banner { display: none; background: rgba(220,38,38,0.15); border: 1px solid var(--danger); color: #fca5a5; padding: 8px 12px; border-radius: 8px; font-size: 11px; margin-bottom: 8px; text-align: center; }
+        .trash-banner.active { display: block; }
+
         .checkbox-group { display: flex; gap: 15px; flex-wrap: wrap; padding: 8px 0; }
         .checkbox-group label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #fff; cursor: pointer; }
         .checkbox-group input[type="checkbox"], .checkbox-group input[type="radio"] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
@@ -135,14 +139,19 @@
         ➕ إنشاء فاتورة أو Devis جديد
     </button>
 
+    <div class="trash-banner" id="trashBanner">
+        🗑️ أنت في وضع سلة المحذوفات — اضغط زر السلة للعودة
+    </div>
+
     <div class="section-title">📄 عروض الأسعار (Devis)</div>
     <div class="list-box" id="devisList">
         <div class="empty-state">جاري التحميل...</div>
     </div>
 
     <div class="section-title">✅ الفواتير المكتملة</div>
-    <div class="form-group" style="margin-top:10px;">
-        <input type="text" id="invoiceSearch" class="form-control" placeholder="🔍 بحث بالاسم أو الرقم..." oninput="loadInvoices()" style="background:#0f1115; color:#fff; border-color:var(--border-dark);">
+    <div class="form-group" style="margin-top:10px; display:flex; gap:8px;">
+        <input type="text" id="invoiceSearch" class="form-control" placeholder="🔍 بحث بالاسم أو الرقم..." oninput="loadInvoices()" style="background:#0f1115; color:#fff; border-color:var(--border-dark); flex:1;">
+        <button onclick="toggleTrash()" id="trashToggleBtn" class="btn btn-warning" style="white-space:nowrap;">🗑️ السلة (0)</button>
     </div>
     <div class="list-box" id="doneList">
         <div class="empty-state">جاري التحميل...</div>
@@ -153,7 +162,6 @@
     </div>
 </div>
 
-<!-- ============ Modal إنشاء/تعديل فاتورة ============ -->
 <div class="modal-overlay" id="invoiceModal">
     <div class="modal-content">
         <h3 id="modalTitle">🧾 فاتورة جديدة</h3>
@@ -265,7 +273,6 @@
     </div>
 </div>
 
-<!-- ============ Modal معاينة PDF ============ -->
 <div class="modal-overlay" id="pdfPreviewModal">
     <div class="modal-content" style="max-width: 95%; max-height: 95vh; padding: 12px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -318,17 +325,69 @@
         if (meta) meta.setAttribute('content', theme === 'light' ? '#f1f5f9' : theme === 'oled' ? '#000000' : '#1a1d21');
     }
 
+    // ============ ✅ إصلاح 2: تواريخ نظيفة DD/MM/YYYY ============
+    function formatDateDDMMYYYY(ts) {
+        const d = new Date(ts);
+        if (isNaN(d.getTime())) return '';
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        return day + '/' + month + '/' + year;
+    }
+
+    function formatTimeHHMM(ts) {
+        const d = new Date(ts);
+        if (isNaN(d.getTime())) return '';
+        return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    }
+
+    function cleanDisplayDate(str) {
+        if (!str) return '';
+        if (/^\d{2}\/\d{2}\/\d{4}$/.test(str)) return str;
+        const m = String(str).match(/(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})/);
+        if (m) return m[1].padStart(2, '0') + '/' + m[2].padStart(2, '0') + '/' + m[3];
+        return str;
+    }
+
+    // ============ ✅ إصلاح 4: لوقو base64 (لا CORS في html2pdf) ============
+    let LOGO_BASE64 = './icon-512.png';
+
+    (function preloadLogoBase64() {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = function() {
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                LOGO_BASE64 = canvas.toDataURL('image/png');
+            } catch(e) {
+                LOGO_BASE64 = './icon-512.png';
+            }
+        };
+        img.onerror = function() { LOGO_BASE64 = './icon-512.png'; };
+        img.src = './icon-512.png';
+    })();
+
     // ================= حالة الفاتورة =================
     let editingInvoiceId = null;
     let currentItems = [];
+    let showTrash = false;
 
     function generateInvoiceCode(status = 'done') {
         const invoices = getData('invoices', []);
         const prefix = status === 'devis' ? 'DEV-' : 'INV-';
         const year = new Date().getFullYear();
-        const sameType = invoices.filter(i => (i.status === 'devis') === (status === 'devis'));
+        const sameType = invoices.filter(i => (i.status === 'devis') === (status === 'devis') && !i.deleted);
         const num = String(sameType.length + 1).padStart(6, '0');
-        return `${prefix}${year}-${num}`;
+        return prefix + year + '-' + num;
+    }
+
+    function toggleTrash() {
+        showTrash = !showTrash;
+        loadInvoices();
     }
 
     function openNewInvoice() {
@@ -385,7 +444,7 @@
     function editInvoice(id) {
         const invoices = getData('invoices', []);
         const inv = invoices.find(i => i.id === id);
-        if (!inv) return;
+        if (!inv || inv.deleted) return;
 
         editingInvoiceId = id;
         document.getElementById('modalTitle').textContent = '✏️ تعديل الفاتورة';
@@ -420,7 +479,6 @@
         document.getElementById('invoiceModal').classList.add('active');
     }
 
-    // ================= رسم صفوف Items =================
     function renderItems() {
         const stock = getData('stock', []);
         const tbody = document.getElementById('itemsBody');
@@ -432,29 +490,22 @@
             if (item.type === 'part') {
                 const opts = stock.map(s => {
                     const disabled = s.qty <= 0 ? 'disabled' : '';
-                    const stockLabel = s.qty > 0 ? `متوفر: ${s.qty}` : 'نافذ';
+                    const stockLabel = s.qty > 0 ? 'متوفر: ' + s.qty : 'نافذ';
                     const selected = s.name === item.name ? 'selected' : '';
-                    return `<option value="${escapeHtml(s.name)}" data-price="${s.sellPrice || 0}" data-qty="${s.qty || 0}" ${selected} ${disabled}>${escapeHtml(s.name)} (${stockLabel})</option>`;
+                    return '<option value="' + escapeHtml(s.name) + '" data-price="' + (s.sellPrice || 0) + '" data-qty="' + (s.qty || 0) + '" ' + selected + ' ' + disabled + '>' + escapeHtml(s.name) + ' (' + stockLabel + ')</option>';
                 }).join('');
-                inputHTML = `<select onchange="onItemFromStock(${idx}, this)">
-                    <option value="">-- اختر --</option>
-                    ${opts}
-                </select>`;
+                inputHTML = '<select onchange="onItemFromStock(' + idx + ', this)"><option value="">-- اختر --</option>' + opts + '</select>';
             } else {
-                inputHTML = `<input type="text" value="${escapeHtml(item.name)}" oninput="onItemChange(${idx}, 'name', this.value)" placeholder="اسم الخدمة">`;
+                inputHTML = '<input type="text" value="' + escapeHtml(item.name) + '" oninput="onItemChange(' + idx + ', \'name\', this.value)" placeholder="اسم الخدمة">';
             }
 
-            return `
-                <tr>
-                    <td class="col-type">
-                        <button onclick="toggleItemType(${idx})" title="تحويل" style="background:${item.type === 'part' ? 'var(--info)' : 'var(--accent)'}; color:#fff; border:none; padding:4px 6px; border-radius:4px; cursor:pointer; font-size:14px;">${typeIcon}</button>
-                    </td>
-                    <td class="col-name">${inputHTML}</td>
-                    <td class="col-qty"><input type="number" min="1" value="${item.qty || 1}" oninput="onItemChange(${idx}, 'qty', this.value); calcTotal()"></td>
-                    <td class="col-price"><input type="number" min="0" value="${item.price || 0}" oninput="onItemChange(${idx}, 'price', this.value); calcTotal()"></td>
-                    <td class="col-del"><button onclick="removeItemRow(${idx})" style="background:var(--danger); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;">🗑️</button></td>
-                </tr>
-            `;
+            return '<tr>' +
+                '<td class="col-type"><button onclick="toggleItemType(' + idx + ')" title="تحويل" style="background:' + (item.type === 'part' ? 'var(--info)' : 'var(--accent)') + '; color:#fff; border:none; padding:4px 6px; border-radius:4px; cursor:pointer; font-size:14px;">' + typeIcon + '</button></td>' +
+                '<td class="col-name">' + inputHTML + '</td>' +
+                '<td class="col-qty"><input type="number" min="1" value="' + (item.qty || 1) + '" oninput="onItemChange(' + idx + ', \'qty\', this.value); calcTotal()"></td>' +
+                '<td class="col-price"><input type="number" min="0" value="' + (item.price || 0) + '" oninput="onItemChange(' + idx + ', \'price\', this.value); calcTotal()"></td>' +
+                '<td class="col-del"><button onclick="removeItemRow(' + idx + ')" style="background:var(--danger); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;">🗑️</button></td>' +
+            '</tr>';
         }).join('');
     }
 
@@ -619,17 +670,17 @@
                 });
             }
 
-            const now = new Date();
+            const now = Date.now();
             invoices.unshift({
-                id: Date.now(),
+                id: now,
                 code,
                 client, phone, car, vin, plate, km, notes,
                 labor, subtotal, tvaEnabled, tva, total, status,
                 paymentMethod, paymentStatus,
                 items: validItems,
-                date: now.toLocaleDateString('ar-DZ'),
-                time: now.toLocaleTimeString('ar-DZ', {hour: '2-digit', minute:'2-digit'}),
-                createdAt: Date.now()
+                date: formatDateDDMMYYYY(now),        // ✅ تاريخ نظيف
+                time: formatTimeHHMM(now),            // ✅ وقت نظيف
+                createdAt: now
             });
 
             showToast(status === 'devis' ? '✅ تم حفظ الـ Devis' : '✅ تم حفظ الفاتورة وخصم الستوك');
@@ -647,12 +698,14 @@
         currentItems = [];
     }
 
+    // ============ ✅ إصلاح 5: Soft delete ============
     function deleteInvoice(id) {
-        if (!confirm('حذف هذه الفاتورة نهائياً؟')) return;
+        if (!confirm('نقل هذه الفاتورة إلى السلة؟ (يمكن استرجاعها)')) return;
         const invoices = getData('invoices', []);
         const inv = invoices.find(i => i.id === id);
-        if (!inv) return;
+        if (!inv || inv.deleted) return;
 
+        // إعادة الستوك عند النقل للسلة (لأنها لم تعد فعّالة)
         if (inv.status !== 'devis' && inv.items) {
             const stock = getData('stock', []);
             inv.items.forEach(it => {
@@ -664,62 +717,114 @@
             setData('stock', stock);
         }
 
-        setData('invoices', invoices.filter(i => i.id !== id));
+        inv.deleted = true;
+        inv.deletedAt = Date.now();
+        setData('invoices', invoices);
         loadInvoices();
-        showToast('🗑️ تم حذف الفاتورة');
+        showToast('🗑️ تم نقل الفاتورة لسلة المحذوفات');
     }
 
-    function loadInvoices() {
+    function restoreInvoice(id) {
         const invoices = getData('invoices', []);
+        const inv = invoices.find(i => i.id === id);
+        if (!inv || !inv.deleted) return;
+
+        // إعادة خصم الستوك عند الاسترجاع
+        if (inv.status !== 'devis' && inv.items) {
+            const stock = getData('stock', []);
+            inv.items.forEach(it => {
+                if (it.type === 'part' && it.name) {
+                    const si = stock.findIndex(s => s.name === it.name);
+                    if (si !== -1) stock[si].qty = Math.max(0, stock[si].qty - it.qty);
+                }
+            });
+            setData('stock', stock);
+        }
+
+        delete inv.deleted;
+        delete inv.deletedAt;
+        setData('invoices', invoices);
+        loadInvoices();
+        showToast('♻️ تم استرجاع الفاتورة');
+    }
+
+    function permanentDeleteInvoice(id) {
+        if (!confirm('⚠️ حذف نهائي! لا يمكن الرجوع. متأكد؟')) return;
+        if (!confirm('تأكيد أخير: حذف هذه الفاتورة من السجل نهائيًا؟')) return;
+        setData('invoices', getData('invoices', []).filter(i => i.id !== id));
+        loadInvoices();
+        showToast('🔥 تم الحذف النهائي');
+    }
+
+    // ================= عرض القوائم =================
+    function loadInvoices() {
+        const allInvoices = getData('invoices', []);
         const search = (document.getElementById('invoiceSearch').value || '').toLowerCase();
 
-        let filtered = search ? invoices.filter(i =>
+        // عدّاد السلة
+        const deletedCount = allInvoices.filter(i => i.deleted).length;
+        const trashBtn = document.getElementById('trashToggleBtn');
+        if (trashBtn) {
+            trashBtn.textContent = '🗑️ السلة (' + deletedCount + ')';
+            trashBtn.classList.toggle('btn-trash-empty', deletedCount === 0);
+        }
+        const banner = document.getElementById('trashBanner');
+        if (banner) banner.classList.toggle('active', showTrash);
+
+        // فلترة الوضع (عادي / سلة)
+        let baseList = showTrash
+            ? allInvoices.filter(i => i.deleted)
+            : allInvoices.filter(i => !i.deleted);
+
+        // فلترة البحث
+        let filtered = search ? baseList.filter(i =>
             (i.client || '').toLowerCase().includes(search) ||
             (i.code || '').toLowerCase().includes(search)
-        ) : invoices;
+        ) : baseList;
 
         const devis = filtered.filter(i => i.status === 'devis');
         const devisBox = document.getElementById('devisList');
         if (devis.length === 0) {
-            devisBox.innerHTML = '<div class="empty-state">لا يوجد Devis حالياً</div>';
+            devisBox.innerHTML = '<div class="empty-state">' + (showTrash ? 'سلة Devis فارغة' : 'لا يوجد Devis حالياً') + '</div>';
         } else {
-            devisBox.innerHTML = devis.map(inv => `
-                <div class="list-row">
-                    <strong>${escapeHtml(inv.code)}</strong> — 👤 ${escapeHtml(inv.client)}
-                    ${inv.car ? ` | 🚗 ${escapeHtml(inv.car)}` : ''}<br>
-                    <span style="color:#fbbf24;">📄 Devis: <strong>${(inv.total || 0).toLocaleString()} دج</strong></span>
-                    <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
-                        <button onclick="editInvoice(${inv.id})" class="btn btn-sm btn-info">✏️</button>
-                        <button onclick="openPdfPreview(${inv.id})" class="btn btn-sm btn-warning">👁️</button>
-                        <button onclick="printInvoice(${inv.id})" class="btn btn-sm btn-success">🖨️</button>
-                        <button onclick="deleteInvoice(${inv.id})" class="btn btn-sm btn-danger">🗑️</button>
-                    </div>
-                </div>
-            `).join('');
+            devisBox.innerHTML = devis.map(inv => renderInvoiceRow(inv, true)).join('');
         }
 
         const done = filtered.filter(i => i.status !== 'devis');
         const doneBox = document.getElementById('doneList');
         if (done.length === 0) {
-            doneBox.innerHTML = '<div class="empty-state">لا توجد فواتير مكتملة</div>';
+            doneBox.innerHTML = '<div class="empty-state">' + (showTrash ? 'سلة الفواتير فارغة' : 'لا توجد فواتير مكتملة') + '</div>';
         } else {
-            doneBox.innerHTML = done.map(inv => `
-                <div class="list-row">
-                    <strong>${escapeHtml(inv.code)}</strong> — 👤 ${escapeHtml(inv.client)}
-                    ${inv.car ? ` | 🚗 ${escapeHtml(inv.car)}` : ''}<br>
-                    <span style="color:#4ade80; font-weight:900;">💵 ${(inv.total || 0).toLocaleString()} دج</span>
-                    <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
-                        <button onclick="editInvoice(${inv.id})" class="btn btn-sm btn-info">✏️</button>
-                        <button onclick="openPdfPreview(${inv.id})" class="btn btn-sm btn-warning">👁️</button>
-                        <button onclick="printInvoice(${inv.id})" class="btn btn-sm btn-success">🖨️</button>
-                        <button onclick="deleteInvoice(${inv.id})" class="btn btn-sm btn-danger">🗑️</button>
-                    </div>
-                </div>
-            `).join('');
+            doneBox.innerHTML = done.map(inv => renderInvoiceRow(inv, false)).join('');
         }
     }
 
-    // ================= بناء HTML الفاتورة (التصميم الاحترافي) =================
+    function renderInvoiceRow(inv, isDevis) {
+        const delDate = inv.deletedAt ? ' <span style="color:#f87171; font-size:10px;">(حُذفت: ' + formatDateDDMMYYYY(inv.deletedAt) + ')</span>' : '';
+        const amountLabel = isDevis
+            ? '<span style="color:#fbbf24;">📄 Devis: <strong>' + (inv.total || 0).toLocaleString() + ' دج</strong></span>'
+            : '<span style="color:#4ade80; font-weight:900;">💵 ' + (inv.total || 0).toLocaleString() + ' دج</span>';
+        const dateLabel = inv.date ? ' | ' + escapeHtml(cleanDisplayDate(inv.date)) : '';
+
+        const actions = showTrash ? (
+            '<button onclick="restoreInvoice(' + inv.id + ')" class="btn btn-sm btn-success">♻️ استرجاع</button>' +
+            '<button onclick="permanentDeleteInvoice(' + inv.id + ')" class="btn btn-sm btn-danger">🔥 حذف نهائي</button>'
+        ) : (
+            '<button onclick="editInvoice(' + inv.id + ')" class="btn btn-sm btn-info">✏️</button>' +
+            '<button onclick="openPdfPreview(' + inv.id + ')" class="btn btn-sm btn-warning">👁️</button>' +
+            '<button onclick="printInvoice(' + inv.id + ')" class="btn btn-sm btn-success">🖨️</button>' +
+            '<button onclick="deleteInvoice(' + inv.id + ')" class="btn btn-sm btn-danger">🗑️</button>'
+        );
+
+        return '<div class="list-row">' +
+            '<strong>' + escapeHtml(inv.code) + '</strong> — 👤 ' + escapeHtml(inv.client) +
+            (inv.car ? ' | 🚗 ' + escapeHtml(inv.car) : '') + delDate + '<br>' +
+            amountLabel + dateLabel +
+            '<div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">' + actions + '</div>' +
+        '</div>';
+    }
+
+    // ================= بناء HTML الفاتورة =================
     function buildInvoiceHTML(inv) {
         let shop = { name: 'MED GARAGE', phone: '0790 58 25 51', address: 'السويدانية - الجزائر العاصمة', email: 'medgarage@gmail.com' };
         try {
@@ -729,174 +834,161 @@
 
         let itemsHTML = '';
         let itemsTotal = 0;
-        
+
         if (inv.items && inv.items.length > 0) {
             inv.items.forEach((it, i) => {
                 const lineTotal = (it.qty || 0) * (it.price || 0);
                 itemsTotal += lineTotal;
-                itemsHTML += `<tr>
-                    <td style="text-align:center; border: 1px solid #cbd5e1; padding: 6px;">${i + 1}</td>
-                    <td style="text-align:right; padding-right: 10px; border: 1px solid #cbd5e1; padding: 6px;">${escapeHtml(it.name)}</td>
-                    <td style="text-align:center; border: 1px solid #cbd5e1; padding: 6px;">${it.qty}</td>
-                    <td style="text-align:left; border: 1px solid #cbd5e1; padding: 6px;">${(it.price || 0).toLocaleString()}</td>
-                    <td style="text-align:left; border: 1px solid #cbd5e1; padding: 6px;">${lineTotal.toLocaleString()}</td>
-                </tr>`;
+                itemsHTML += '<tr>' +
+                    '<td style="text-align:center; border: 1px solid #cbd5e1; padding: 6px;">' + (i + 1) + '</td>' +
+                    '<td style="text-align:right; padding-right: 10px; border: 1px solid #cbd5e1; padding: 6px;">' + escapeHtml(it.name) + '</td>' +
+                    '<td style="text-align:center; border: 1px solid #cbd5e1; padding: 6px;">' + it.qty + '</td>' +
+                    '<td style="text-align:left; border: 1px solid #cbd5e1; padding: 6px;">' + (it.price || 0).toLocaleString() + '</td>' +
+                    '<td style="text-align:left; border: 1px solid #cbd5e1; padding: 6px;">' + lineTotal.toLocaleString() + '</td>' +
+                '</tr>';
             });
         }
 
         if (inv.labor > 0) {
-            itemsHTML += `<tr style="background: #f8fafc;">
-                <td style="text-align:center; border: 1px solid #cbd5e1; padding: 6px;">🛠️</td>
-                <td style="text-align:right; padding-right: 10px; border: 1px solid #cbd5e1; padding: 6px;"><strong>Main d'œuvre</strong></td>
-                <td style="text-align:center; border: 1px solid #cbd5e1; padding: 6px;">1</td>
-                <td style="text-align:left; border: 1px solid #cbd5e1; padding: 6px;">${inv.labor.toLocaleString()}</td>
-                <td style="text-align:left; border: 1px solid #cbd5e1; padding: 6px;">${inv.labor.toLocaleString()}</td>
-            </tr>`;
+            itemsHTML += '<tr style="background: #f8fafc;">' +
+                '<td style="text-align:center; border: 1px solid #cbd5e1; padding: 6px;">🛠️</td>' +
+                '<td style="text-align:right; padding-right: 10px; border: 1px solid #cbd5e1; padding: 6px;"><strong>Main d\'œuvre</strong></td>' +
+                '<td style="text-align:center; border: 1px solid #cbd5e1; padding: 6px;">1</td>' +
+                '<td style="text-align:left; border: 1px solid #cbd5e1; padding: 6px;">' + inv.labor.toLocaleString() + '</td>' +
+                '<td style="text-align:left; border: 1px solid #cbd5e1; padding: 6px;">' + inv.labor.toLocaleString() + '</td>' +
+            '</tr>';
         }
 
         const docType = inv.status === 'devis' ? 'DEVIS' : 'FACTURE';
-        
         const chk = (isChecked) => isChecked ? '<span style="font-size:16px; color:#16a34a;">☑</span>' : '<span style="font-size:16px; color:#94a3b8;">☐</span>';
 
-        return `
-            <div style="font-family: Arial, sans-serif; color: #1e293b; max-width: 100%; background: #fff; direction: ltr;">
-                
-                <!-- Header -->
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #dc2626; padding-bottom: 15px; margin-bottom: 20px;">
-                    <div style="flex: 1;">
-                        <h1 style="margin: 0; color: #dc2626; font-size: 28px; font-weight: 900; letter-spacing: 1px;">MED GARAGE</h1>
-                        <div style="font-size: 14px; font-weight: bold; color: #dc2626; margin: 2px 0 10px 0;">ورشة صيانة السيارات</div>
-                        
-                        <div style="font-size: 11px; color: #333; line-height: 1.6; font-weight: bold;">
-                            <div style="display:flex; gap:5px;"><span>📍</span> <span>${escapeHtml(shop.address)}</span></div>
-                            <div style="display:flex; gap:5px;"><span>📞</span> <span style="direction:ltr;">${escapeHtml(shop.phone)}</span></div>
-                            <div style="display:flex; gap:5px;"><span>✉️</span> <span>${escapeHtml(shop.email)}</span></div>
-                        </div>
-                    </div>
-                    <div style="flex: 0 0 140px; text-align: right;">
-                        <!-- ✅ هنا اللوقو المحلي الجديد -->
-                        <img src="./icon-512.png" alt="Logo" style="width: 130px; height: 130px; object-fit: contain;">
-                    </div>
-                </div>
+        // ✅ استخدام اللوقو base64
+        const logo = LOGO_BASE64;
 
-                <!-- Meta Bar -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <div style="background: #1e293b; color: #fff; padding: 8px 20px; border-radius: 8px; display: flex; align-items: center; gap: 15px;">
-                        <span style="font-size: 18px; font-weight: bold;">📄 ${docType}</span>
-                        <span style="color: #dc2626; font-size: 20px; font-weight: 900;">N° : ${escapeHtml(inv.code)}</span>
-                    </div>
-                    <div style="text-align: right; font-size: 12px; font-weight: bold; color: #333; line-height: 1.8;">
-                        <div>📅 Date : ${escapeHtml(inv.date)}</div>
-                        <div>⏰ Heure : ${escapeHtml(inv.time || '--:--')}</div>
-                    </div>
-                </div>
+        return '<div style="font-family: Arial, sans-serif; color: #1e293b; max-width: 100%; background: #fff; direction: ltr;">' +
 
-                <!-- Client & Vehicle Info -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                    <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
-                        <div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">👤 Informations du client</div>
-                        <div style="padding: 12px; font-size: 12px; line-height: 2.2;">
-                            <div><strong>Nom :</strong> ${escapeHtml(inv.client)}</div>
-                            <div><strong>Téléphone :</strong> ${escapeHtml(inv.phone || '-')}</div>
-                            <div><strong>Adresse :</strong> -</div>
-                        </div>
-                    </div>
-                    <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
-                        <div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">🚗 Informations du véhicule</div>
-                        <div style="padding: 12px; font-size: 12px; line-height: 2.2;">
-                            <div><strong>Type :</strong> ${escapeHtml(inv.car || '-')}</div>
-                            <div><strong>VIN :</strong> ${escapeHtml(inv.vin || '-')}</div>
-                            <div><strong>Immatriculation :</strong> ${escapeHtml(inv.plate || '-')}</div>
-                            <div><strong>KM :</strong> ${escapeHtml(String(inv.km || '-'))}</div>
-                        </div>
-                    </div>
-                </div>
+            '<div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #dc2626; padding-bottom: 15px; margin-bottom: 20px;">' +
+                '<div style="flex: 1;">' +
+                    '<h1 style="margin: 0; color: #dc2626; font-size: 28px; font-weight: 900; letter-spacing: 1px;">MED GARAGE</h1>' +
+                    '<div style="font-size: 14px; font-weight: bold; color: #dc2626; margin: 2px 0 10px 0;">ورشة صيانة السيارات</div>' +
+                    '<div style="font-size: 11px; color: #333; line-height: 1.6; font-weight: bold;">' +
+                        '<div style="display:flex; gap:5px;"><span>📍</span> <span>' + escapeHtml(shop.address) + '</span></div>' +
+                        '<div style="display:flex; gap:5px;"><span>📞</span> <span style="direction:ltr;">' + escapeHtml(shop.phone) + '</span></div>' +
+                        '<div style="display:flex; gap:5px;"><span>✉️</span> <span>' + escapeHtml(shop.email) + '</span></div>' +
+                    '</div>' +
+                '</div>' +
+                '<div style="flex: 0 0 140px; text-align: right;">' +
+                    '<img src="' + logo + '" alt="Logo" style="width: 130px; height: 130px; object-fit: contain;">' +
+                '</div>' +
+            '</div>' +
 
-                <!-- Notes -->
-                <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; margin-bottom: 15px;">
-                    <div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">📝 Demande du client</div>
-                    <div style="padding: 12px; font-size: 12px; min-height: 40px;">
-                        ${escapeHtml(inv.notes || '-')}
-                    </div>
-                </div>
+            '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">' +
+                '<div style="background: #1e293b; color: #fff; padding: 8px 20px; border-radius: 8px; display: flex; align-items: center; gap: 15px;">' +
+                    '<span style="font-size: 18px; font-weight: bold;">📄 ' + docType + '</span>' +
+                    '<span style="color: #dc2626; font-size: 20px; font-weight: 900;">N° : ' + escapeHtml(inv.code) + '</span>' +
+                '</div>' +
+                '<div style="text-align: right; font-size: 12px; font-weight: bold; color: #333; line-height: 1.8;">' +
+                    '<div>📅 Date : ' + escapeHtml(cleanDisplayDate(inv.date)) + '</div>' +
+                    '<div>⏰ Heure : ' + escapeHtml(inv.time || '--:--') + '</div>' +
+                '</div>' +
+            '</div>' +
 
-                <!-- Items Table -->
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 12px;">
-                    <thead>
-                        <tr style="background: #1e293b; color: #fff;">
-                            <th style="padding: 8px; border: 1px solid #cbd5e1; width: 8%; text-align: center;">N°</th>
-                            <th style="padding: 8px; border: 1px solid #cbd5e1; width: 44%; text-align: center;">Désignation</th>
-                            <th style="padding: 8px; border: 1px solid #cbd5e1; width: 12%; text-align: center;">Quantité</th>
-                            <th style="padding: 8px; border: 1px solid #cbd5e1; width: 18%; text-align: center;">Prix unitaire (DA)</th>
-                            <th style="padding: 8px; border: 1px solid #cbd5e1; width: 18%; text-align: center;">Montant (DA)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${itemsHTML || '<tr><td colspan="5" style="text-align:center; padding:10px; border: 1px solid #cbd5e1;">Aucune pièce</td></tr>'}
-                    </tbody>
-                </table>
+            '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">' +
+                '<div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">' +
+                    '<div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">👤 Informations du client</div>' +
+                    '<div style="padding: 12px; font-size: 12px; line-height: 2.2;">' +
+                        '<div><strong>Nom :</strong> ' + escapeHtml(inv.client) + '</div>' +
+                        '<div><strong>Téléphone :</strong> ' + escapeHtml(inv.phone || '-') + '</div>' +
+                        '<div><strong>Adresse :</strong> -</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">' +
+                    '<div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">🚗 Informations du véhicule</div>' +
+                    '<div style="padding: 12px; font-size: 12px; line-height: 2.2;">' +
+                        '<div><strong>Type :</strong> ' + escapeHtml(inv.car || '-') + '</div>' +
+                        '<div><strong>VIN :</strong> ' + escapeHtml(inv.vin || '-') + '</div>' +
+                        '<div><strong>Immatriculation :</strong> ' + escapeHtml(inv.plate || '-') + '</div>' +
+                        '<div><strong>KM :</strong> ' + escapeHtml(String(inv.km || '-')) + '</div>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
 
-                <!-- Bottom Section -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                    <div style="display: flex; flex-direction: column; gap: 15px;">
-                        <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
-                            <div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">💳 Mode de paiement</div>
-                            <div style="padding: 12px; font-size: 12px; display: flex; gap: 15px; flex-wrap: wrap;">
-                                <span>${chk(inv.paymentMethod === 'Espèces')} Espèces</span>
-                                <span>${chk(inv.paymentMethod === 'Chèque')} Chèque</span>
-                                <span>${chk(inv.paymentMethod === 'Virement')} Virement</span>
-                                <span>${chk(inv.paymentMethod === 'Crédit')} Crédit</span>
-                            </div>
-                        </div>
-                        <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
-                            <div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">✅ État de la facture</div>
-                            <div style="padding: 12px; font-size: 12px; display: flex; gap: 15px; flex-wrap: wrap;">
-                                <span>${chk(inv.paymentStatus === 'Payée')} Payée</span>
-                                <span>${chk(inv.paymentStatus === 'Partiel')} Paiement partiel</span>
-                                <span>${chk(!inv.paymentStatus || inv.paymentStatus === 'Non payée')} Non payée</span>
-                            </div>
-                        </div>
-                    </div>
+            '<div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; margin-bottom: 15px;">' +
+                '<div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">📝 Demande du client</div>' +
+                '<div style="padding: 12px; font-size: 12px; min-height: 40px;">' + escapeHtml(inv.notes || '-') + '</div>' +
+            '</div>' +
 
-                    <div>
-                        <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
-                            <div style="background: #1e293b; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">Récapitulatif</div>
-                            <div style="padding: 0;">
-                                <div style="display: flex; justify-content: space-between; padding: 8px 12px; font-size: 13px; border-bottom: 1px solid #cbd5e1;">
-                                    <span>Total pièces</span>
-                                    <strong>${(inv.subtotal - inv.labor || 0).toLocaleString()} DA</strong>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; padding: 8px 12px; font-size: 13px; border-bottom: 1px solid #cbd5e1;">
-                                    <span>Main d'œuvre</span>
-                                    <strong>${(inv.labor || 0).toLocaleString()} DA</strong>
-                                </div>
-                                ${inv.tvaEnabled ? `<div style="display: flex; justify-content: space-between; padding: 8px 12px; font-size: 13px; border-bottom: 1px solid #cbd5e1;">
-                                    <span>TVA (19%)</span>
-                                    <strong>${(inv.tva || 0).toLocaleString()} DA</strong>
-                                </div>` : ''}
-                                <div style="display: flex; justify-content: space-between; padding: 12px; font-size: 16px; font-weight: 900; background: #dc2626; color: #fff;">
-                                    <span>Total TTC</span>
-                                    <span>${(inv.total || 0).toLocaleString()} DA</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div style="border: 1px solid #cbd5e1; border-radius: 8px; height: 80px; margin-top: 15px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #64748b;">
-                            Cachet et signature
-                        </div>
-                    </div>
-                </div>
+            '<table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 12px;">' +
+                '<thead>' +
+                    '<tr style="background: #1e293b; color: #fff;">' +
+                        '<th style="padding: 8px; border: 1px solid #cbd5e1; width: 8%; text-align: center;">N°</th>' +
+                        '<th style="padding: 8px; border: 1px solid #cbd5e1; width: 44%; text-align: center;">Désignation</th>' +
+                        '<th style="padding: 8px; border: 1px solid #cbd5e1; width: 12%; text-align: center;">Quantité</th>' +
+                        '<th style="padding: 8px; border: 1px solid #cbd5e1; width: 18%; text-align: center;">Prix unitaire (DA)</th>' +
+                        '<th style="padding: 8px; border: 1px solid #cbd5e1; width: 18%; text-align: center;">Montant (DA)</th>' +
+                    '</tr>' +
+                '</thead>' +
+                '<tbody>' + (itemsHTML || '<tr><td colspan="5" style="text-align:center; padding:10px; border: 1px solid #cbd5e1;">Aucune pièce</td></tr>') + '</tbody>' +
+            '</table>' +
 
-                <!-- Footer -->
-                <div style="text-align: center; background: #1e293b; color: #fff; padding: 15px; border-radius: 8px;">
-                    <div style="font-size: 16px; font-style: italic; margin-bottom: 5px;">Merci pour votre confiance</div>
-                    <div style="font-size: 11px; color: #cbd5e1;">MED GARAGE - Votre véhicule entre de bonnes mains</div>
-                </div>
+            '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">' +
+                '<div style="display: flex; flex-direction: column; gap: 15px;">' +
+                    '<div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">' +
+                        '<div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">💳 Mode de paiement</div>' +
+                        '<div style="padding: 12px; font-size: 12px; display: flex; gap: 15px; flex-wrap: wrap;">' +
+                            '<span>' + chk(inv.paymentMethod === 'Espèces') + ' Espèces</span>' +
+                            '<span>' + chk(inv.paymentMethod === 'Chèque') + ' Chèque</span>' +
+                            '<span>' + chk(inv.paymentMethod === 'Virement') + ' Virement</span>' +
+                            '<span>' + chk(inv.paymentMethod === 'Crédit') + ' Crédit</span>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">' +
+                        '<div style="background: #dc2626; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">✅ État de la facture</div>' +
+                        '<div style="padding: 12px; font-size: 12px; display: flex; gap: 15px; flex-wrap: wrap;">' +
+                            '<span>' + chk(inv.paymentStatus === 'Payée') + ' Payée</span>' +
+                            '<span>' + chk(inv.paymentStatus === 'Partiel') + ' Paiement partiel</span>' +
+                            '<span>' + chk(!inv.paymentStatus || inv.paymentStatus === 'Non payée') + ' Non payée</span>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
 
-            </div>
-        `;
+                '<div>' +
+                    '<div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">' +
+                        '<div style="background: #1e293b; color: #fff; padding: 6px 12px; font-size: 13px; font-weight: bold;">Récapitulatif</div>' +
+                        '<div style="padding: 0;">' +
+                            '<div style="display: flex; justify-content: space-between; padding: 8px 12px; font-size: 13px; border-bottom: 1px solid #cbd5e1;">' +
+                                '<span>Total pièces</span>' +
+                                '<strong>' + ((inv.subtotal - inv.labor) || 0).toLocaleString() + ' DA</strong>' +
+                            '</div>' +
+                            '<div style="display: flex; justify-content: space-between; padding: 8px 12px; font-size: 13px; border-bottom: 1px solid #cbd5e1;">' +
+                                '<span>Main d\'œuvre</span>' +
+                                '<strong>' + (inv.labor || 0).toLocaleString() + ' DA</strong>' +
+                            '</div>' +
+                            (inv.tvaEnabled ? '<div style="display: flex; justify-content: space-between; padding: 8px 12px; font-size: 13px; border-bottom: 1px solid #cbd5e1;">' +
+                                '<span>TVA (19%)</span>' +
+                                '<strong>' + (inv.tva || 0).toLocaleString() + ' DA</strong>' +
+                            '</div>' : '') +
+                            '<div style="display: flex; justify-content: space-between; padding: 12px; font-size: 16px; font-weight: 900; background: #dc2626; color: #fff;">' +
+                                '<span>Total TTC</span>' +
+                                '<span>' + (inv.total || 0).toLocaleString() + ' DA</span>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div style="border: 1px solid #cbd5e1; border-radius: 8px; height: 80px; margin-top: 15px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #64748b;">' +
+                        'Cachet et signature' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+
+            '<div style="text-align: center; background: #1e293b; color: #fff; padding: 15px; border-radius: 8px;">' +
+                '<div style="font-size: 16px; font-style: italic; margin-bottom: 5px;">Merci pour votre confiance</div>' +
+                '<div style="font-size: 11px; color: #cbd5e1;">MED GARAGE - Votre véhicule entre de bonnes mains</div>' +
+            '</div>' +
+
+        '</div>';
     }
 
-    // ================= معاينة PDF =================
+    // ================= PDF =================
     let currentPDFInvoice = null;
 
     function openPdfPreview(id) {
@@ -937,32 +1029,37 @@
         printInvoice(currentPDFInvoice.id);
     }
 
-    // ================= طباعة الفاتورة (نافذة جديدة) =================
+    // ================= ✅ إصلاح 4: الطباعة مع الألوان =================
     function printInvoice(id) {
         const invoices = getData('invoices', []);
         const inv = invoices.find(i => i.id === id);
         if (!inv) return;
 
-        const html = `
-            <!DOCTYPE html>
-            <html dir="rtl" lang="ar">
-            <head>
-                <meta charset="UTF-8">
-                <title>${inv.status === 'devis' ? 'Devis' : 'Facture'} ${inv.code}</title>
-                <style>
-                    * { box-sizing: border-box; }
-                    body { font-family: 'Cairo', Tahoma, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background: #fff; }
-                    @media print { body { padding: 0; } }
-                </style>
-            </head>
-            <body>${buildInvoiceHTML(inv)}</body>
-            </html>
-        `;
+        const html = '<!DOCTYPE html>' +
+            '<html dir="rtl" lang="ar">' +
+            '<head>' +
+                '<meta charset="UTF-8">' +
+                '<title>' + (inv.status === 'devis' ? 'Devis' : 'Facture') + ' ' + inv.code + '</title>' +
+                '<style>' +
+                    '* { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }' +
+                    'body { font-family: "Cairo", Tahoma, sans-serif; padding: 15px; max-width: 800px; margin: 0 auto; background: #fff; }' +
+                    '@page { size: A4; margin: 8mm; }' +
+                    '@media print { body { padding: 0; } }' +
+                '</style>' +
+            '</head>' +
+            '<body>' + buildInvoiceHTML(inv) + '</body>' +
+            '</html>';
 
         const win = window.open('', '_blank');
+        if (!win) {
+            showToast('⚠️ يرجى السماح بالنوافذ المنبثقة', 'error');
+            return;
+        }
         win.document.write(html);
         win.document.close();
-        setTimeout(() => win.print(), 600);
+        setTimeout(() => {
+            try { win.print(); } catch(e) {}
+        }, 700);
     }
 
     // ================= تحميل الصفحة =================
