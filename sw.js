@@ -1,10 +1,10 @@
 // ============================================
 // MED GARAGE — Service Worker
 // Network-First Strategy
-// Version: 3.1
+// Version: 3.3  ← ⚠️ ارفع الرقم عند كل تحديث
 // ============================================
 
-const CACHE_NAME = 'med-garage-v3.1';
+const CACHE_NAME = 'med-garage-v3.3';
 
 const CACHE_URLS = [
   './',
@@ -16,18 +16,23 @@ const CACHE_URLS = [
   './finance.html',
   './gallery-reviews.html',
   './manifest.json',
-  './invoice-logo.js',    // اللوقو الخاص بالفاتورة (إذا كان موجود)
-  './icon-192.png',       // أيقونة PWA
-  './icon-512.png',       // أيقونة PWA
-  './icon-maskable.png'   // أيقونة PWA (Maskable)
+  './icon-192.png',
+  './icon-512.png',
+  './icon-maskable.png'   // ✅ مضاف
+];
+
+// ✅ مصادر خارجية مسموح تخزينها (اختياري)
+const CDN_WHITELIST = [
+  'cdnjs.cloudflare.com',
+  'fonts.googleapis.com',
+  'fonts.gstatic.com'
 ];
 
 // ============================================
-// INSTALL — تثبيت Service Worker جديد
+// INSTALL
 // ============================================
 self.addEventListener('install', (event) => {
-  console.log('🔧 [SW] Installing...');
-  self.skipWaiting();
+  console.log('🔧 [SW] Installing v3.3...');
 
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -40,10 +45,11 @@ self.addEventListener('install', (event) => {
       );
     })
   );
+  // ⚠️ أزلنا self.skipWaiting() لتجنب مقاطعة العمل الجاري
 });
 
 // ============================================
-// ACTIVATE — تفعيل وحذف الكاش القديم
+// ACTIVATE
 // ============================================
 self.addEventListener('activate', (event) => {
   console.log('🔧 [SW] Activating...');
@@ -64,15 +70,11 @@ self.addEventListener('activate', (event) => {
 
 // ============================================
 // FETCH — Network-First
-// الشبكة أولاً، الكاش احتياطياً
 // ============================================
 self.addEventListener('fetch', (event) => {
   const req = event.request;
-
-  // تجاهل الطلبات غير GET
   if (req.method !== 'GET') return;
 
-  // تجاهل الطلبات الخارجية (Firebase, ibb.co, Google Fonts, ...)
   let url;
   try {
     url = new URL(req.url);
@@ -80,15 +82,18 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (url.origin !== self.location.origin) {
-    return; // يخدمها المتصفح عادي
+  // ✅ استثناء CDN الموثوق
+  const isSameOrigin = url.origin === self.location.origin;
+  const isWhitelisted = CDN_WHITELIST.includes(url.hostname);
+  if (!isSameOrigin && !isWhitelisted) {
+    return;
   }
 
   event.respondWith(
     fetch(req)
       .then((response) => {
-        // نجح الاتصال → حدث الكاش بالنسخة الجديدة
-        if (response && response.status === 200 && response.type === 'basic') {
+        if (response && response.status === 200 &&
+            (response.type === 'basic' || response.type === 'cors')) {
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(req, responseClone);
@@ -97,28 +102,32 @@ self.addEventListener('fetch', (event) => {
         return response;
       })
       .catch(() => {
-        // فشل الاتصال → ارجع من الكاش
         return caches.match(req).then((cached) => {
           if (cached) {
             console.log('📦 [SW] From cache (offline):', req.url);
             return cached;
           }
 
-          // إذا كان طلب صفحة ولم يوجد في الكاش → ارجع index.html
           if (req.destination === 'document') {
             return caches.match('./index.html');
           }
+
+          // ✅ رد احتياطي دائم
+          return new Response('Offline - Resource not available', {
+            status: 503,
+            statusText: 'Service Unavailable',
+            headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+          });
         });
       })
   );
 });
 
 // ============================================
-// MESSAGE — استقبال أوامر من الصفحات
+// MESSAGE
 // ============================================
 self.addEventListener('message', (event) => {
   if (event.data && event.data.action === 'skipWaiting') {
-    console.log('⚡ [SW] skipWaiting requested');
     self.skipWaiting();
   }
 
@@ -131,11 +140,10 @@ self.addEventListener('message', (event) => {
 });
 
 // ============================================
-// SYNC — مزامنة خلفية (اختياري، للمستقبل)
+// SYNC
 // ============================================
 self.addEventListener('sync', (event) => {
   console.log('🔄 [SW] Background sync:', event.tag);
-  // يمكن استخدامها لاحقاً لمزامنة الحجوزات مع Firebase
 });
 
-console.log('✅ [SW] Service Worker loaded — MED GARAGE v3.1');
+console.log('✅ [SW] Service Worker loaded — MED GARAGE v3.3');
