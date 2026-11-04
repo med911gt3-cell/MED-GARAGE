@@ -75,7 +75,6 @@
         .btn-info { background: var(--info); }
         .btn-danger { background: var(--danger); }
 
-        /* ===== معرض الصور ===== */
         .gallery-upload-box {
             border: 2px dashed var(--accent);
             background: rgba(245,158,11,0.08);
@@ -151,7 +150,6 @@
         }
         .empty-gallery .big-icon { font-size: 40px; margin-bottom: 8px; opacity: 0.5; }
 
-        /* ===== نجوم التقييم ===== */
         .rating-input { display: flex; gap: 4px; font-size: 30px; direction: ltr; }
         .rating-input span {
             color: #4b5563;
@@ -159,26 +157,14 @@
             transition: color 0.15s;
             user-select: none;
         }
-        .rating-input span.active,
-        .rating-input span:hover,
-        .rating-input span:hover ~ span { color: #4b5563; }
-        .rating-input span.active { color: var(--star); }
-        .rating-input span:hover,
-        .rating-input span:hover ~ span { color: #4b5563; }
-        .rating-input span.selected,
-        .rating-input span.selected ~ span { color: #4b5563; }
-        .rating-input:hover span,
-        .rating-input:hover span ~ span { color: #4b5563; }
         .rating-input span.on { color: var(--star) !important; }
 
-        /* ===== القوائم ===== */
         .list-box { background: #181b20; border: 1px solid var(--border-dark); border-radius: 10px; padding: 10px; max-height: 500px; overflow-y: auto; margin-top: 10px; }
         .list-row { background: #0f1115; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; border: 1px solid var(--border-dark); color: #f1f5f9; line-height: 1.6; }
         .list-row:last-child { margin-bottom: 0; }
         .empty-state { text-align: center; padding: 25px 15px; color: var(--text-muted); font-size: 12px; }
         .stars { color: var(--star); font-size: 16px; margin-bottom: 4px; letter-spacing: 2px; }
 
-        /* ===== Lightbox ===== */
         .lightbox {
             display: none;
             position: fixed;
@@ -247,6 +233,10 @@
             margin-bottom: 12px;
             line-height: 1.6;
         }
+
+        #trashToggleBtn { font-size: 10px !important; padding: 5px 8px !important; }
+        #trashToggleBtn.empty { opacity: 0.5; }
+        .trash-mode-banner { background: rgba(220,38,38,0.15); border: 1px solid var(--danger); color: #fca5a5; padding: 8px 12px; border-radius: 8px; font-size: 11px; margin-bottom: 8px; text-align: center; }
     </style>
 </head>
 <body id="htmlRoot">
@@ -257,14 +247,12 @@
         <a href="index.html" class="btn-back-admin">← الرئيسية</a>
     </div>
 
-    <!-- ========== معرض الصور ========== -->
     <div class="section-title">🖼️ معرض صور الورشة <small id="galleryCount"></small></div>
 
     <div class="storage-warning">
         💡 <strong>ملاحظة:</strong> الصور تُحفظ في هذا الجهاز فقط (LocalStorage ~5MB). لصور احترافية أكثر، ارفعها من هاتفك بجودة متوسطة.
     </div>
 
-    <!-- منطقة الرفع -->
     <div class="gallery-upload-box" onclick="document.getElementById('imageInput').click()">
         <div class="icon">📷</div>
         <div class="text"><strong>اضغط لرفع صورة من هاتفك</strong></div>
@@ -272,7 +260,6 @@
     </div>
     <input type="file" id="imageInput" accept="image/*" style="display:none;" onchange="handleImageUpload(event)" multiple>
 
-    <!-- شبكة الصور -->
     <div class="gallery-grid" id="galleryGrid"></div>
     <div class="empty-gallery" id="emptyGallery">
         <div class="big-icon">🖼️</div>
@@ -280,7 +267,6 @@
         <div style="margin-top:6px; font-size:11px;">اضغط على الزر أعلاه لإضافة أول صورة</div>
     </div>
 
-    <!-- ========== إضافة رأي ========== -->
     <div class="section-title" style="margin-top:30px;">✍️ شاركنا بتقييمك</div>
     <div class="booking-form">
         <div class="form-group">
@@ -304,10 +290,12 @@
         <button type="button" onclick="addReview()" class="btn-submit-booking">⭐ إرسال التقييم</button>
     </div>
 
-    <!-- ========== الآراء ========== -->
     <div class="section-title">
-        💬 آراء الزبائن
-        <small id="reviewsCount"></small>
+        <span id="reviewsTitle">💬 آراء الزبائن <small id="reviewsCount"></small></span>
+        <button class="btn btn-sm btn-warning" onclick="toggleTrash()" id="trashToggleBtn">🗑️ السلة (0)</button>
+    </div>
+    <div id="trashBanner" style="display:none;" class="trash-mode-banner">
+        🗑️ أنت في وضع سلة المحذوفات — اضغط السلة مجددًا للعودة
     </div>
     <div class="list-box" id="reviewsList">
         <div class="empty-state">جاري التحميل...</div>
@@ -318,7 +306,6 @@
     </div>
 </div>
 
-<!-- Lightbox -->
 <div class="lightbox" id="lightbox" onclick="if(event.target===this) closeLightbox()">
     <button class="close-lb" onclick="closeLightbox()">✕</button>
     <button class="nav-lb prev" onclick="event.stopPropagation(); navLightbox(-1)">‹</button>
@@ -329,7 +316,6 @@
 <div id="toast" class="toast"></div>
 
 <script>
-    // ================= أدوات =================
     function getData(key, def = []) {
         try {
             const v = localStorage.getItem('mg_' + key);
@@ -371,8 +357,18 @@
         if (meta) meta.setAttribute('content', theme === 'light' ? '#f1f5f9' : theme === 'oled' ? '#000000' : '#1a1d21');
     }
 
+    // ============ ✅ إصلاح 2: تاريخ نظيف DD/MM/YYYY ============
+    function formatDateDDMMYYYY(ts) {
+        const d = new Date(ts);
+        if (isNaN(d.getTime())) return '';
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        return day + '/' + month + '/' + year;
+    }
+
     // ================= معرض الصور =================
-    let galleryImages = []; // [{id, data}]
+    let galleryImages = [];
 
     function loadGallery() {
         galleryImages = getData('gallery', []);
@@ -380,7 +376,7 @@
         const empty = document.getElementById('emptyGallery');
         const countEl = document.getElementById('galleryCount');
 
-        countEl.textContent = galleryImages.length > 0 ? `(${galleryImages.length})` : '';
+        countEl.textContent = galleryImages.length > 0 ? '(' + galleryImages.length + ')' : '';
 
         if (galleryImages.length === 0) {
             grid.innerHTML = '';
@@ -408,7 +404,6 @@
         let pending = files.length;
 
         Array.from(files).forEach(file => {
-            // تحقق من النوع
             if (!file.type.startsWith('image/')) {
                 errorCount++;
                 pending--;
@@ -416,7 +411,6 @@
                 return;
             }
 
-            // تحقق من الحجم (2MB)
             if (file.size > 2 * 1024 * 1024) {
                 showToast('⚠️ "' + file.name + '" كبيرة جداً (الحد 2MB)', 'error');
                 errorCount++;
@@ -425,15 +419,16 @@
                 return;
             }
 
-            // ضغط الصورة قبل الحفظ
             compressImage(file, 800, 0.7, (base64) => {
                 if (!base64) {
                     errorCount++;
                 } else {
+                    const now = Date.now();
                     galleryImages.unshift({
-                        id: Date.now() + Math.random(),
+                        id: now + Math.random(),
                         data: base64,
-                        date: new Date().toLocaleDateString('ar-DZ')
+                        date: formatDateDDMMYYYY(now),   // ✅ تاريخ نظيف
+                        createdAt: now
                     });
                     successCount++;
                 }
@@ -452,7 +447,6 @@
                 showToast('✅ تمت إضافة ' + successCount + ' صورة');
                 loadGallery();
             } else {
-                // نرجع للقائمة القديمة
                 galleryImages = getData('gallery', []);
                 loadGallery();
             }
@@ -462,7 +456,6 @@
         }
     }
 
-    // ضغط الصورة
     function compressImage(file, maxWidth, quality, callback) {
         const reader = new FileReader();
         reader.onload = function(e) {
@@ -497,7 +490,7 @@
     }
 
     function deleteImage(id) {
-        if (!confirm('حذف هذه الصورة؟')) return;
+        if (!confirm('حذف هذه الصورة نهائيًا؟')) return;
         galleryImages = galleryImages.filter(img => img.id !== id);
         setData('gallery', galleryImages);
         loadGallery();
@@ -524,7 +517,6 @@
         document.getElementById('lightboxImg').src = galleryImages[currentLightboxIdx].data;
     }
 
-    // دعم لوحة المفاتيح
     document.addEventListener('keydown', (e) => {
         if (!document.getElementById('lightbox').classList.contains('active')) return;
         if (e.key === 'Escape') closeLightbox();
@@ -551,14 +543,16 @@
             return;
         }
 
+        const now = Date.now();
         let reviews = getData('reviews', []);
         reviews.unshift({
-            id: Date.now(),
+            id: now,
             name: name,
             rating: currentRating,
             text: text,
-            date: new Date().toLocaleDateString('ar-DZ'),
-            approved: true // الآراء من داخل التطبيق تُقبل تلقائياً
+            date: formatDateDDMMYYYY(now),   // ✅ تاريخ نظيف
+            createdAt: now,
+            approved: true
         });
 
         setData('reviews', reviews);
@@ -571,11 +565,36 @@
         loadReviews();
     }
 
+    // ============ ✅ إصلاح 5: حذف ناعم للآراء ============
     function deleteReview(id) {
-        if (!confirm('حذف هذا التقييم؟')) return;
+        if (!confirm('نقل هذا التقييم إلى السلة؟ (يمكن استرجاعه)')) return;
+        let reviews = getData('reviews', []);
+        const idx = reviews.findIndex(r => r.id === id);
+        if (idx === -1) return;
+        reviews[idx].deleted = true;
+        reviews[idx].deletedAt = Date.now();
+        setData('reviews', reviews);
+        loadReviews();
+        showToast('🗑️ تم نقل التقييم لسلة المحذوفات');
+    }
+
+    function restoreReview(id) {
+        let reviews = getData('reviews', []);
+        const idx = reviews.findIndex(r => r.id === id);
+        if (idx === -1) return;
+        delete reviews[idx].deleted;
+        delete reviews[idx].deletedAt;
+        setData('reviews', reviews);
+        loadReviews();
+        showToast('♻️ تم استرجاع التقييم');
+    }
+
+    function permanentDeleteReview(id) {
+        if (!confirm('⚠️ حذف نهائي! لا يمكن الرجوع. متأكد؟')) return;
+        if (!confirm('تأكيد أخير: حذف هذا التقييم من السجل نهائيًا؟')) return;
         setData('reviews', getData('reviews', []).filter(r => r.id !== id));
         loadReviews();
-        showToast('🗑️ تم حذف التقييم');
+        showToast('🔥 تم الحذف النهائي');
     }
 
     function toggleApproved(id) {
@@ -588,39 +607,66 @@
         showToast(r.approved ? '✅ تم اعتماد الرأي' : '🚫 تم إخفاء الرأي');
     }
 
+    let showTrash = false;
+    function toggleTrash() {
+        showTrash = !showTrash;
+        loadReviews();
+    }
+
     function loadReviews() {
-        const reviews = getData('reviews', []);
+        const allReviews = getData('reviews', []);
+        const activeReviews = allReviews.filter(r => !r.deleted);
+        const deletedReviews = allReviews.filter(r => r.deleted);
+
         const box = document.getElementById('reviewsList');
         const countEl = document.getElementById('reviewsCount');
+        const trashBtn = document.getElementById('trashToggleBtn');
+        const banner = document.getElementById('trashBanner');
+        const titleEl = document.getElementById('reviewsTitle');
 
-        countEl.textContent = reviews.length > 0 ? `(${reviews.length})` : '';
+        if (trashBtn) {
+            trashBtn.textContent = '🗑️ السلة (' + deletedReviews.length + ')';
+            trashBtn.classList.toggle('empty', deletedReviews.length === 0);
+        }
+        if (banner) banner.style.display = showTrash ? 'block' : 'none';
+        if (titleEl) {
+            titleEl.innerHTML = (showTrash ? '🗑️ سلة المحذوفات ' : '💬 آراء الزبائن ') + '<small id="reviewsCount"></small>';
+        }
 
-        if (reviews.length === 0) {
-            box.innerHTML = '<div class="empty-state">⭐ كن أول من يشاركنا رأيه</div>';
+        const list = showTrash ? deletedReviews : activeReviews;
+        const cntEl = document.getElementById('reviewsCount');
+        if (cntEl) cntEl.textContent = list.length > 0 ? '(' + list.length + ')' : '';
+
+        if (list.length === 0) {
+            box.innerHTML = '<div class="empty-state">' + (showTrash ? 'سلة المحذوفات فارغة' : '⭐ كن أول من يشاركنا رأيه') + '</div>';
             return;
         }
 
-        box.innerHTML = reviews.map(r => {
+        box.innerHTML = list.map(r => {
             const approved = r.approved !== false;
+            const delDate = r.deletedAt ? ' <span style="color:#f87171; font-size:10px;">(حُذف: ' + formatDateDDMMYYYY(r.deletedAt) + ')</span>' : '';
+            const actions = showTrash ? `
+                <button onclick="restoreReview(${r.id})" class="btn btn-sm btn-success">♻️ استرجاع</button>
+                <button onclick="permanentDeleteReview(${r.id})" class="btn btn-sm btn-danger">🔥 حذف نهائي</button>
+            ` : `
+                <button onclick="toggleApproved(${r.id})" class="btn btn-sm ${approved ? 'btn-warning' : 'btn-success'}">${approved ? '🚫 إخفاء' : '✅ اعتماد'}</button>
+                <button onclick="deleteReview(${r.id})" class="btn btn-sm btn-danger">🗑️</button>
+            `;
             return `
-                <div class="list-row" style="${!approved ? 'opacity:0.5; border-style:dashed;' : ''}">
+                <div class="list-row" style="${(!approved && !showTrash) ? 'opacity:0.5; border-style:dashed;' : ''}">
                     <div class="stars">${'⭐'.repeat(r.rating || 5)}</div>
                     <strong>👤 ${escapeHtml(r.name)}</strong>
-                    ${!approved ? ' <span style="color:#f87171; font-size:10px;">[مخفي]</span>' : ''}<br>
+                    ${(!approved && !showTrash) ? ' <span style="color:#f87171; font-size:10px;">[مخفي]</span>' : ''}${delDate}<br>
                     <span style="color:#f1f5f9;">"${escapeHtml(r.text)}"</span>
                     <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
-                        <span style="color:#94a3b8; font-size:10px;">${escapeHtml(r.date)}</span>
-                        <div style="display:flex; gap:6px;">
-                            <button onclick="toggleApproved(${r.id})" class="btn btn-sm ${approved ? 'btn-warning' : 'btn-success'}">${approved ? '🚫 إخفاء' : '✅ اعتماد'}</button>
-                            <button onclick="deleteReview(${r.id})" class="btn btn-sm btn-danger">🗑️</button>
-                        </div>
+                        <span style="color:#94a3b8; font-size:10px;">${escapeHtml(r.date || '')}</span>
+                        <div style="display:flex; gap:6px;">${actions}</div>
                     </div>
                 </div>
             `;
         }).join('');
     }
 
-    // ================= تحميل الصفحة =================
     window.onload = function() {
         try {
             const savedTheme = localStorage.getItem('medgarage_theme');
