@@ -2,15 +2,18 @@
   "name": "MED GARAGE - ورشة محمد لصيانة السيارات",
   "short_name": "MED GARAGE",
   "description": "ورشة محمد لصيانة السيارات - السويدانية، الجزائر",
+  "id": "/med-garage",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
   "background_color": "#1f242b",
   "theme_color": "#1a1d21",
   "lang": "ar",
   "dir": "rtl",
   "categories": ["business", "productivity"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "./icon-192.png",
@@ -37,6 +40,18 @@
       "short_name": "الإدارة",
       "description": "فتح لوحة تحكم الورشة",
       "url": "./dashboard.html",
+      "icons": [
+        {
+          "src": "./icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "الفوترة",
+      "short_name": "فواتير",
+      "description": "فتح نظام الفوترة والدوفي",
+      "url": "./invoices.html",
       "icons": [
         {
           "src": "./icon-192.png",
