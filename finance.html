@@ -74,7 +74,6 @@
         .btn-info { background: var(--info); }
         .btn-danger { background: var(--danger); }
 
-        /* ===== بطاقات الإحصائيات ===== */
         .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
         .stat-box { padding: 15px 12px; border-radius: 12px; text-align: center; }
         .stat-box.income { background: rgba(22, 163, 74, 0.15); border: 1px solid var(--success); }
@@ -88,11 +87,9 @@
         .stat-box.profit .stat-value { color: #fbbf24; }
         .stat-box.pending .stat-value { color: #a78bfa; }
 
-        /* ===== فلتر الشهر ===== */
         .month-filter { display: flex; gap: 8px; margin-bottom: 15px; }
         .month-filter .form-control { background: #0f1115; color: #fff; border-color: var(--border-dark); }
 
-        /* ===== القوائم ===== */
         .list-box { background: #181b20; border: 1px solid var(--border-dark); border-radius: 10px; padding: 10px; max-height: 500px; overflow-y: auto; margin-top: 10px; }
         .list-row { background: #0f1115; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; border: 1px solid var(--border-dark); color: #f1f5f9; line-height: 1.6; }
         .list-row:last-child { margin-bottom: 0; }
@@ -101,7 +98,6 @@
         .expense-amount { color: #f87171; font-weight: 900; font-size: 15px; }
         .income-amount { color: #4ade80; font-weight: 900; font-size: 15px; }
 
-        /* ===== Modal ===== */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; padding: 15px; }
         .modal-overlay.active { display: flex; }
         .modal-content { background: var(--card-dark); border: 2px solid var(--primary); border-radius: 15px; padding: 20px; width: 100%; max-width: 420px; max-height: 92vh; overflow-y: auto; color: #fff; }
@@ -116,10 +112,13 @@
         .toast.show { transform: translateX(-50%) translateY(0); }
         .toast.error { background: var(--primary); }
 
-        /* ===== Tabs ===== */
         .tabs { display: flex; gap: 6px; margin-bottom: 15px; }
         .tab-btn { flex: 1; padding: 10px; background: var(--card-dark); border: 1px solid var(--border-dark); color: var(--text-muted); border-radius: 8px; font-weight: 900; cursor: pointer; font-family: inherit; font-size: 13px; transition: all 0.2s; }
         .tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+        #trashToggleBtn { font-size: 10px !important; padding: 5px 8px !important; }
+        #trashToggleBtn.empty { opacity: 0.5; }
+        .trash-mode-banner { background: rgba(220,38,38,0.15); border: 1px solid var(--danger); color: #fca5a5; padding: 8px 12px; border-radius: 8px; font-size: 11px; margin-bottom: 8px; text-align: center; }
     </style>
 </head>
 <body id="htmlRoot">
@@ -130,14 +129,12 @@
         <a href="dashboard.html" class="btn-back-admin">← رجوع</a>
     </div>
 
-    <!-- فلتر الشهر -->
     <div class="month-filter">
         <input type="month" id="monthFilter" class="form-control" onchange="loadAll()">
         <button class="btn btn-sm btn-info" onclick="clearMonthFilter()">الكل</button>
         <button class="btn btn-sm btn-success" onclick="exportCSV()">📤 CSV</button>
     </div>
 
-    <!-- الإحصائيات -->
     <div class="stats-grid">
         <div class="stat-box income">
             <div class="stat-label">💵 المداخيل</div>
@@ -157,13 +154,11 @@
         </div>
     </div>
 
-    <!-- Tabs -->
     <div class="tabs">
         <button class="tab-btn active" id="tabExpenses" onclick="switchTab('expenses')">💸 المصاريف</button>
         <button class="tab-btn" id="tabInvoices" onclick="switchTab('invoices')">🧾 الفواتير</button>
     </div>
 
-    <!-- قسم المصاريف -->
     <div id="expensesSection">
         <div class="section-title">➕ تسجيل مصروف جديد</div>
         <div class="booking-form">
@@ -189,13 +184,18 @@
             <button type="button" onclick="addExpense()" class="btn-submit-booking">💾 تسجيل المصروف</button>
         </div>
 
-        <div class="section-title">📋 قائمة المصاريف <small id="expCount"></small></div>
+        <div class="section-title">
+            <span id="expTitle">📋 قائمة المصاريف <small id="expCount"></small></span>
+            <button class="btn btn-sm btn-warning" onclick="toggleTrash()" id="trashToggleBtn">🗑️ السلة (0)</button>
+        </div>
+        <div id="trashBanner" style="display:none;" class="trash-mode-banner">
+            🗑️ أنت في وضع سلة المحذوفات — اضغط السلة مجددًا للعودة
+        </div>
         <div class="list-box" id="expensesList">
             <div class="empty-state">جاري التحميل...</div>
         </div>
     </div>
 
-    <!-- قسم الفواتير -->
     <div id="invoicesSection" style="display:none;">
         <div class="section-title">🧾 الفواتير المكتملة <small id="invCount"></small></div>
         <div class="list-box" id="invoicesList">
@@ -208,7 +208,6 @@
     </div>
 </div>
 
-<!-- Modal تعديل مصروف -->
 <div class="modal-overlay" id="editModal">
     <div class="modal-content">
         <h3>✏️ تعديل المصروف</h3>
@@ -239,7 +238,6 @@
 <div id="toast" class="toast"></div>
 
 <script>
-    // ================= أدوات =================
     function getData(key, def = []) {
         try {
             const v = localStorage.getItem('mg_' + key);
@@ -273,7 +271,36 @@
         if (meta) meta.setAttribute('content', theme === 'light' ? '#f1f5f9' : theme === 'oled' ? '#000000' : '#1a1d21');
     }
 
-    // ================= تبديل Tab =================
+    // ============ ✅ إصلاح 2: دالة تواريخ نظيفة DD/MM/YYYY ============
+    function formatDateDDMMYYYY(ts) {
+        const d = new Date(ts);
+        if (isNaN(d.getTime())) return '';
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        return day + '/' + month + '/' + year;
+    }
+
+    // ✅ تحليل التاريخ بأمان مهما كان شكله
+    function parseDateSafe(item) {
+        if (item && item.createdAt) {
+            const d = new Date(item.createdAt);
+            if (!isNaN(d.getTime())) return d;
+        }
+        if (item && item.date) {
+            const s = String(item.date);
+            // regex يستخرج DD/MM/YYYY أو DD-MM-YYYY أو DD.MM.YYYY حتى لو فيه رموز خفية
+            const m = s.match(/(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})/);
+            if (m) {
+                const d = new Date(+m[3], +m[2] - 1, +m[1]);
+                if (!isNaN(d.getTime())) return d;
+            }
+            const d2 = new Date(s);
+            if (!isNaN(d2.getTime())) return d2;
+        }
+        return null;
+    }
+
     let currentTab = 'expenses';
     function switchTab(tab) {
         currentTab = tab;
@@ -283,7 +310,6 @@
         document.getElementById('tabInvoices').classList.toggle('active', tab === 'invoices');
     }
 
-    // ================= فلترة الشهر =================
     function clearMonthFilter() {
         document.getElementById('monthFilter').value = '';
         loadAll();
@@ -291,23 +317,19 @@
 
     function isInMonth(item, monthStr) {
         if (!monthStr) return true;
-        // item.date إما DD/MM/YYYY (من old) أو نستخدم createdAt (timestamp)
-        let date;
-        if (item.createdAt) {
-            date = new Date(item.createdAt);
-        } else if (item.date) {
-            // محاولة تحويل DD/MM/YYYY
-            const parts = String(item.date).split('/');
-            if (parts.length === 3) {
-                date = new Date(parts[2] + '-' + parts[1] + '-' + parts[0]);
-            }
-        }
-        if (!date || isNaN(date)) return true;
+        const date = parseDateSafe(item);
+        if (!date) return true;
         const ym = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
         return ym === monthStr;
     }
 
-    // ================= إضافة مصروف =================
+    // ============ سلة المحذوفات ============
+    let showTrash = false;
+    function toggleTrash() {
+        showTrash = !showTrash;
+        loadAll();
+    }
+
     function addExpense() {
         const desc = document.getElementById('expDesc').value.trim();
         const amount = parseFloat(document.getElementById('expAmount').value);
@@ -318,14 +340,15 @@
             return;
         }
 
+        const now = Date.now();
         let expenses = getData('expenses', []);
         expenses.unshift({
-            id: Date.now(),
+            id: now,
             desc,
             amount,
             category,
-            date: new Date().toLocaleDateString('ar-DZ'),
-            createdAt: Date.now()
+            date: formatDateDDMMYYYY(now),   // ✅ تاريخ نظيف بدون رموز خفية
+            createdAt: now
         });
 
         setData('expenses', expenses);
@@ -336,22 +359,45 @@
         loadAll();
     }
 
-    // ================= حذف مصروف =================
+    // ============ ✅ إصلاح 5: حذف ناعم قابل للاسترجاع ============
     function deleteExpense(id) {
-        if (!confirm('حذف هذا المصروف؟')) return;
-        setData('expenses', getData('expenses', []).filter(e => e.id !== id));
+        if (!confirm('نقل هذا المصروف إلى السلة؟ (يمكن استرجاعه)')) return;
+        let expenses = getData('expenses', []);
+        const idx = expenses.findIndex(e => e.id === id);
+        if (idx === -1) return;
+        expenses[idx].deleted = true;
+        expenses[idx].deletedAt = Date.now();
+        setData('expenses', expenses);
         loadAll();
-        showToast('🗑️ تم حذف المصروف');
+        showToast('🗑️ تم نقل المصروف لسلة المحذوفات');
     }
 
-    // ================= تعديل مصروف =================
+    function restoreExpense(id) {
+        let expenses = getData('expenses', []);
+        const idx = expenses.findIndex(e => e.id === id);
+        if (idx === -1) return;
+        delete expenses[idx].deleted;
+        delete expenses[idx].deletedAt;
+        setData('expenses', expenses);
+        loadAll();
+        showToast('♻️ تم استرجاع المصروف');
+    }
+
+    function permanentDeleteExpense(id) {
+        if (!confirm('⚠️ حذف نهائي! لا يمكن الرجوع. متأكد؟')) return;
+        if (!confirm('تأكيد أخير: حذف هذا المصروف من السجل نهائيًا؟')) return;
+        setData('expenses', getData('expenses', []).filter(e => e.id !== id));
+        loadAll();
+        showToast('🔥 تم الحذف النهائي');
+    }
+
+    // ============ تعديل مصروف ============
     let editingExpId = null;
 
     function openEditExpense(id) {
         const expenses = getData('expenses', []);
         const e = expenses.find(x => x.id === id);
         if (!e) return;
-
         editingExpId = id;
         document.getElementById('editDesc').value = e.desc || '';
         document.getElementById('editAmount').value = e.amount || 0;
@@ -388,23 +434,26 @@
         showToast('✅ تم تعديل المصروف');
     }
 
-    // ================= تحميل الكل =================
+    // ============ تحميل الكل ============
     function loadAll() {
         const monthStr = document.getElementById('monthFilter').value;
 
-        const expenses = getData('expenses', []).filter(e => isInMonth(e, monthStr));
-        const invoices = getData('invoices', []).filter(i => isInMonth(i, monthStr));
+        const allExpenses = getData('expenses', []).filter(e => isInMonth(e, monthStr));
+        const allInvoices = getData('invoices', []).filter(i => isInMonth(i, monthStr));
 
-        // المداخيل = الفواتير المكتملة فقط
-        const paidInvoices = invoices.filter(i => i.status !== 'devis');
-        const devisInvoices = invoices.filter(i => i.status === 'devis');
+        // ✅ استبعاد المحذوف من الحسابات
+        const activeExpenses = allExpenses.filter(e => !e.deleted);
+        const deletedExpenses = allExpenses.filter(e => e.deleted);
+        const activeInvoices = allInvoices.filter(i => !i.deleted);
+
+        const paidInvoices = activeInvoices.filter(i => i.status !== 'devis');
+        const devisInvoices = activeInvoices.filter(i => i.status === 'devis');
 
         const totalIncome = paidInvoices.reduce((s, i) => s + (Number(i.total) || 0), 0);
-        const totalExpense = expenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
+        const totalExpense = activeExpenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
         const totalPending = devisInvoices.reduce((s, i) => s + (Number(i.total) || 0), 0);
         const profit = totalIncome - totalExpense;
 
-        // عرض الإحصائيات
         document.getElementById('statIncome').textContent = totalIncome.toLocaleString() + ' دج';
         document.getElementById('statExpense').textContent = totalExpense.toLocaleString() + ' دج';
         document.getElementById('statPending').textContent = totalPending.toLocaleString() + ' دج';
@@ -413,38 +462,61 @@
         profitEl.textContent = profit.toLocaleString() + ' دج';
         profitEl.style.color = profit >= 0 ? '#4ade80' : '#f87171';
 
-        // عرض المصاريف
-        renderExpenses(expenses);
+        // تحديث زر السلة
+        const trashBtn = document.getElementById('trashToggleBtn');
+        if (trashBtn) {
+            trashBtn.textContent = '🗑️ السلة (' + deletedExpenses.length + ')';
+            trashBtn.classList.toggle('empty', deletedExpenses.length === 0);
+        }
+        const banner = document.getElementById('trashBanner');
+        if (banner) banner.style.display = showTrash ? 'block' : 'none';
+        const titleEl = document.getElementById('expTitle');
+        if (titleEl) titleEl.innerHTML = (showTrash ? '🗑️ سلة المحذوفات ' : '📋 قائمة المصاريف ') + '<small id="expCount"></small>';
 
-        // عرض الفواتير
+        if (showTrash) {
+            renderExpenses(deletedExpenses, true);
+        } else {
+            renderExpenses(activeExpenses, false);
+        }
+
         renderInvoices(paidInvoices);
     }
 
-    function renderExpenses(expenses) {
+    function renderExpenses(expenses, isTrash) {
         const box = document.getElementById('expensesList');
-        document.getElementById('expCount').textContent = `(${expenses.length})`;
+        const cnt = document.getElementById('expCount');
+        if (cnt) cnt.textContent = '(' + expenses.length + ')';
 
         if (expenses.length === 0) {
-            box.innerHTML = '<div class="empty-state">لا توجد مصاريف مسجلة</div>';
+            box.innerHTML = '<div class="empty-state">' + (isTrash ? 'سلة المحذوفات فارغة' : 'لا توجد مصاريف مسجلة') + '</div>';
             return;
         }
 
-        box.innerHTML = expenses.map(e => `
-            <div class="list-row">
-                <strong>${escapeHtml(e.category || '📋')} ${escapeHtml(e.desc)}</strong><br>
-                <span class="expense-amount">- ${(Number(e.amount) || 0).toLocaleString()} دج</span>
-                <span style="color:#94a3b8; font-size:11px;"> | ${escapeHtml(e.date)}</span>
-                <div style="margin-top:6px; display:flex; gap:6px;">
-                    <button onclick="openEditExpense(${e.id})" class="btn btn-sm btn-info">✏️ تعديل</button>
-                    <button onclick="deleteExpense(${e.id})" class="btn btn-sm btn-danger">🗑️ حذف</button>
+        box.innerHTML = expenses.map(e => {
+            const delDate = e.deletedAt ? ' <span style="color:#f87171; font-size:10px;">(حُذف: ' + formatDateDDMMYYYY(e.deletedAt) + ')</span>' : '';
+            const actions = isTrash ? `
+                <button onclick="restoreExpense(${e.id})" class="btn btn-sm btn-success">♻️ استرجاع</button>
+                <button onclick="permanentDeleteExpense(${e.id})" class="btn btn-sm btn-danger">🔥 حذف نهائي</button>
+            ` : `
+                <button onclick="openEditExpense(${e.id})" class="btn btn-sm btn-info">✏️ تعديل</button>
+                <button onclick="deleteExpense(${e.id})" class="btn btn-sm btn-danger">🗑️ حذف</button>
+            `;
+            return `
+                <div class="list-row">
+                    <strong>${escapeHtml(e.category || '📋')} ${escapeHtml(e.desc)}</strong>${delDate}<br>
+                    <span class="expense-amount">- ${(Number(e.amount) || 0).toLocaleString()} دج</span>
+                    <span style="color:#94a3b8; font-size:11px;"> | ${escapeHtml(e.date || '')}</span>
+                    <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+                        ${actions}
+                    </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     function renderInvoices(invoices) {
         const box = document.getElementById('invoicesList');
-        document.getElementById('invCount').textContent = `(${invoices.length})`;
+        document.getElementById('invCount').textContent = '(' + invoices.length + ')';
 
         if (invoices.length === 0) {
             box.innerHTML = '<div class="empty-state">لا توجد فواتير</div>';
@@ -454,18 +526,18 @@
         box.innerHTML = invoices.map(inv => `
             <div class="list-row">
                 <strong>${escapeHtml(inv.code)}</strong> — 👤 ${escapeHtml(inv.client)}
-                ${inv.car ? ` | 🚗 ${escapeHtml(inv.car)}` : ''}<br>
+                ${inv.car ? ' | 🚗 ' + escapeHtml(inv.car) : ''}<br>
                 <span class="income-amount">+ ${(Number(inv.total) || 0).toLocaleString()} دج</span>
                 <span style="color:#94a3b8; font-size:11px;"> | ${escapeHtml(inv.date || '')}</span>
             </div>
         `).join('');
     }
 
-    // ================= تصدير CSV =================
+    // ============ CSV ============
     function exportCSV() {
         const monthStr = document.getElementById('monthFilter').value;
-        const expenses = getData('expenses', []).filter(e => isInMonth(e, monthStr));
-        const invoices = getData('invoices', []).filter(i => isInMonth(i, monthStr) && i.status !== 'devis');
+        const expenses = getData('expenses', []).filter(e => !e.deleted && isInMonth(e, monthStr));
+        const invoices = getData('invoices', []).filter(i => !i.deleted && isInMonth(i, monthStr) && i.status !== 'devis');
 
         if (expenses.length === 0 && invoices.length === 0) {
             showToast('⚠️ لا توجد بيانات للتصدير', 'error');
@@ -474,7 +546,6 @@
 
         let csv = '\uFEFF';
 
-        // قسم الفواتير
         csv += '=== الفواتير ===\n';
         csv += 'الرقم,الزبون,السيارة,المبلغ,التاريخ\n';
         invoices.forEach(inv => {
@@ -498,13 +569,12 @@
             ].join(',') + '\n';
         });
 
-        // الإجماليات
         const totalIncome = invoices.reduce((s, i) => s + (Number(i.total) || 0), 0);
         const totalExpense = expenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
         csv += '\n=== الملخص ===\n';
-        csv += `المداخيل,${totalIncome}\n`;
-        csv += `المصاريف,${totalExpense}\n`;
-        csv += `صافي الربح,${totalIncome - totalExpense}\n`;
+        csv += 'المداخيل,' + totalIncome + '\n';
+        csv += 'المصاريف,' + totalExpense + '\n';
+        csv += 'صافي الربح,' + (totalIncome - totalExpense) + '\n';
 
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
@@ -519,13 +589,11 @@
         showToast('✅ تم تصدير الملف');
     }
 
-    // ================= تحميل الصفحة =================
     window.onload = function() {
         try {
             const savedTheme = localStorage.getItem('medgarage_theme');
             if (savedTheme) applyTheme(savedTheme);
         } catch(e) {}
-
         loadAll();
     };
 </script>
