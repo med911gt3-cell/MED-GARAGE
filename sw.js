@@ -1,10 +1,10 @@
 // ============================================
 // MED GARAGE — Service Worker
 // Network-First Strategy
-// Version: 3.3  ← ⚠️ ارفع الرقم عند كل تحديث
+// Version: 3.4
 // ============================================
 
-const CACHE_NAME = 'med-garage-v3.3';
+const CACHE_NAME = 'med-garage-v3.4';
 
 const CACHE_URLS = [
   './',
@@ -18,10 +18,17 @@ const CACHE_URLS = [
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
-  './icon-maskable.png'   // ✅ مضاف
+  './icon-maskable.png',
+  // 🚗 ماركات السيارات
+  './icon1.png', './icon2.png', './icon3.png', './icon4.png', './icon5.png',
+  './icon6.png', './icon7.png', './icon8.png', './icon9.png', './icon10.png',
+  // 🔧 قطع الغيار
+  './piece1.png', './piece2.png', './piece3.png', './piece4.png', './piece5.png',
+  './piece6.png', './piece7.png', './piece8.png', './piece9.png', './piece10.png',
+  // 🛢️ الزيوت
+  './oil1.png', './oil2.png', './oil3.png', './oil4.png', './oil5.png'
 ];
 
-// ✅ مصادر خارجية مسموح تخزينها (اختياري)
 const CDN_WHITELIST = [
   'cdnjs.cloudflare.com',
   'fonts.googleapis.com',
@@ -29,10 +36,13 @@ const CDN_WHITELIST = [
 ];
 
 // ============================================
-// INSTALL
+// INSTALL — ✅ skipWaiting مفعّل الآن
 // ============================================
 self.addEventListener('install', (event) => {
-  console.log('🔧 [SW] Installing v3.3...');
+  console.log('🔧 [SW] Installing v3.4...');
+  
+  // ✅ تفعيل فوري بدون انتظار إغلاق التبويبات
+  self.skipWaiting();
 
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -45,14 +55,13 @@ self.addEventListener('install', (event) => {
       );
     })
   );
-  // ⚠️ أزلنا self.skipWaiting() لتجنب مقاطعة العمل الجاري
 });
 
 // ============================================
 // ACTIVATE
 // ============================================
 self.addEventListener('activate', (event) => {
-  console.log('🔧 [SW] Activating...');
+  console.log('🔧 [SW] Activating v3.4...');
 
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -82,7 +91,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // ✅ استثناء CDN الموثوق
   const isSameOrigin = url.origin === self.location.origin;
   const isWhitelisted = CDN_WHITELIST.includes(url.hostname);
   if (!isSameOrigin && !isWhitelisted) {
@@ -112,7 +120,6 @@ self.addEventListener('fetch', (event) => {
             return caches.match('./index.html');
           }
 
-          // ✅ رد احتياطي دائم
           return new Response('Offline - Resource not available', {
             status: 503,
             statusText: 'Service Unavailable',
@@ -146,4 +153,4 @@ self.addEventListener('sync', (event) => {
   console.log('🔄 [SW] Background sync:', event.tag);
 });
 
-console.log('✅ [SW] Service Worker loaded — MED GARAGE v3.3');
+console.log('✅ [SW] Service Worker loaded — MED GARAGE v3.4');
