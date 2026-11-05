@@ -208,27 +208,27 @@
         </div>
     </div>
 
-    <!-- ✅ 1) ماركات السيارات (40) -->
+    <!-- ✅ 1) ماركات السيارات (10) -->
     <div class="brands-section" id="carBrandsSection">
         <div class="brands-title" data-ar="🚗 الماركات التي نتعامل معها" data-fr="🚗 Marques que nous traitons">🚗 الماركات التي نتعامل معها</div>
         <div class="brands-slider">
-            <div class="brands-track" id="carBrandsTrack" style="animation-duration: 60s;"></div>
+            <div class="brands-track" id="carBrandsTrack" style="animation-duration: 80s;"></div>
         </div>
     </div>
 
-    <!-- ✅ 2) ماركات قطع الغيار (20) -->
+    <!-- ✅ 2) ماركات قطع الغيار (10) -->
     <div class="brands-section" id="partsBrandsSection">
         <div class="brands-title" data-ar="🔧 ماركات قطع الغيار" data-fr="🔧 Marques de pièces">🔧 ماركات قطع الغيار</div>
         <div class="brands-slider">
-            <div class="brands-track" id="partsBrandsTrack" style="animation-duration: 35s;"></div>
+            <div class="brands-track" id="partsBrandsTrack" style="animation-duration: 70s;"></div>
         </div>
     </div>
 
-    <!-- ✅ 3) أنواع الزيوت (20) -->
+    <!-- ✅ 3) أنواع الزيوت (5) -->
     <div class="brands-section" id="oilsSection">
         <div class="brands-title" data-ar="🛢️ أنواع الزيوت" data-fr="🛢️ Types d'huiles">🛢️ أنواع الزيوت</div>
         <div class="brands-slider">
-            <div class="brands-track" id="oilsTrack" style="animation-duration: 30s;"></div>
+            <div class="brands-track" id="oilsTrack" style="animation-duration: 60s;"></div>
         </div>
     </div>
 
@@ -478,8 +478,7 @@
         setTimeout(() => toast.classList.remove('show'), 3500);
     }
 
-    // ============ ✅ إصلاح 6: الباب السري ============
-    // 7 ضغطات عادية + الضغطة الثامنة مطولة 6 ثواني → dashboard.html
+    // ============ الباب السري ============
     (function initSecretDoor() {
         const logo = document.getElementById('logoSecret');
         if (!logo) return;
@@ -557,7 +556,7 @@
         logo.addEventListener('dragstart', e => e.preventDefault());
     })();
 
-    // ============ ✅ إصلاح 2: تواريخ نظيفة ============
+    // ============ تواريخ نظيفة ============
     function toDisplayDate(isoDate) {
         if (!isoDate) return '';
         const parts = String(isoDate).split('-');
@@ -565,30 +564,24 @@
         return isoDate;
     }
 
-    // ============ ✅ اللوقوهات الديناميكية (40 + 20 + 20) ============
+    // ================================================================
+    // ✅ اللوقوهات — قراءة مباشرة من جذر المشروع (بدون مجلد brands/)
+    // car brands: icon1.png → icon10.png
+    // part brands: piece1.png → piece10.png
+    // oil brands: oil1.png → oil5.png
+    // ================================================================
     const CAR_BRANDS = [
         'Chery', 'Geely', 'Changan', 'Renault', 'Peugeot',
-        'Volkswagen', 'Toyota', 'Hyundai', 'Kia', 'Dacia',
-        'Citroën', 'Fiat', 'Ford', 'Nissan', 'Honda',
-        'Mazda', 'Suzuki', 'Seat', 'Skoda', 'Mercedes',
-        'BMW', 'Audi', 'Opel', 'Chevrolet', 'Mitsubishi',
-        'Subaru', 'Volvo', 'Land Rover', 'Jeep', 'MG',
-        'Faw', 'JAC', 'Haval', 'BYD', 'Great Wall',
-        'Dongfeng', 'Mahindra', 'SsangYong', 'Isuzu', 'Lexus'
+        'Volkswagen', 'Toyota', 'Hyundai', 'Kia', 'Dacia'
     ];
 
     const PARTS_BRANDS = [
         'Bosch', 'Valeo', 'Delphi', 'TRW', 'Brembo',
-        'SKF', 'Continental', 'Denso', 'NGK', 'Gates',
-        'Sachs', 'Monroe', 'Mann Filter', 'Febi Bilstein', 'Mahle',
-        'Magneti Marelli', 'Hella', 'LuK', 'INA', 'SNR'
+        'SKF', 'Continental', 'Denso', 'NGK', 'Gates'
     ];
 
     const OILS_BRANDS = [
-        'Mobil', 'Castrol', 'Total', 'ELF', 'Shell',
-        'Motul', 'Liqui Moly', 'Fuchs', 'Valvoline', 'Gulf',
-        'Nippon', 'Repsol', 'Petronas', 'Comma', 'Mannol',
-        'Wolf', 'Ravenol', 'Eneos', 'Idemitsu', 'Kroon-Oil'
+        'Mobil', 'Castrol', 'Total', 'ELF', 'Shell'
     ];
 
     function renderBrandsTrack(containerId, brands, pathPrefix, fallbackEmoji) {
@@ -606,9 +599,10 @@
     }
 
     function renderAllBrands() {
-        renderBrandsTrack('carBrandsTrack', CAR_BRANDS, 'brands/icon', '🚗');
-        renderBrandsTrack('partsBrandsTrack', PARTS_BRANDS, 'brands/part', '🔧');
-        renderBrandsTrack('oilsTrack', OILS_BRANDS, 'brands/oil', '🛢️');
+        // ✅ قراءة مباشرة من جذر المشروع
+        renderBrandsTrack('carBrandsTrack', CAR_BRANDS, './icon', '🚗');
+        renderBrandsTrack('partsBrandsTrack', PARTS_BRANDS, './piece', '🔧');
+        renderBrandsTrack('oilsTrack', OILS_BRANDS, './oil', '🛢️');
     }
 
     function applyBrandsVisibility() {
