@@ -1,10 +1,10 @@
 // ============================================
 // MED GARAGE — Service Worker
 // Network-First Strategy
-// Version: 3.4
+// Version: 3.8 (إجبار التحديث لمسح الأسماء من السلايد)
 // ============================================
 
-const CACHE_NAME = 'med-garage-v3.4';
+const CACHE_NAME = 'med-garage-v3.8';
 
 const CACHE_URLS = [
   './',
@@ -22,10 +22,10 @@ const CACHE_URLS = [
   // 🚗 ماركات السيارات
   './icon1.png', './icon2.png', './icon3.png', './icon4.png', './icon5.png',
   './icon6.png', './icon7.png', './icon8.png', './icon9.png', './icon10.png',
-  // 🔧 قطع الغيار
+  // 🔧 قطع الغيار (إذا كانت موجودة)
   './piece1.png', './piece2.png', './piece3.png', './piece4.png', './piece5.png',
   './piece6.png', './piece7.png', './piece8.png', './piece9.png', './piece10.png',
-  // 🛢️ الزيوت
+  // 🛢️ الزيوت (إذا كانت موجودة)
   './oil1.png', './oil2.png', './oil3.png', './oil4.png', './oil5.png'
 ];
 
@@ -36,12 +36,12 @@ const CDN_WHITELIST = [
 ];
 
 // ============================================
-// INSTALL — ✅ skipWaiting مفعّل الآن
+// INSTALL
 // ============================================
 self.addEventListener('install', (event) => {
-  console.log('🔧 [SW] Installing v3.4...');
-  
-  // ✅ تفعيل فوري بدون انتظار إغلاق التبويبات
+  console.log('🔧 [SW] Installing v3.8...');
+
+  // ✅ تفعيل فوري
   self.skipWaiting();
 
   event.waitUntil(
@@ -61,7 +61,7 @@ self.addEventListener('install', (event) => {
 // ACTIVATE
 // ============================================
 self.addEventListener('activate', (event) => {
-  console.log('🔧 [SW] Activating v3.4...');
+  console.log('🔧 [SW] Activating v3.8...');
 
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -153,4 +153,4 @@ self.addEventListener('sync', (event) => {
   console.log('🔄 [SW] Background sync:', event.tag);
 });
 
-console.log('✅ [SW] Service Worker loaded — MED GARAGE v3.4');
+console.log('✅ [SW] Service Worker loaded — MED GARAGE v3.8');
