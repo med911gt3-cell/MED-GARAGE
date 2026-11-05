@@ -391,9 +391,8 @@
     let editingInvoiceId = null;
     let currentItems = [];
     let showTrash = false;
-    let currentPdfLang = 'fr'; // ← لغة معاينة PDF
+    let currentPdfLang = 'fr';
 
-    // ✅ ترقيم جديد: M-G 0001 / M-G-D 0001
     function generateInvoiceCode(status = 'done') {
         const invoices = getData('invoices', []);
         const prefix = status === 'devis' ? 'M-G-D' : 'M-G';
@@ -403,7 +402,6 @@
 
         let maxNum = 0;
         sameType.forEach(i => {
-            // ✅ يقرأ فقط الترقيم الجديد M-G 0001 / M-G-D 0001
             const m = String(i.code || '').match(/^M-G(?:-D)?\s+(\d+)$/);
             if (m) {
                 const n = parseInt(m[1], 10);
@@ -810,6 +808,8 @@
 
     // ============================================================
     // بناء HTML الفاتورة — يدعم العربية + الفرنسية
+    // ✅ الهيدر بـ Grid: اللوقو يعكس جهته تلقائياً
+    // ✅ الأسعار في وسط الخانات
     // ============================================================
     function buildInvoiceHTML(inv, lang = 'fr') {
         const isAr = lang === 'ar';
@@ -822,7 +822,6 @@
             if (s) shop = { ...shop, ...s };
         } catch(e) {}
 
-        // ✅ التسميات حسب اللغة
         const L = isAr ? {
             devis: 'عرض سعر', facture: 'فاتورة', num: 'رقم', date: 'التاريخ', time: 'الوقت',
             clientInfo: '👤 معلومات الزبون', name: 'الاسم', phone: 'الهاتف', address: 'العنوان',
@@ -851,8 +850,6 @@
             brandSub: 'Atelier de réparation auto'
         };
 
-        // ✅ في الفرنسي: عمود البيان LTR (يسار لليمين)
-        // في العربي: عمود البيان RTL (يمين لليسار)
         const itemDir = isAr ? 'rtl' : 'ltr';
         const itemAlign = isAr ? 'right' : 'left';
         const itemPaddingSide = isAr ? 'padding-right: 10px;' : 'padding-left: 10px;';
@@ -864,9 +861,9 @@
                 itemsHTML += `<tr>
                     <td style="text-align:center; border: 1px solid #cbd5e1; padding: 6px;">${i + 1}</td>
                     <td style="text-align:${itemAlign}; ${itemPaddingSide} border: 1px solid #cbd5e1; padding: 6px; direction:${itemDir}; unicode-bidi: plaintext;">${escapeHtml(it.name)}</td>
-                    <td style="text-align:center; border: 1px solid #cbd5e1; padding: 6px;">${it.qty}</td>
-                    <td style="text-align:${itemAlign === 'left' ? 'right' : 'left'}; border: 1px solid #cbd5e1; padding: 6px; direction:ltr;">${(it.price || 0).toLocaleString()}</td>
-                    <td style="text-align:${itemAlign === 'left' ? 'right' : 'left'}; border: 1px solid #cbd5e1; padding: 6px; direction:ltr;">${lineTotal.toLocaleString()}</td>
+                    <td style="text-align: center; border: 1px solid #cbd5e1; padding: 6px;">${it.qty}</td>
+                    <td style="text-align: center; border: 1px solid #cbd5e1; padding: 6px; direction:ltr;">${(it.price || 0).toLocaleString()}</td>
+                    <td style="text-align: center; border: 1px solid #cbd5e1; padding: 6px; direction:ltr;">${lineTotal.toLocaleString()}</td>
                 </tr>`;
             });
         }
@@ -875,9 +872,9 @@
             itemsHTML += `<tr style="background: #f8fafc;">
                 <td style="text-align:center; border: 1px solid #cbd5e1; padding: 6px;">🛠️</td>
                 <td style="text-align:${itemAlign}; ${itemPaddingSide} border: 1px solid #cbd5e1; padding: 6px; direction:${itemDir};"><strong>${L.mainOeuvre}</strong></td>
-                <td style="text-align:center; border: 1px solid #cbd5e1; padding: 6px;">1</td>
-                <td style="text-align:${itemAlign === 'left' ? 'right' : 'left'}; border: 1px solid #cbd5e1; padding: 6px; direction:ltr;">${(inv.labor || 0).toLocaleString()}</td>
-                <td style="text-align:${itemAlign === 'left' ? 'right' : 'left'}; border: 1px solid #cbd5e1; padding: 6px; direction:ltr;">${(inv.labor || 0).toLocaleString()}</td>
+                <td style="text-align: center; border: 1px solid #cbd5e1; padding: 6px;">1</td>
+                <td style="text-align: center; border: 1px solid #cbd5e1; padding: 6px; direction:ltr;">${(inv.labor || 0).toLocaleString()}</td>
+                <td style="text-align: center; border: 1px solid #cbd5e1; padding: 6px; direction:ltr;">${(inv.labor || 0).toLocaleString()}</td>
             </tr>`;
         }
 
@@ -894,9 +891,10 @@
 
         return `
             <div dir="${dir}" style="font-family: ${fontFamily}; color: #1e293b; max-width: 100%; background: #fff; direction: ${dir};">
-                <!-- Header -->
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #dc2626; padding-bottom: 15px; margin-bottom: 20px; gap: 10px;">
-                    <div style="flex: 1; text-align: ${isAr ? 'right' : 'left'};">
+
+                <!-- Header — Grid: اللوقو يعكس جهته تلقائياً -->
+                <div style="display: grid; grid-template-columns: 1fr 140px; gap: 15px; align-items: flex-start; direction: ${dir}; border-bottom: 3px solid #dc2626; padding-bottom: 15px; margin-bottom: 20px;">
+                    <div style="text-align: ${isAr ? 'right' : 'left'};">
                         <h1 style="margin: 0; color: #dc2626; font-size: 28px; font-weight: 900; letter-spacing: 1px;">MED GARAGE</h1>
                         <div style="font-size: 14px; font-weight: bold; color: #dc2626; margin: 2px 0 10px 0;">${L.brandSub}</div>
                         <div style="font-size: 11px; color: #333; line-height: 1.6; font-weight: bold;">
@@ -905,7 +903,7 @@
                             <div style="display:flex; gap:5px; justify-content: ${isAr ? 'flex-end' : 'flex-start'};"><span>✉️</span> <span>${escapeHtml(shop.email)}</span></div>
                         </div>
                     </div>
-                    <div style="flex: 0 0 140px; text-align: center;">
+                    <div style="text-align: center;">
                         <img src="${LOGO_BASE64}" alt="Logo" style="width: 130px; height: 130px; object-fit: contain;">
                     </div>
                 </div>
@@ -1058,7 +1056,7 @@
     }
 
     // ============================================================
-    // ✅ تحميل PDF — إصلاح كامل
+    // ✅ تحميل PDF — مع انتظار الصور + fallback للطباعة
     // ============================================================
     function downloadPDF() {
         if (!currentPDFInvoice) return;
@@ -1068,40 +1066,54 @@
         const safeCode = String(inv.code || 'facture').replace(/[^\w\-]+/g, '-');
         const filename = (inv.status === 'devis' ? 'devis-' : 'facture-') + safeCode + '.pdf';
 
-        // ✅ إنشاء حاوية مخفية بعرض A4 (794px = 210mm @ 96dpi)
         const container = document.createElement('div');
-        container.style.cssText = 'position: absolute; top: 0; left: 0; width: 794px; background: #ffffff; padding: 20px; z-index: -9999; opacity: 0.01; pointer-events: none;';
+        container.style.cssText = 'position: fixed; left: -10000px; top: 0; width: 794px; background: #ffffff; padding: 20px; z-index: 99999; pointer-events: none;';
         container.innerHTML = buildInvoiceHTML(inv, lang);
         document.body.appendChild(container);
 
-        // الانتظار لحين تحميل الصور والخطوط
-        const waitForRender = () => new Promise(resolve => setTimeout(resolve, 250));
-
-        waitForRender().then(() => {
-            return html2pdf().set({
-                margin: [8, 8, 8, 8],
-                filename: filename,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: '#ffffff',
-                    logging: false,
-                    scrollY: 0,
-                    windowWidth: 794,
-                    width: 794
-                },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-            }).from(container).save();
-        }).then(() => {
-            document.body.removeChild(container);
-            showToast('✅ تم تحميل PDF');
-        }).catch((err) => {
-            console.error('PDF error:', err);
-            if (container.parentNode) document.body.removeChild(container);
-            showToast('⚠️ خطأ في التحميل، جرب الطباعة', 'error');
+        const imgs = Array.from(container.querySelectorAll('img'));
+        const imgPromises = imgs.map(img => {
+            if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+            return new Promise(resolve => {
+                img.onload = resolve;
+                img.onerror = resolve;
+                setTimeout(resolve, 3000);
+            });
         });
+
+        Promise.all(imgPromises)
+            .then(() => new Promise(r => setTimeout(r, 200)))
+            .then(() => {
+                return html2pdf().set({
+                    margin: [8, 8, 8, 8],
+                    filename: filename,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: {
+                        scale: 2,
+                        useCORS: true,
+                        backgroundColor: '#ffffff',
+                        logging: false,
+                        scrollY: 0,
+                        windowWidth: 794
+                    },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak: { mode: ['css', 'legacy'] }
+                }).from(container).save();
+            })
+            .then(() => {
+                if (container.parentNode) document.body.removeChild(container);
+                showToast('✅ تم تحميل PDF');
+            })
+            .catch((err) => {
+                console.error('PDF error:', err);
+                if (container.parentNode) document.body.removeChild(container);
+                showToast('⚠️ جرب الطباعة (Save as PDF)', 'error');
+                setTimeout(() => {
+                    if (confirm('تعذر إنشاء PDF. هل تريد فتح نافذة الطباعة (يمكنك حفظها كـ PDF)؟')) {
+                        printInvoice(inv.id, lang);
+                    }
+                }, 300);
+            });
     }
 
     function printPDF() {
@@ -1109,6 +1121,7 @@
         printInvoice(currentPDFInvoice.id, currentPdfLang);
     }
 
+    // ✅ طباعة محسّنة مع زر Save as PDF
     function printInvoice(id, lang = 'fr') {
         const invoices = getData('invoices', []);
         const inv = invoices.find(i => i.id === id);
@@ -1124,10 +1137,25 @@
                     * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
                     body { font-family: 'Cairo', Tahoma, Arial, sans-serif; padding: 15px; max-width: 800px; margin: 0 auto; background: #fff; }
                     @page { size: A4; margin: 8mm; }
-                    @media print { body { padding: 0; } }
+                    @media print {
+                        body { padding: 0; }
+                        .no-print { display: none !important; }
+                    }
+                    .print-btn {
+                        position: fixed; top: 15px; right: 15px;
+                        background: #16a34a; color: #fff; border: none;
+                        padding: 12px 20px; border-radius: 8px; cursor: pointer;
+                        font-weight: 900; font-size: 14px; font-family: inherit;
+                        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+                        z-index: 9999;
+                    }
+                    .print-btn:hover { background: #15803d; }
                 </style>
             </head>
-            <body>${buildInvoiceHTML(inv, lang)}</body>
+            <body>
+                <button class="print-btn no-print" onclick="window.print()">🖨️ طباعة / Save as PDF</button>
+                ${buildInvoiceHTML(inv, lang)}
+            </body>
             </html>`;
 
         const win = window.open('', '_blank');
@@ -1137,7 +1165,7 @@
         }
         win.document.write(html);
         win.document.close();
-        setTimeout(() => { try { win.print(); } catch(e) {} }, 900);
+        setTimeout(() => { try { win.print(); } catch(e) {} }, 1200);
     }
 
     // ================= Init =================
