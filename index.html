@@ -74,15 +74,18 @@
         .brands-section { margin-top: 20px; padding: 15px 0; background: var(--card); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .brands-title { text-align: center; font-size: 14px; font-weight: bold; color: var(--text); margin-bottom: 12px; padding: 0 15px; }
         .brands-slider { display: flex; gap: 10px; overflow: hidden; position: relative; padding: 5px 0; }
-        .brands-track { display: flex; gap: 10px; animation: scrollBrands 30s linear infinite; padding-right: 10px; }
+        
+        .brands-track { display: flex; gap: 10px; animation: scrollBrands 180s linear infinite; padding-right: 10px; }
         @keyframes scrollBrands { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        html[dir="rtl"] .brands-track { animation: scrollBrandsRTL 30s linear infinite; }
+        html[dir="rtl"] .brands-track { animation: scrollBrandsRTL 180s linear infinite; }
         @keyframes scrollBrandsRTL { 0% { transform: translateX(0); } 100% { transform: translateX(50%); } }
 
-        .brand-card { flex-shrink: 0; background: #ffffff; border: 1px solid var(--border); border-radius: 10px; padding: 8px 14px; font-size: 13px; font-weight: bold; color: #1e293b; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.04); display: flex; align-items: center; gap: 8px; min-height: 46px; }
-        .brand-logo { width: 30px; height: 30px; object-fit: contain; display: inline-block; flex-shrink: 0; }
-        .brand-fallback { display: none; font-size: 18px; line-height: 1; }
-        .brand-name { display: inline-block; }
+        /* ✅ تعديل شكل البطاقة لتصبح مربعة وتحتوي على اللوقو فقط */
+        .brand-card { flex-shrink: 0; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); display: flex; align-items: center; justify-content: center; width: 80px; height: 80px; }
+        .brand-logo { width: 56px; height: 56px; object-fit: contain; display: block; flex-shrink: 0; }
+        
+        /* ✅ الاسم يظهر فقط إذا فشل تحميل اللوقو */
+        .brand-fallback { display: none; font-size: 13px; font-weight: bold; color: #1e293b; text-align: center; word-break: break-word; line-height: 1.2; }
 
         .install-pwa-card { background: var(--card); color: var(--text); border: 1px solid var(--accent); border-radius: 10px; padding: 12px; margin-top: 15px; text-align: center; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .install-pwa-card.visible { display: block; }
@@ -212,7 +215,7 @@
     <div class="brands-section" id="carBrandsSection">
         <div class="brands-title" data-ar="🚗 الماركات التي نتعامل معها" data-fr="🚗 Marques que nous traitons">🚗 الماركات التي نتعامل معها</div>
         <div class="brands-slider">
-            <div class="brands-track" id="carBrandsTrack" style="animation-duration: 80s;"></div>
+            <div class="brands-track" id="carBrandsTrack" style="animation-duration: 180s;"></div>
         </div>
     </div>
 
@@ -220,7 +223,7 @@
     <div class="brands-section" id="partsBrandsSection">
         <div class="brands-title" data-ar="🔧 ماركات قطع الغيار" data-fr="🔧 Marques de pièces">🔧 ماركات قطع الغيار</div>
         <div class="brands-slider">
-            <div class="brands-track" id="partsBrandsTrack" style="animation-duration: 70s;"></div>
+            <div class="brands-track" id="partsBrandsTrack" style="animation-duration: 180s;"></div>
         </div>
     </div>
 
@@ -228,7 +231,7 @@
     <div class="brands-section" id="oilsSection">
         <div class="brands-title" data-ar="🛢️ أنواع الزيوت" data-fr="🛢️ Types d'huiles">🛢️ أنواع الزيوت</div>
         <div class="brands-slider">
-            <div class="brands-track" id="oilsTrack" style="animation-duration: 60s;"></div>
+            <div class="brands-track" id="oilsTrack" style="animation-duration: 90s;"></div>
         </div>
     </div>
 
@@ -565,10 +568,7 @@
     }
 
     // ================================================================
-    // ✅ اللوقوهات — قراءة مباشرة من جذر المشروع (بدون مجلد brands/)
-    // car brands: icon1.png → icon10.png
-    // part brands: piece1.png → piece10.png
-    // oil brands: oil1.png → oil5.png
+    // ✅ اللوقوهات — عرض اللوقو فقط (مع اسم الماركة كبديل)
     // ================================================================
     const CAR_BRANDS = [
         'Chery', 'Geely', 'Changan', 'Renault', 'Peugeot',
@@ -584,25 +584,24 @@
         'Mobil', 'Castrol', 'Total', 'ELF', 'Shell'
     ];
 
-    function renderBrandsTrack(containerId, brands, pathPrefix, fallbackEmoji) {
+    function renderBrandsTrack(containerId, brands, pathPrefix) {
         const track = document.getElementById(containerId);
         if (!track) return;
         const cards = brands.map((name, idx) => {
             const img = pathPrefix + (idx + 1) + '.png';
-            return '<div class="brand-card">' +
-                '<img class="brand-logo" src="' + img + '" alt="' + name + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline\'">' +
-                '<span class="brand-fallback">' + fallbackEmoji + '</span>' +
-                '<span class="brand-name">' + name + '</span>' +
+            // ✅ إذا فشل اللوقو: نخفي الصورة ونظهر الاسم
+            return '<div class="brand-card" title="' + name + '">' +
+                '<img class="brand-logo" src="' + img + '" alt="' + name + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">' +
+                '<span class="brand-fallback">' + name + '</span>' +
             '</div>';
         }).join('');
         track.innerHTML = cards + cards;
     }
 
     function renderAllBrands() {
-        // ✅ قراءة مباشرة من جذر المشروع
-        renderBrandsTrack('carBrandsTrack', CAR_BRANDS, './icon', '🚗');
-        renderBrandsTrack('partsBrandsTrack', PARTS_BRANDS, './piece', '🔧');
-        renderBrandsTrack('oilsTrack', OILS_BRANDS, './oil', '🛢️');
+        renderBrandsTrack('carBrandsTrack', CAR_BRANDS, './icon');
+        renderBrandsTrack('partsBrandsTrack', PARTS_BRANDS, './piece');
+        renderBrandsTrack('oilsTrack', OILS_BRANDS, './oil');
     }
 
     function applyBrandsVisibility() {
