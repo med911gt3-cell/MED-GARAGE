@@ -58,12 +58,69 @@
 
         .header { text-align: center; padding: 15px 0 20px; border-bottom: 2px solid var(--primary); position: relative; }
 
-        .top-controls { position: absolute; top: 10px; left: 10px; display: flex; gap: 5px; flex-wrap: wrap; }
-        .lang-toggle, .theme-toggle, .view-toggle { display: flex; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px; overflow: hidden; backdrop-filter: blur(5px); }
-        .lang-toggle button, .theme-toggle button, .view-toggle button { background: transparent; border: none; padding: 6px 10px; font-size: 12px; font-weight: bold; color: #cbd5e1; cursor: pointer; font-family: inherit; transition: all 0.2s; }
-        .lang-toggle button.active, .theme-toggle button.active, .view-toggle button.active { background: var(--primary); color: #ffffff; }
+        /* ✅ زر اللغة ف اليمين */
+        .lang-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+        }
 
-        .logo-letter { width: 130px; height: 130px; border-radius: 50%; background: #ffffff; border: 3px solid var(--primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4); overflow: hidden; padding: 4px; cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+        /* ✅ زر الثيمات ف اليسار */
+        .theme-toggle {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+        }
+
+        .lang-toggle button, .theme-toggle button {
+            background: transparent;
+            border: none;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #cbd5e1;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .lang-toggle button.active, .theme-toggle button.active {
+            background: var(--primary);
+            color: #ffffff;
+        }
+
+        /* ✅ اللوجو تكبر 10% (143px) */
+        .logo-letter { 
+            width: 143px; 
+            height: 143px; 
+            border-radius: 50%; 
+            background: #ffffff; 
+            border: 3px solid var(--primary); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin: 15px auto; 
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4); 
+            overflow: hidden; 
+            padding: 4px; 
+            cursor: pointer; 
+            user-select: none; 
+            -webkit-user-select: none; 
+            -webkit-touch-callout: none; 
+        }
+        
         .logo-letter img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; display: block; pointer-events: none; }
         .header h1 { margin: 5px 0 0; color: var(--text-light); font-size: 28px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
         .header p { margin: 5px 0; color: var(--text-muted); font-size: 14px; }
@@ -81,11 +138,9 @@
         html[dir="rtl"] .brands-track { animation: scrollBrandsRTL 60s linear infinite; }
         @keyframes scrollBrandsRTL { 0% { transform: translateX(0); } 100% { transform: translateX(50%); } }
 
-        /* ✅ تعديل الحجم: رجعناه 135 بكسل */
         .brand-card { flex-shrink: 0; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; width: 135px; height: 135px; padding: 10px; }
         .brand-logo { width: 100%; height: 100%; object-fit: contain; display: block; border-radius: 8px; }
         
-        /* ✅ تعديل حجم النص الاحتياطي */
         .brand-fallback { display: none; font-size: 14px; font-weight: bold; color: #1e293b; text-align: center; padding: 5px; line-height: 1.2; word-break: break-word; }
 
         .install-pwa-card { background: var(--card); color: var(--text); border: 1px solid var(--accent); border-radius: 10px; padding: 12px; margin-top: 15px; text-align: center; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
@@ -154,20 +209,17 @@
 
 <div class="container">
     <div class="header">
-        <div class="top-controls">
-            <div class="lang-toggle">
-                <button id="btnAr" class="active" onclick="setLang('ar')">ع</button>
-                <button id="btnFr" onclick="setLang('fr')">FR</button>
-            </div>
-            <div class="view-toggle">
-                <button id="btnViewPc" class="active" onclick="setViewMode('pc')" title="شاشة كمبيوتر (للطباعة)">💻</button>
-                <button id="btnViewMobile" onclick="setViewMode('mobile')" title="شاشة هاتف (للطباعة)">📱</button>
-            </div>
-            <div class="theme-toggle">
-                <button id="themeDark" onclick="setTheme('dark')" title="رمادي غامق">🌙</button>
-                <button id="themeLight" onclick="setTheme('light')" title="أبيض نقي">☀️</button>
-                <button id="themeOled" onclick="setTheme('oled')" title="أسود فخم">🖤</button>
-            </div>
+        <!-- زر اللغة ف اليمين -->
+        <div class="lang-toggle">
+            <button id="btnAr" class="active" onclick="setLang('ar')">ع</button>
+            <button id="btnFr" onclick="setLang('fr')">FR</button>
+        </div>
+        
+        <!-- زر الثيمات ف اليسار -->
+        <div class="theme-toggle">
+            <button id="themeDark" onclick="setTheme('dark')" title="رمادي غامق">🌙</button>
+            <button id="themeLight" onclick="setTheme('light')" title="أبيض نقي">☀️</button>
+            <button id="themeOled" onclick="setTheme('oled')" title="أسود فخم">🖤</button>
         </div>
 
         <div class="logo-letter" id="logoSecret">
@@ -432,29 +484,12 @@
         try { localStorage.setItem('medgarage_theme', themeName); } catch(e) {}
     }
 
-    // ============ ✅ تبديل وضع العرض (كمبيوتر / هاتف) ============
-    function setViewMode(mode) {
-        const html = document.getElementById('htmlRoot');
-        html.setAttribute('data-view', mode);
-        
-        if (mode === 'pc') {
-            document.getElementById('btnViewPc').classList.add('active');
-            document.getElementById('btnViewMobile').classList.remove('active');
-        } else {
-            document.getElementById('btnViewMobile').classList.add('active');
-            document.getElementById('btnViewPc').classList.remove('active');
-        }
-        try { localStorage.setItem('mg_view_mode', mode); } catch(e) {}
-    }
-
     // ============ تحميل التفضيلات ============
     try {
         const savedLang = localStorage.getItem('medgarage_lang');
         if (savedLang && savedLang !== 'ar') setLang(savedLang);
         const savedTheme = localStorage.getItem('medgarage_theme');
         if (savedTheme) setTheme(savedTheme);
-        const savedView = localStorage.getItem('mg_view_mode') || 'pc';
-        setViewMode(savedView);
     } catch(e) {}
 
     // ============ Toast ============
