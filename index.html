@@ -8,102 +8,54 @@
     <meta name="theme-color" content="#1a1d21" id="themeColorMeta">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="MED GARAGE">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="./icon-192.png">
     <link rel="icon" type="image/png" href="./icon-192.png">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #dc2626;
-            --primary-hover: #b91c1c;
-            --bg: #1f242b;
-            --bg-gradient: linear-gradient(135deg, #2a2f38 0%, #181b20 100%);
-            --card: #ffffff;
-            --text: #1e293b;
-            --text-light: #f8fafc;
-            --text-muted: #64748b;
-            --accent: #f59e0b;
-            --whatsapp: #16a34a;
-            --contact: #2563eb;
-            --success: #16a34a;
-            --star: #fbbf24;
-            --border: #cbd5e1;
-        }
-
-        [data-theme="light"] {
-            --bg: #f1f5f9;
-            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            --card: #ffffff;
-            --text: #0f172a;
-            --text-light: #0f172a;
-            --text-muted: #475569;
-            --border: #cbd5e1;
-        }
-
-        [data-theme="oled"] {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg: #000000;
-            --bg-gradient: linear-gradient(135deg, #111111 0%, #000000 100%);
-            --card: #121212;
-            --text: #f8fafc;
-            --text-light: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: #334155;
-        }
-
+        /* [نفس التصميم السابق تماماً] */
+        :root { --primary: #dc2626; --primary-hover: #b91c1c; --bg: #1f242b; --bg-gradient: linear-gradient(135deg, #2a2f38 0%, #181b20 100%); --card: #ffffff; --text: #1e293b; --text-light: #f8fafc; --text-muted: #64748b; --accent: #f59e0b; --whatsapp: #16a34a; --contact: #2563eb; --success: #16a34a; --star: #fbbf24; --border: #cbd5e1; }
+        [data-theme="light"] { --bg: #f1f5f9; --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); --card: #ffffff; --text: #0f172a; --text-light: #0f172a; --text-muted: #475569; --border: #cbd5e1; }
+        [data-theme="oled"] { --primary: #2563eb; --primary-hover: #1d4ed8; --bg: #000000; --bg-gradient: linear-gradient(135deg, #111111 0%, #000000 100%); --card: #121212; --text: #f8fafc; --text-light: #f8fafc; --text-muted: #94a3b8; --border: #334155; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Cairo', system-ui, -apple-system, sans-serif; font-weight: 700; background: var(--bg-gradient); background-attachment: fixed; color: var(--text-light); margin: 0; padding: 15px; line-height: 1.6; min-height: 100vh; }
+        body { font-family: 'Cairo', system-ui, sans-serif; font-weight: 700; background: var(--bg-gradient); background-attachment: fixed; color: var(--text-light); margin: 0; padding: 15px; line-height: 1.6; min-height: 100vh; }
         .container { max-width: 500px; margin: 0 auto; padding-bottom: 40px; }
-
         .header { text-align: center; padding: 15px 0 20px; border-bottom: 2px solid var(--primary); position: relative; }
-
         .top-controls { position: absolute; top: 10px; left: 10px; display: flex; gap: 5px; }
         .lang-toggle, .theme-toggle { display: flex; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px; overflow: hidden; backdrop-filter: blur(5px); }
         .lang-toggle button, .theme-toggle button { background: transparent; border: none; padding: 6px 10px; font-size: 12px; font-weight: bold; color: #cbd5e1; cursor: pointer; font-family: inherit; transition: all 0.2s; }
         .lang-toggle button.active, .theme-toggle button.active { background: var(--primary); color: #ffffff; }
-
-        .logo-letter { width: 130px; height: 130px; border-radius: 50%; background: #ffffff; border: 3px solid var(--primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4); overflow: hidden; padding: 4px; cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+        .logo-letter { width: 130px; height: 130px; border-radius: 50%; background: #ffffff; border: 3px solid var(--primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; box-shadow: 0 10px 25px rgba(0,0,0,0.4); overflow: hidden; padding: 4px; cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
         .logo-letter img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; display: block; pointer-events: none; }
         .header h1 { margin: 5px 0 0; color: var(--text-light); font-size: 28px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
         .header p { margin: 5px 0; color: var(--text-muted); font-size: 14px; }
-
         .status-bar { display: inline-flex; align-items: center; gap: 8px; background: rgba(245, 158, 11, 0.15); border: 1px solid var(--accent); color: #fbbf24; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-top: 10px; }
         .status-dot { width: 8px; height: 8px; background-color: var(--accent); border-radius: 50%; box-shadow: 0 0 8px var(--accent); animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-
-        .brands-section { margin-top: 20px; padding: 15px 0; background: var(--card); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        
+        /* السلايدرات */
+        .brands-section { margin-top: 20px; padding: 15px 0; background: var(--card); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.2); display: none; /* مخفي حتى توجد صور */ }
         .brands-title { text-align: center; font-size: 14px; font-weight: bold; color: var(--text); margin-bottom: 12px; padding: 0 15px; }
         .brands-slider { display: flex; gap: 10px; overflow: hidden; position: relative; padding: 5px 0; }
-        
-        /* حركة السلايد */
         .brands-track { display: flex; gap: 10px; animation: scrollBrands 80s linear infinite; padding-right: 10px; }
         @keyframes scrollBrands { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         html[dir="rtl"] .brands-track { animation: scrollBrandsRTL 240s linear infinite; }
         @keyframes scrollBrandsRTL { 0% { transform: translateX(0); } 100% { transform: translateX(50%); } }
-
-        /* ✅ تصميم البطاقة: مربع أنيق يحتوي على اللوقو فقط */
-        .brand-card { flex-shrink: 0; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); display: flex; align-items: center; justify-content: center; width: 90px; height: 90px; }
-        .brand-logo { width: 65px; height: 65px; object-fit: contain; display: block; }
-        
-        /* ✅ الاسم يظهر فقط إذا فشل تحميل الصورة */
-        .brand-fallback { display: none; font-size: 13px; font-weight: bold; color: #1e293b; text-align: center; padding: 5px; line-height: 1.2; word-break: break-word; }
+        .brand-card { flex-shrink: 0; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); display: flex; align-items: center; justify-content: center; width: 90px; height: 90px; padding: 5px; }
+        .brand-card img { width: 100%; height: 100%; object-fit: contain; display: block; border-radius: 8px; }
 
         .install-pwa-card { background: var(--card); color: var(--text); border: 1px solid var(--accent); border-radius: 10px; padding: 12px; margin-top: 15px; text-align: center; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .install-pwa-card.visible { display: block; }
         .btn-install { background-color: var(--accent); color: #fff; border: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; width: 100%; margin-top: 8px; font-family: inherit; }
-
         .section-title { font-size: 18px; margin: 28px 0 15px; color: var(--text-light); border-right: 4px solid var(--primary); padding-right: 10px; font-weight: 900; }
         html[dir="ltr"] .section-title { border-right: none; border-left: 4px solid var(--primary); padding-right: 0; padding-left: 10px; }
-
         .info-card { background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .info-card h4 { margin: 0 0 10px; color: #0284c7; font-size: 16px; }
         .info-card p { color: var(--text-muted); font-size: 14px; line-height: 1.7; margin: 0; }
-
         .announcement-card { background: var(--card); color: var(--text); border: 1px solid var(--border); border-right: 4px solid var(--accent); padding: 18px; border-radius: 12px; margin: 15px 0; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .announcement-badge { background: rgba(217, 119, 6, 0.15); color: #b45309; font-weight: bold; padding: 4px 14px; border-radius: 12px; font-size: 12px; display: inline-block; }
         .announcement-card h3 { color: var(--text); margin: 12px 0 8px; font-size: 17px; }
         .announcement-card p { color: var(--text-muted); font-size: 13px; margin: 0; line-height: 1.7; }
-
+        
         .services-list { display: flex; flex-direction: column; gap: 10px; }
         details.service-item { background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
         details.service-item[open] { border-color: var(--primary); }
@@ -132,54 +84,16 @@
         .form-control.phone-input { direction: ltr; text-align: right; unicode-bidi: embed; }
         textarea.form-control { resize: vertical; min-height: 80px; }
         .btn-submit-booking { background-color: var(--primary); color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; margin-top: 5px; font-family: inherit; box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3); }
-        .btn-submit-booking:disabled { opacity: 0.6; cursor: not-allowed; }
-
-        .services-checkboxes {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            background: #f8fafc;
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-        }
-        [data-theme="oled"] .services-checkboxes,
-        [data-theme="light"] .services-checkboxes { background: rgba(0,0,0,0.03); }
-        @media (max-width: 380px) {
-            .services-checkboxes { grid-template-columns: 1fr; }
-        }
-        .service-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 10px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            color: var(--text);
-            background: var(--card);
-            user-select: none;
-            min-height: 42px;
-            transition: all 0.2s;
-            font-weight: 700;
-        }
-        .service-checkbox input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            flex-shrink: 0;
-            cursor: pointer;
-            accent-color: var(--primary);
-        }
+        
+        .services-checkboxes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; background: #f8fafc; padding: 12px; border: 1px solid var(--border); border-radius: 8px; }
+        [data-theme="oled"] .services-checkboxes, [data-theme="light"] .services-checkboxes { background: rgba(0,0,0,0.03); }
+        .service-checkbox { display: flex; align-items: center; gap: 6px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 12px; color: var(--text); background: var(--card); user-select: none; min-height: 42px; transition: all 0.2s; font-weight: 700; }
+        .service-checkbox input[type="checkbox"] { width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; accent-color: var(--primary); }
         .service-checkbox span { flex: 1; line-height: 1.3; }
-        .service-checkbox:has(input:checked) {
-            border-color: var(--primary);
-            background: rgba(220, 38, 38, 0.08);
-        }
-
+        .service-checkbox:has(input:checked) { border-color: var(--primary); background: rgba(220, 38, 38, 0.08); }
+        
         .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-muted); font-size: 12px; }
         .footer strong { color: var(--primary); }
-
         .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: #fff; padding: 12px 20px; border-radius: 8px; font-weight: 900; font-size: 14px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); z-index: 9999; transition: transform 0.3s ease; max-width: 90%; text-align: center; }
         .toast.show { transform: translateX(-50%) translateY(0); }
         .toast.error { background: var(--primary); }
@@ -212,23 +126,31 @@
         </div>
     </div>
 
-    <!-- ✅ 1) ماركات السيارات (10) -->
+    <!-- 🎁 1) العروض والتخفيضات -->
+    <div class="brands-section" id="promoSection">
+        <div class="brands-title" data-ar="🎁 العروض والتخفيضات" data-fr="🎁 Promotions">🎁 العروض والتخفيضات</div>
+        <div class="brands-slider">
+            <div class="brands-track" id="promoTrack" style="animation-duration: 120s;"></div>
+        </div>
+    </div>
+
+    <!-- 🚗 2) ماركات السيارات -->
     <div class="brands-section" id="carBrandsSection">
-        <div class="brands-title" data-ar="🚗 الماركات التي نتعامل معها" data-fr="🚗 Marques que nous traitons">🚗 الماركات التي نتعامل معها</div>
+        <div class="brands-title" data-ar="🚗 الماركات التي نتعامل معها" data-fr="🚗 Marques Voitures">🚗 الماركات التي نتعامل معها</div>
         <div class="brands-slider">
             <div class="brands-track" id="carBrandsTrack" style="animation-duration: 240s;"></div>
         </div>
     </div>
 
-    <!-- ✅ 2) ماركات قطع الغيار (10) -->
+    <!-- 🔧 3) ماركات قطع الغيار -->
     <div class="brands-section" id="partsBrandsSection">
-        <div class="brands-title" data-ar="🔧 ماركات قطع الغيار" data-fr="🔧 Marques de pièces">🔧 ماركات قطع الغيار</div>
+        <div class="brands-title" data-ar="🔧 ماركات قطع الغيار" data-fr="🔧 Marques Pièces">🔧 ماركات قطع الغيار</div>
         <div class="brands-slider">
             <div class="brands-track" id="partsBrandsTrack" style="animation-duration: 240s;"></div>
         </div>
     </div>
 
-    <!-- ✅ 3) أنواع الزيوت (5) -->
+    <!-- 🛢️ 4) أنواع الزيوت -->
     <div class="brands-section" id="oilsSection">
         <div class="brands-title" data-ar="🛢️ أنواع الزيوت" data-fr="🛢️ Types d'huiles">🛢️ أنواع الزيوت</div>
         <div class="brands-slider">
@@ -255,6 +177,7 @@
 
     <div class="section-title" data-ar="خدماتنا" data-fr="Nos services">خدماتنا</div>
     <div class="services-list">
+        <!-- الخدمات كما هي -->
         <details class="service-item">
             <summary class="service-header">🛢️ Vidange + Filtres (تغيير الزيت والفلتر)</summary>
             <div class="service-details">
@@ -339,6 +262,7 @@
         <div id="contact-message"></div>
     </div>
 
+    <!-- فورم الحجز كما هو -->
     <div class="section-title" data-ar="طلب حجز موعد" data-fr="Demande de rendez-vous">طلب حجز موعد</div>
     <div class="booking-form">
         <div class="form-group">
@@ -420,264 +344,64 @@
 <div id="toast" class="toast"></div>
 
 <script>
-    // ============ تبديل اللغة ============
+    // ============ تبديل اللغة والثيم ============
     let currentLang = 'ar';
     function setLang(lang) {
         currentLang = lang;
         const html = document.getElementById('htmlRoot');
-        if (lang === 'ar') {
-            html.setAttribute('lang', 'ar');
-            html.setAttribute('dir', 'rtl');
-            document.getElementById('btnAr').classList.add('active');
-            document.getElementById('btnFr').classList.remove('active');
-        } else {
-            html.setAttribute('lang', 'fr');
-            html.setAttribute('dir', 'ltr');
-            document.getElementById('btnFr').classList.add('active');
-            document.getElementById('btnAr').classList.remove('active');
-        }
+        if (lang === 'ar') { html.setAttribute('lang', 'ar'); html.setAttribute('dir', 'rtl'); document.getElementById('btnAr').classList.add('active'); document.getElementById('btnFr').classList.remove('active'); } 
+        else { html.setAttribute('lang', 'fr'); html.setAttribute('dir', 'ltr'); document.getElementById('btnFr').classList.add('active'); document.getElementById('btnAr').classList.remove('active'); }
         document.querySelectorAll('[data-ar][data-fr]').forEach(el => {
             const val = el.getAttribute('data-' + lang);
-            if (val) {
-                if (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
-                    if (el.placeholder) el.placeholder = val;
-                } else {
-                    el.textContent = val;
-                }
-            }
+            if (val) { if (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') { if (el.placeholder) el.placeholder = val; } else { el.textContent = val; } }
         });
         try { localStorage.setItem('medgarage_lang', lang); } catch(e) {}
     }
-
-    // ============ تبديل الثيم ============
     function setTheme(themeName) {
         const html = document.getElementById('htmlRoot');
         const meta = document.getElementById('themeColorMeta');
-        if (themeName === 'light') {
-            html.setAttribute('data-theme', 'light');
-            if (meta) meta.setAttribute('content', '#f1f5f9');
-        } else if (themeName === 'oled') {
-            html.setAttribute('data-theme', 'oled');
-            if (meta) meta.setAttribute('content', '#000000');
-        } else {
-            html.removeAttribute('data-theme');
-            if (meta) meta.setAttribute('content', '#1a1d21');
-        }
+        if (themeName === 'light') { html.setAttribute('data-theme', 'light'); if (meta) meta.setAttribute('content', '#f1f5f9'); } 
+        else if (themeName === 'oled') { html.setAttribute('data-theme', 'oled'); if (meta) meta.setAttribute('content', '#000000'); } 
+        else { html.removeAttribute('data-theme'); if (meta) meta.setAttribute('content', '#1a1d21'); }
         try { localStorage.setItem('medgarage_theme', themeName); } catch(e) {}
     }
+    try { const savedLang = localStorage.getItem('medgarage_lang'); if (savedLang && savedLang !== 'ar') setLang(savedLang); const savedTheme = localStorage.getItem('medgarage_theme'); if (savedTheme) setTheme(savedTheme); } catch(e) {}
 
-    // ============ تحميل التفضيلات ============
-    try {
-        const savedLang = localStorage.getItem('medgarage_lang');
-        if (savedLang && savedLang !== 'ar') setLang(savedLang);
-        const savedTheme = localStorage.getItem('medgarage_theme');
-        if (savedTheme) setTheme(savedTheme);
-    } catch(e) {}
-
-    // ============ Toast ============
     function showToast(message, type = 'success') {
         const toast = document.getElementById('toast');
-        toast.textContent = message;
-        toast.className = 'toast show' + (type === 'error' ? ' error' : '');
+        toast.textContent = message; toast.className = 'toast show' + (type === 'error' ? ' error' : '');
         setTimeout(() => toast.classList.remove('show'), 3500);
     }
 
     // ============ الباب السري ============
     (function initSecretDoor() {
-        const logo = document.getElementById('logoSecret');
-        if (!logo) return;
-
-        const REQUIRED_NORMAL_PRESSES = 7;
-        const LONG_PRESS_MS = 6000;
-        const MAX_SHORT_PRESS_MS = 1000;
-        const INACTIVITY_MS = 5000;
-
-        let count = 0;
-        let pressStart = 0;
-        let isPressing = false;
-        let inactivityTimer = null;
-        let longPressTimer = null;
-
-        function clearTimers() {
-            clearTimeout(inactivityTimer);
-            clearTimeout(longPressTimer);
-            inactivityTimer = null;
-            longPressTimer = null;
-        }
-
-        function reset() {
-            count = 0;
-            pressStart = 0;
-            isPressing = false;
-            clearTimers();
-        }
-
-        function scheduleInactivityReset() {
-            clearTimeout(inactivityTimer);
-            inactivityTimer = setTimeout(reset, INACTIVITY_MS);
-        }
-
-        function openDashboard() {
-            reset();
-            window.location.href = './dashboard.html';
-        }
-
-        function onPointerDown(e) {
-            if (isPressing) return;
-            isPressing = true;
-            pressStart = Date.now();
-            clearTimers();
-            try { logo.setPointerCapture(e.pointerId); } catch(err) {}
-            if (count >= REQUIRED_NORMAL_PRESSES) {
-                longPressTimer = setTimeout(openDashboard, LONG_PRESS_MS);
-            }
-            e.preventDefault();
-        }
-
-        function onPointerUp(e) {
-            if (!isPressing) return;
-            isPressing = false;
-            const held = Date.now() - pressStart;
-            clearTimeout(longPressTimer);
-            if (count < REQUIRED_NORMAL_PRESSES) {
-                if (held <= MAX_SHORT_PRESS_MS) {
-                    count++;
-                    scheduleInactivityReset();
-                } else {
-                    reset();
-                }
-            } else {
-                reset();
-            }
-        }
-
+        const logo = document.getElementById('logoSecret'); if (!logo) return;
+        const REQUIRED_NORMAL_PRESSES = 7, LONG_PRESS_MS = 6000, MAX_SHORT_PRESS_MS = 1000, INACTIVITY_MS = 5000;
+        let count = 0, pressStart = 0, isPressing = false, inactivityTimer = null, longPressTimer = null;
+        function clearTimers() { clearTimeout(inactivityTimer); clearTimeout(longPressTimer); inactivityTimer = null; longPressTimer = null; }
+        function reset() { count = 0; pressStart = 0; isPressing = false; clearTimers(); }
+        function scheduleInactivityReset() { clearTimeout(inactivityTimer); inactivityTimer = setTimeout(reset, INACTIVITY_MS); }
+        function openDashboard() { reset(); window.location.href = './dashboard.html'; }
+        function onPointerDown(e) { if (isPressing) return; isPressing = true; pressStart = Date.now(); clearTimers(); try { logo.setPointerCapture(e.pointerId); } catch(err) {} if (count >= REQUIRED_NORMAL_PRESSES) { longPressTimer = setTimeout(openDashboard, LONG_PRESS_MS); } e.preventDefault(); }
+        function onPointerUp(e) { if (!isPressing) return; isPressing = false; const held = Date.now() - pressStart; clearTimeout(longPressTimer); if (count < REQUIRED_NORMAL_PRESSES) { if (held <= MAX_SHORT_PRESS_MS) { count++; scheduleInactivityReset(); } else { reset(); } } else { reset(); } }
         function onPointerCancel() { reset(); }
-
-        logo.addEventListener('pointerdown', onPointerDown);
-        logo.addEventListener('pointerup', onPointerUp);
-        logo.addEventListener('pointercancel', onPointerCancel);
-        logo.addEventListener('contextmenu', e => e.preventDefault());
-        logo.addEventListener('dragstart', e => e.preventDefault());
+        logo.addEventListener('pointerdown', onPointerDown); logo.addEventListener('pointerup', onPointerUp); logo.addEventListener('pointercancel', onPointerCancel); logo.addEventListener('contextmenu', e => e.preventDefault()); logo.addEventListener('dragstart', e => e.preventDefault());
     })();
 
-    // ============ تواريخ نظيفة ============
-    function toDisplayDate(isoDate) {
-        if (!isoDate) return '';
-        const parts = String(isoDate).split('-');
-        if (parts.length === 3) return parts[2] + '/' + parts[1] + '/' + parts[0];
-        return isoDate;
-    }
+    // ============ PWA ============
+    let deferredPrompt; const installContainer = document.getElementById('installContainer');
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; if (installContainer) installContainer.classList.add('visible'); });
+    function promptInstall() { if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then(() => { deferredPrompt = null; if (installContainer) installContainer.classList.remove('visible'); }); } else { showToast('💡 اضغط على ⋮ ثم اختر "إضافة إلى الشاشة الرئيسية"', 'error'); } }
 
-    // ================================================================
-    // ✅ اللوقوهات — قراءة مباشرة، وعرض اللوقو فقط بدون اسم
-    // ================================================================
-    const CAR_BRANDS = [
-        'Chery', 'Geely', 'Changan', 'Renault', 'Peugeot',
-        'Volkswagen', 'Toyota', 'Hyundai', 'Kia', 'Dacia'
-    ];
-
-    const PARTS_BRANDS = [
-        'Bosch', 'Valeo', 'Delphi', 'TRW', 'Brembo',
-        'SKF', 'Continental', 'Denso', 'NGK', 'Gates'
-    ];
-
-    const OILS_BRANDS = [
-        'Mobil', 'Castrol', 'Total', 'ELF', 'Shell'
-    ];
-
-    function renderBrandsTrack(containerId, brands, pathPrefix, fallbackEmoji) {
-        const track = document.getElementById(containerId);
-        if (!track) return;
-        const cards = brands.map((name, idx) => {
-            const img = pathPrefix + (idx + 1) + '.png';
-            // ✅ الكود هنا: يعرض الصورة فقط. وإذا لم توجد الصورة يظهر الاسم.
-            return '<div class="brand-card" title="' + name + '">' +
-                '<img class="brand-logo" src="' + img + '" alt="' + name + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">' +
-                '<span class="brand-fallback">' + name + '</span>' +
-            '</div>';
-        }).join('');
-        track.innerHTML = cards + cards;
-    }
-
-    function renderAllBrands() {
-        renderBrandsTrack('carBrandsTrack', CAR_BRANDS, './icon', '🚗');
-        renderBrandsTrack('partsBrandsTrack', PARTS_BRANDS, './piece', '🔧');
-        renderBrandsTrack('oilsTrack', OILS_BRANDS, './oil', '🛢️');
-    }
-
-    function applyBrandsVisibility() {
-        if (localStorage.getItem('mg_show_car') === '0') {
-            const el = document.getElementById('carBrandsSection');
-            if (el) el.style.display = 'none';
-        }
-        if (localStorage.getItem('mg_show_parts') === '0') {
-            const el = document.getElementById('partsBrandsSection');
-            if (el) el.style.display = 'none';
-        }
-        if (localStorage.getItem('mg_show_oils') === '0') {
-            const el = document.getElementById('oilsSection');
-            if (el) el.style.display = 'none';
-        }
-    }
-
-    // ============ PWA Install ============
-    let deferredPrompt;
-    const installContainer = document.getElementById('installContainer');
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        if (installContainer) installContainer.classList.add('visible');
-    });
-
-    function promptInstall() {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then(() => {
-                deferredPrompt = null;
-                if (installContainer) installContainer.classList.remove('visible');
-            });
-        } else {
-            showToast(currentLang === 'ar' ? '💡 اضغط على ⋮ ثم اختر "إضافة إلى الشاشة الرئيسية"' : '💡 Appuyez sur ⋮ puis "Ajouter à l\'écran d\'accueil"', 'error');
-        }
-    }
-
-    // ============ VCard ============
+    // ============ VCard & Share ============
     function downloadVCard() {
         const vcard = "BEGIN:VCARD\nVERSION:3.0\nFN:MED GARAGE\nORG:MED GARAGE Auto Repair\nTEL;TYPE=CELL,VOICE:+213790582551\nADR;TYPE=WORK:;;Cite 1780 OPGI;Souidania;Alger;16000;Algeria\nURL:https://wa.me/213790582551\nEND:VCARD";
-        try {
-            const encoded = encodeURIComponent(vcard);
-            const dataUri = "data:text/vcard;charset=utf-8," + encoded;
-            const link = document.createElement("a");
-            link.href = dataUri;
-            link.download = "MED_GARAGE.vcf";
-            link.style.display = "none";
-            document.body.appendChild(link);
-            link.click();
-            setTimeout(() => document.body.removeChild(link), 100);
-
-            const message = document.getElementById("contact-message");
-            message.innerHTML = currentLang === 'ar' ? "✅ تم تحميل الملف! افتحه من <strong>الإشعارات</strong> أو <strong>التحميلات</strong>." : "✅ Fichier téléchargé ! Ouvrez-le depuis <strong>Notifications</strong> ou <strong>Téléchargements</strong>.";
-            message.style.display = "block";
-            showToast(currentLang === 'ar' ? '✅ تم تحميل بطاقة الاتصال' : '✅ Carte de contact téléchargée');
-            setTimeout(() => message.style.display = "none", 8000);
-        } catch (e) {
-            showToast('⚠️ خطأ في التحميل', 'error');
-        }
+        try { const encoded = encodeURIComponent(vcard); const dataUri = "data:text/vcard;charset=utf-8," + encoded; const link = document.createElement("a"); link.href = dataUri; link.download = "MED_GARAGE.vcf"; link.style.display = "none"; document.body.appendChild(link); link.click(); setTimeout(() => document.body.removeChild(link), 100); const message = document.getElementById("contact-message"); message.innerHTML = "✅ تم تحميل الملف!"; message.style.display = "block"; showToast('✅ تم تحميل بطاقة الاتصال'); setTimeout(() => message.style.display = "none", 8000); } 
+        catch (e) { showToast('⚠️ خطأ في التحميل', 'error'); }
     }
-
-    // ============ مشاركة ============
     function sharePage() {
-        const shareData = {
-            title: 'MED GARAGE - ورشة محمد لصيانة السيارات',
-            text: currentLang === 'ar' ? '🚗 أنصحك بزيارة ورشة محمد لصيانة السيارات (السويدانية). تشخيص دقيق، خدمة احترافية، وأسعار معقولة:' : '🚗 Je vous recommande Garage Mohamed Auto Repair (Souidania) :',
-            url: window.location.href
-        };
-        if (navigator.share) {
-            navigator.share(shareData).catch(() => {});
-        } else {
-            navigator.clipboard.writeText(window.location.href);
-            showToast(currentLang === 'ar' ? '📋 تم نسخ رابط الورشة، يمكنك إرساله لأصدقائك!' : '📋 Lien copié, partagez-le avec vos amis !');
-        }
+        const shareData = { title: 'MED GARAGE', text: '🚗 أنصحك بزيارة ورشة محمد لصيانة السيارات (السويدانية):', url: window.location.href };
+        if (navigator.share) { navigator.share(shareData).catch(() => {}); } else { navigator.clipboard.writeText(window.location.href); showToast('📋 تم نسخ رابط الورشة!'); }
     }
 
     // ============ إرسال الحجز ============
@@ -687,69 +411,88 @@
         const phone = document.getElementById('client-phone').value.trim();
         const bDate = document.getElementById('client-date').value;
         const desc = document.getElementById('issue-desc').value.trim();
+        if (!name) { showToast('⚠️ يرجى إدخال الاسم', 'error'); document.getElementById('client-name').focus(); return; }
+        const services = []; document.querySelectorAll('input[name="bookingService"]:checked').forEach(cb => { services.push(cb.value); });
+        const now = Date.now(); const booking = { id: now, name: name, car: car, phone: phone, date: bDate, services: services, desc: desc, status: 'pending', createdAt: now };
+        try { let bookings = []; try { bookings = JSON.parse(localStorage.getItem('mg_bookings') || '[]'); } catch(e) { bookings = []; } bookings.unshift(booking); localStorage.setItem('mg_bookings', JSON.stringify(bookings)); } catch(e) {}
+        let text = "السلام عليكم، أريد حجز موعد:\n\n👤 الاسم: " + name + "\n"; if (car) text += "🚘 السيارة: " + car + "\n"; if (phone) text += "📞 الهاتف: " + phone + "\n"; if (bDate) text += "📅 الموعد المرغوب: " + bDate + "\n"; if (services.length > 0) text += "🛠️ الخدمات: " + services.join(' + ') + "\n"; if (desc) text += "📝 المشكل: " + desc;
+        const whatsappUrl = "https://wa.me/213790582551?text=" + encodeURIComponent(text); window.open(whatsappUrl, '_blank'); showToast('✅ تم حفظ الحجز + جاري فتح واتساب...');
+    }
 
-        if (!name) {
-            showToast(currentLang === 'ar' ? '⚠️ يرجى إدخال الاسم' : '⚠️ Veuillez entrer votre nom', 'error');
-            document.getElementById('client-name').focus();
+    // ================================================================
+    // 🚀 نظام IndexedDB للصور الديناميكية
+    // ================================================================
+    const DB_NAME = 'MedGarageDB';
+    const DB_VERSION = 1;
+    const STORE_NAME = 'images';
+
+    function openDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(DB_NAME, DB_VERSION);
+            request.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                    db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                }
+            };
+            request.onsuccess = (e) => resolve(e.target.result);
+            request.onerror = (e) => reject(e.target.error);
+        });
+    }
+
+    async function getImagesByCategory(category) {
+        try {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(STORE_NAME, 'readonly');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.getAll();
+                request.onsuccess = (e) => {
+                    const all = e.target.result;
+                    resolve(all.filter(img => img.category === category));
+                };
+                request.onerror = (e) => reject(e.target.error);
+            });
+        } catch(e) { return []; }
+    }
+
+    async function renderDynamicSlider(category, trackId, sectionId) {
+        const images = await getImagesByCategory(category);
+        const section = document.getElementById(sectionId);
+        const track = document.getElementById(trackId);
+        
+        if (!section || !track) return;
+
+        if (images.length === 0) {
+            section.style.display = 'none'; // نخفي القسم إذا ما كانش صور
             return;
         }
 
-        const services = [];
-        document.querySelectorAll('input[name="bookingService"]:checked').forEach(cb => {
-            services.push(cb.value);
-        });
+        section.style.display = 'block';
+        const cards = images.map(img => `
+            <div class="brand-card">
+                <img src="${img.dataUrl}" alt="${img.name || ''}" loading="lazy">
+            </div>
+        `).join('');
+        
+        // نعاودوها مرتين باش تخدم الحركة بلا توقف
+        track.innerHTML = cards + cards;
+    }
 
-        const now = Date.now();
-        const booking = {
-            id: now,
-            name: name,
-            car: car,
-            phone: phone,
-            date: toDisplayDate(bDate),
-            services: services,
-            desc: desc,
-            status: 'pending',
-            createdAt: now
-        };
-
-        try {
-            let bookings = [];
-            try {
-                bookings = JSON.parse(localStorage.getItem('mg_bookings') || '[]');
-            } catch(e) { bookings = []; }
-            bookings.unshift(booking);
-            localStorage.setItem('mg_bookings', JSON.stringify(bookings));
-        } catch(e) {
-            showToast('⚠️ خطأ في حفظ الحجز', 'error');
-        }
-
-        const btn = document.getElementById('submitBookingBtn');
-        btn.disabled = true;
-
-        let text = currentLang === 'ar' ? "السلام عليكم، أريد حجز موعد:\n\n" : "Bonjour, je souhaite prendre rendez-vous :\n\n";
-        text += "👤 الاسم: " + name + "\n";
-        if (car) text += "🚘 السيارة: " + car + "\n";
-        if (phone) text += "📞 الهاتف: " + phone + "\n";
-        if (bDate) text += "📅 الموعد المرغوب: " + toDisplayDate(bDate) + "\n";
-        if (services.length > 0) text += "🛠️ الخدمات: " + services.join(' + ') + "\n";
-        if (desc) text += "📝 المشكل: " + desc;
-
-        const whatsappUrl = "https://wa.me/213790582551?text=" + encodeURIComponent(text);
-        window.open(whatsappUrl, '_blank');
-        showToast(currentLang === 'ar' ? '✅ تم حفظ الحجز + جاري فتح واتساب...' : '✅ Réservation enregistrée + ouverture de WhatsApp...');
-
-        setTimeout(() => { btn.disabled = false; }, 3000);
+    async function loadAllDynamicSections() {
+        await renderDynamicSlider('promo', 'promoTrack', 'promoSection');
+        await renderDynamicSlider('car', 'carBrandsTrack', 'carBrandsSection');
+        await renderDynamicSlider('parts', 'partsBrandsTrack', 'partsBrandsSection');
+        await renderDynamicSlider('oil', 'oilsTrack', 'oilsSection');
     }
 
     // ============ DOMContentLoaded ============
     window.addEventListener('DOMContentLoaded', () => {
         const dateInput = document.getElementById('client-date');
-        if (dateInput) {
-            const today = new Date().toISOString().split('T')[0];
-            dateInput.min = today;
-        }
-        renderAllBrands();
-        applyBrandsVisibility();
+        if (dateInput) { const today = new Date().toISOString().split('T')[0]; dateInput.min = today; }
+        
+        // نشغلو تحميل السلايدرات من DB
+        loadAllDynamicSections();
     });
 </script>
 
@@ -757,8 +500,8 @@
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('service-worker.js')
-            .then(reg => console.log('✅ Service Worker registered:', reg.scope))
-            .catch(err => console.log('❌ Service Worker error:', err));
+            .then(reg => console.log('✅ SW registered'))
+            .catch(err => console.log('❌ SW error'));
     });
 }
 </script>
