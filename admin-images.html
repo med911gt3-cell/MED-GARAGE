@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MED GARAGE - إدارة الصور</title>
+    <meta name="theme-color" content="#1f242b">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --primary: #dc2626; 
+            --bg: #1f242b; 
+            --card: #2a2f36; 
+            --text: #f1f5f9; 
+            --border: #374151; 
+            --success: #16a34a; 
+            --accent: #f59e0b; 
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; font-weight: 700; }
+        .container { max-width: 600px; margin: 0 auto; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); padding-bottom: 15px; margin-bottom: 20px; }
+        .header h1 { margin: 0; font-size: 20px; }
+        .btn-back { background: transparent; border: 1px solid var(--border); color: #cbd5e1; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-size: 13px; transition: 0.2s; }
+        .btn-back:hover { background: var(--border); color: #fff; }
+        
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .card h3 { margin-top: 0; color: var(--accent); font-size: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px; }
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 8px; font-size: 14px; color: #cbd5e1; }
+        select, input[type="file"] { width: 100%; padding: 12px; background: #0f1115; border: 1px solid var(--border); color: #fff; border-radius: 8px; font-family: inherit; font-weight: bold; }
+        select:focus, input[type="file"]:focus { outline: none; border-color: var(--primary); }
+        
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: 900; cursor: pointer; font-family: inherit; color: #fff; margin-top: 10px; transition: transform 0.1s; }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background: var(--success); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .image-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 15px; }
+        .img-item { position: relative; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #0f1115; aspect-ratio: 1; }
+        .img-item img { width: 100%; height: 100%; object-fit: cover; }
+        .btn-delete { position: absolute; top: 5px; right: 5px; background: var(--primary); color: #fff; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; font-size: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: #fff; padding: 12px 20px; border-radius: 8px; font-weight: bold; z-index: 9999; transition: transform 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--primary); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>📸 إدارة صور الموقع</h1>
+        <a href="dashboard.html" class="btn-back">← رجوع للوحة التحكم</a>
+    </div>
+
+    <div class="card">
+        <h3>➕ رفع صورة جديدة</h3>
+        <div class="form-group">
+            <label>اختر القسم:</label>
+            <select id="imgCategory">
+                <option value="promo">🎁 العروض والتخفيضات</option>
+                <option value="car">🚗 ماركات السيارات</option>
+                <option value="parts">🔧 ماركات قطع الغيار</option>
+                <option value="oil">🛢️ أنواع الزيوت</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>اختر صورة من الهاتف:</label>
+            <input type="file" id="imgFile" accept="image/*">
+        </div>
+        <button class="btn btn-primary" id="btnUpload" onclick="uploadImage()">📤 رفع وحفظ الصورة</button>
+    </div>
+
+    <div class="card">
+        <h3>🖼️ الصور المرفوعة</h3>
+        <div class="form-group">
+            <select id="viewCategory" onchange="loadImages()">
+                <option value="promo">🎁 العروض</option>
+                <option value="car">🚗 السيارات</option>
+                <option value="parts">🔧 القطع</option>
+                <option value="oil">🛢️ الزيوت</option>
+            </select>
+        </div>
+        <div class="image-list" id="imageList"></div>
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+    function showToast(msg, isError = false) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = 'toast show' + (isError ? ' error' : '');
+        setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // IndexedDB Setup
+    const DB_NAME = 'MedGarageDB';
+    const STORE_NAME = 'images';
+
+    function openDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(DB_NAME, 1);
+            request.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                    db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                }
+            };
+            request.onsuccess = (e) => resolve(e.target.result);
+            request.onerror = (e) => reject(e.target.error);
+        });
+    }
+
+    // Image Compression (Canvas)
+    function compressImage(file, maxWidth = 800, quality = 0.7) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (e) => {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                };
+                img.onerror = reject;
+            };
+            reader.onerror = reject;
+        });
+    }
+
+    async function uploadImage() {
+        const fileInput = document.getElementById('imgFile');
+        const category = document.getElementById('imgCategory').value;
+        const btn = document.getElementById('btnUpload');
+
+        if (!fileInput.files || fileInput.files.length === 0) {
+            showToast('⚠️ يرجى اختيار صورة أولاً', true);
+            return;
+        }
+
+        const file = fileInput.files[0];
+        btn.disabled = true;
+        btn.textContent = '⏳ جاري الضغط والرفع...';
+
+        try {
+            // 1. نضغطو الصورة
+            const compressedDataUrl = await compressImage(file);
+            
+            // 2. نخزنوها في DB
+            const db = await openDB();
+            const transaction = db.transaction(STORE_NAME, 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+            
+            await new Promise((resolve, reject) => {
+                const req = store.add({ 
+                    category: category, 
+                    dataUrl: compressedDataUrl, 
+                    name: file.name, 
+                    timestamp: Date.now() 
+                });
+                req.onsuccess = resolve;
+                req.onerror = reject;
+            });
+
+            showToast('✅ تم رفع الصورة بنجاح!');
+            fileInput.value = '';
+            document.getElementById('viewCategory').value = category;
+            loadImages();
+        } catch (e) {
+            console.error(e);
+            showToast('❌ فشل الرفع (تأكد من مساحة الهاتف)', true);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '📤 رفع وحفظ الصورة';
+        }
+    }
+
+    async function loadImages() {
+        const category = document.getElementById('viewCategory').value;
+        const list = document.getElementById('imageList');
+        list.innerHTML = '<p style="color:#94a3b8; font-size:13px;">جاري التحميل...</p>';
+
+        try {
+            const db = await openDB();
+            const transaction = db.transaction(STORE_NAME, 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const req = store.getAll();
+            
+            req.onsuccess = (e) => {
+                const allImages = e.target.result.filter(img => img.category === category);
+                if (allImages.length === 0) {
+                    list.innerHTML = '<p style="color:#94a3b8; font-size:13px; grid-column: 1/-1;">لا توجد صور في هذا القسم.</p>';
+                    return;
+                }
+                list.innerHTML = allImages.map(img => `
+                    <div class="img-item">
+                        <img src="${img.dataUrl}" alt="${img.name}">
+                        <button class="btn-delete" onclick="deleteImage(${img.id})" title="حذف">✕</button>
+                    </div>
+                `).join('');
+            };
+            req.onerror = () => { list.innerHTML = '<p style="color:red; grid-column: 1/-1;">خطأ في القراءة</p>'; };
+        } catch(e) {
+            list.innerHTML = '<p style="color:red; grid-column: 1/-1;">خطأ في قاعدة البيانات</p>';
+        }
+    }
+
+    async function deleteImage(id) {
+        if (!confirm('هل أنت متأكد من حذف هذه الصورة نهائياً؟')) return;
+        try {
+            const db = await openDB();
+            const transaction = db.transaction(STORE_NAME, 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+            store.delete(id);
+            showToast('🗑️ تم حذف الصورة');
+            setTimeout(loadImages, 400);
+        } catch (e) {
+            showToast('❌ فشل الحذف', true);
+        }
+    }
+
+    window.onload = loadImages;
+</script>
+</body>
+</html>
