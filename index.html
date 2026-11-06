@@ -74,17 +74,19 @@
 
         .brands-section { margin-top: 20px; padding: 15px 0; background: var(--card); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .brands-title { text-align: center; font-size: 16px; font-weight: bold; color: var(--text); margin-bottom: 12px; padding: 0 15px; }
-        .brands-slider { display: flex; gap: 15px; overflow: hidden; position: relative; padding: 10px 0; }
+        .brands-slider { display: flex; gap: 10px; overflow: hidden; position: relative; padding: 10px 0; }
         
-        .brands-track { display: flex; gap: 15px; animation: scrollBrands 60s linear infinite; padding-right: 15px; }
+        .brands-track { display: flex; gap: 10px; animation: scrollBrands 60s linear infinite; padding-right: 10px; }
         @keyframes scrollBrands { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         html[dir="rtl"] .brands-track { animation: scrollBrandsRTL 60s linear infinite; }
         @keyframes scrollBrandsRTL { 0% { transform: translateX(0); } 100% { transform: translateX(50%); } }
 
-        .brand-card { flex-shrink: 0; background: #ffffff; border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; width: 270px; height: 270px; padding: 15px; }
-        .brand-logo { width: 100%; height: 100%; object-fit: contain; display: block; border-radius: 10px; }
+        /* ✅ تعديل الحجم: رجعناه 135 بكسل */
+        .brand-card { flex-shrink: 0; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; width: 135px; height: 135px; padding: 10px; }
+        .brand-logo { width: 100%; height: 100%; object-fit: contain; display: block; border-radius: 8px; }
         
-        .brand-fallback { display: none; font-size: 24px; font-weight: bold; color: #1e293b; text-align: center; padding: 10px; line-height: 1.2; word-break: break-word; }
+        /* ✅ تعديل حجم النص الاحتياطي */
+        .brand-fallback { display: none; font-size: 14px; font-weight: bold; color: #1e293b; text-align: center; padding: 5px; line-height: 1.2; word-break: break-word; }
 
         .install-pwa-card { background: var(--card); color: var(--text); border: 1px solid var(--accent); border-radius: 10px; padding: 12px; margin-top: 15px; text-align: center; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .install-pwa-card.visible { display: block; }
@@ -157,7 +159,6 @@
                 <button id="btnAr" class="active" onclick="setLang('ar')">ع</button>
                 <button id="btnFr" onclick="setLang('fr')">FR</button>
             </div>
-            <!-- ✅ الزر الجديد تاع شاشة الكمبيوتر / الأندرويد -->
             <div class="view-toggle">
                 <button id="btnViewPc" class="active" onclick="setViewMode('pc')" title="شاشة كمبيوتر (للطباعة)">💻</button>
                 <button id="btnViewMobile" onclick="setViewMode('mobile')" title="شاشة هاتف (للطباعة)">📱</button>
@@ -180,7 +181,6 @@
         </div>
     </div>
 
-    <!-- ماركات السيارات -->
     <div class="brands-section" id="carBrandsSection">
         <div class="brands-title" data-ar="🚗 الماركات التي نتعامل معها" data-fr="🚗 Marques Voitures">🚗 الماركات التي نتعامل معها</div>
         <div class="brands-slider">
@@ -188,7 +188,6 @@
         </div>
     </div>
 
-    <!-- ماركات قطع الغيار -->
     <div class="brands-section" id="partsBrandsSection">
         <div class="brands-title" data-ar="🔧 ماركات قطع الغيار" data-fr="🔧 Marques Pièces">🔧 ماركات قطع الغيار</div>
         <div class="brands-slider">
@@ -196,7 +195,6 @@
         </div>
     </div>
 
-    <!-- أنواع الزيوت -->
     <div class="brands-section" id="oilsSection">
         <div class="brands-title" data-ar="🛢️ أنواع الزيوت" data-fr="🛢️ Types d'huiles">🛢️ أنواع الزيوت</div>
         <div class="brands-slider">
@@ -455,7 +453,6 @@
         if (savedLang && savedLang !== 'ar') setLang(savedLang);
         const savedTheme = localStorage.getItem('medgarage_theme');
         if (savedTheme) setTheme(savedTheme);
-        // تحميل وضع العرض (الافتراضي كمبيوتر باش الطباعة تخرج مليحة)
         const savedView = localStorage.getItem('mg_view_mode') || 'pc';
         setViewMode(savedView);
     } catch(e) {}
