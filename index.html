@@ -101,27 +101,31 @@
             color: #ffffff;
         }
 
-        /* ✅ اللوجو تم تكبيره إلى 500px ليبرز بشكل أفضل */
-        .logo-letter { 
-            width: 500px; 
-            height: 500px; 
-            border-radius: 50%; 
-            background: #ffffff; 
-            border: 3px solid var(--primary); 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            margin: 15px auto; 
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4); 
-            overflow: hidden; 
-            padding: 4px; 
-            cursor: pointer; 
-            user-select: none; 
-            -webkit-user-select: none; 
-            -webkit-touch-callout: none; 
-        }
-        
-        .logo-letter img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; display: block; pointer-events: none; }
+        /* ✅ اللوجو مباشرة فوق الخلفية وبدون دوائر إضافية */
+.logo-letter { 
+    width: 180px; 
+    height: 180px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    margin: 15px auto; 
+    cursor: pointer; 
+    user-select: none; 
+    -webkit-user-select: none; 
+    -webkit-touch-callout: none; 
+    /* إضافة ظل احترافي للوجو باش يبرز على الخلفية */
+    filter: drop-shadow(0px 10px 15px rgba(0, 0, 0, 0.5));
+}
+
+.logo-letter img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: contain; 
+    display: block; 
+    pointer-events: none; 
+    /* دمجنا border-radius هنا في حالة كانت حواف الصورة مربعة بيضاء */
+    border-radius: 50%; 
+}
         .header h1 { margin: 5px 0 0; color: var(--text-light); font-size: 28px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
         .header p { margin: 5px 0; color: var(--text-muted); font-size: 14px; }
 
