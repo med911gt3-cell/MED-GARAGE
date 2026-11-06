@@ -111,6 +111,7 @@
         .nav-card.invoices { background: linear-gradient(135deg, #15803d 0%, #16a34a 100%); }
         .nav-card.finance { background: linear-gradient(135deg, #b45309 0%, #f59e0b 100%); }
         .nav-card.gallery { background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%); }
+        .nav-card.images { background: linear-gradient(135deg, #db2777 0%, #ec4899 100%); }
 
         .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); font-size: 12px; }
         .footer strong { color: var(--primary); }
@@ -228,13 +229,10 @@
                 <span class="icon">⭐</span>
                 المعرض
             </a>
-            <a href="admin-images.html" class="admin-menu-btn" style="text-decoration: none; display: flex; align-items: center; gap: 15px;">
-    <span class="icon">📸</span>
-    <span class="info-text">
-        <span class="label">إضافة صور للسلايد</span>
-        <span class="sub">رفع وحذف صور العروض والماركات</span>
-    </span>
-</a>
+            <a href="admin-images.html" class="nav-card images">
+                <span class="icon">📸</span>
+                صور السلايد
+            </a>
         </div>
 
         <div class="footer">
@@ -403,14 +401,12 @@
         const expenses = getData('expenses', []);
         const bookings = getData('bookings', []);
 
-        // ✅ إصلاح 3: مجموع الكميات بدل عدد الأنواع + استبعاد المحذوف
         const activeStock = stock.filter(i => !i.deleted);
         const totalQty = activeStock.reduce((s, item) => s + (Number(item.qty) || 0), 0);
         document.getElementById('statStock').textContent = totalQty.toLocaleString();
         const typesEl = document.getElementById('statStockTypes');
         if (typesEl) typesEl.textContent = activeStock.length + ' نوع';
 
-        // ✅ إصلاح 5: استبعاد المحذوفة (Soft delete) من كل الحسابات
         const activeInvoices = invoices.filter(i => !i.deleted);
         const activeExpenses = expenses.filter(e => !e.deleted);
 
@@ -431,7 +427,6 @@
         const pending = bookings.filter(b => (!b.status || b.status === 'pending') && !b.deleted);
         document.getElementById('statBookings').textContent = pending.length;
 
-        // عرض عدد المحذوفات
         const totalDeleted = (invoices.length - activeInvoices.length)
                           + (expenses.length - activeExpenses.length)
                           + (stock.length - activeStock.length);
