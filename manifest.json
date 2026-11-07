@@ -34,6 +34,22 @@
       "purpose": "maskable"
     }
   ],
+  "screenshots": [
+    {
+      "src": "./screenshot-home.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "الواجهة الرئيسية"
+    },
+    {
+      "src": "./screenshot-dashboard.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "لوحة التحكم"
+    }
+  ],
   "shortcuts": [
     {
       "name": "لوحة التحكم",
