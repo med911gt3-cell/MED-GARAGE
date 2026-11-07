@@ -4,72 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>MED GARAGE - الفوترة</title>
-    <meta name="theme-color" content="#1a1d21" id="themeColorMeta">
-    <link rel="icon" type="image/png" href="./icon-192.png">
-    <link rel="manifest" href="./manifest.json">
-    <link rel="apple-touch-icon" href="./icon-192.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="MED GARAGE">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #dc2626;
-            --primary-hover: #b91c1c;
             --bg: #1f242b;
-            --bg-gradient: linear-gradient(135deg, #2a2f38 0%, #181b20 100%);
-            --card: #ffffff;
             --card-dark: #2a2f36;
-            --text: #1e293b;
             --text-light: #f8fafc;
             --text-muted: #94a3b8;
             --accent: #f59e0b;
             --success: #16a34a;
-            --danger: #dc2626;
             --info: #2563eb;
-            --border: #cbd5e1;
             --border-dark: #374151;
         }
-
-        [data-theme="light"] {
-            --bg: #f1f5f9;
-            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            --card: #ffffff;
-            --text: #0f172a;
-            --text-light: #0f172a;
-            --text-muted: #475569;
-            --border: #cbd5e1;
-        }
-
-        [data-theme="oled"] {
-            --primary: #2563eb;
-            --bg: #000000;
-            --bg-gradient: linear-gradient(135deg, #111111 0%, #000000 100%);
-            --card: #121212;
-            --text: #f8fafc;
-            --text-light: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: #334155;
-        }
-
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Cairo', system-ui, -apple-system, sans-serif; font-weight: 700; background: var(--bg-gradient); background-attachment: fixed; color: var(--text-light); margin: 0; padding: 15px; line-height: 1.6; min-height: 100vh; }
+        body { font-family: 'Cairo', system-ui, sans-serif; font-weight: 700; background: #181b20; color: var(--text-light); margin: 0; padding: 15px; line-height: 1.6; min-height: 100vh; }
         .container { max-width: 550px; margin: 0 auto; padding-bottom: 40px; }
 
-        .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: var(--card-dark); border-radius: 12px; border: 1px solid var(--border-dark); margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: var(--card-dark); border-radius: 12px; border: 1px solid var(--border-dark); margin-bottom: 20px; }
         .admin-header h2 { margin: 0; font-size: 16px; color: #fff; }
-        .btn-back-admin { background: transparent; border: 1px solid var(--border-dark); color: var(--text-muted); padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-block; }
+        .btn-back-admin { background: transparent; border: 1px solid var(--border-dark); color: var(--text-muted); padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: inherit; }
         .btn-back-admin:hover { color: var(--text-light); }
 
         .section-title { font-size: 16px; margin: 22px 0 12px; color: var(--text-light); border-right: 4px solid var(--primary); padding-right: 10px; font-weight: 900; }
 
         .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 13px; color: var(--text); margin-bottom: 5px; font-weight: 700; }
-        .form-control { width: 100%; padding: 11px; background: #ffffff; border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px; font-family: inherit; font-weight: 700; box-sizing: border-box; }
+        .form-group label { display: block; font-size: 13px; color: #cbd5e1; margin-bottom: 5px; font-weight: 700; }
+        .form-control { width: 100%; padding: 11px; background: #0f1115; border: 1px solid var(--border-dark); border-radius: 6px; color: #fff; font-size: 14px; font-family: inherit; font-weight: 700; box-sizing: border-box; }
+        .form-control:focus { outline: none; border-color: var(--primary); }
         .form-control.phone-input { direction: ltr; text-align: right; unicode-bidi: embed; }
-        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(220,38,38,0.1); }
 
         .btn-submit-booking { background-color: var(--primary); color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; font-family: inherit; box-shadow: 0 4px 10px rgba(220,38,38,0.3); }
 
@@ -78,18 +43,16 @@
         .btn-success { background: var(--success); }
         .btn-warning { background: var(--accent); }
         .btn-info { background: var(--info); }
-        .btn-danger { background: var(--danger); }
-        .btn-trash-empty { opacity: 0.5; }
+        .btn-danger { background: var(--primary); }
 
         .list-box { background: #181b20; border: 1px solid var(--border-dark); border-radius: 10px; padding: 10px; max-height: 500px; overflow-y: auto; margin-top: 10px; }
-        .list-row { background: #0f1115; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; border: 1px solid var(--border-dark); color: #f1f5f9; line-height: 1.6; }
-        .list-row:last-child { margin-bottom: 0; }
+        .list-row { background: #0f1115; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; border: 1px solid var(--border-dark); color: #f1f5f9; }
         .empty-state { text-align: center; padding: 25px 15px; color: var(--text-muted); font-size: 12px; }
 
         .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); font-size: 12px; }
         .footer strong { color: var(--primary); }
 
-        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: #fff; padding: 12px 20px; border-radius: 8px; font-weight: 900; font-size: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 9999; transition: transform 0.3s ease; max-width: 90%; text-align: center; }
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: #fff; padding: 12px 20px; border-radius: 8px; font-weight: 900; font-size: 14px; z-index: 9999; transition: transform 0.3s ease; max-width: 90%; text-align: center; }
         .toast.show { transform: translateX(-50%) translateY(0); }
         .toast.error { background: var(--primary); }
 
@@ -97,139 +60,45 @@
         .modal-overlay.active { display: flex; }
         .modal-content { background: var(--card-dark); border: 2px solid var(--primary); border-radius: 15px; padding: 20px; width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto; color: #fff; }
         .modal-content h3 { margin-top: 0; color: var(--accent); text-align: center; }
-        .modal-content .form-group label { color: #cbd5e1; font-size: 12px; }
-        .modal-content .form-control { background: #0f1115; color: #fff; }
 
         .items-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
         .items-table th, .items-table td { padding: 6px 4px; text-align: center; font-size: 12px; border-bottom: 1px solid var(--border-dark); color: #fff; }
         .items-table th { background: rgba(255,255,255,0.05); color: var(--accent); font-weight: 900; }
         .items-table input, .items-table select { width: 100%; padding: 6px; font-size: 12px; background: #0f1115; color: #fff; border: 1px solid var(--border-dark); border-radius: 4px; font-family: inherit; text-align: center; }
-        .items-table input[type="number"] { text-align: center; }
-        .items-table .col-type { width: 12%; }
-        .items-table .col-name { width: 38%; }
-        .items-table .col-qty { width: 15%; }
+        .items-table .col-type { width: 20%; }
+        .items-table .col-name { width: 40%; }
+        .items-table .col-qty { width: 12%; }
         .items-table .col-price { width: 18%; }
-        .items-table .col-del { width: 12%; }
+        .items-table .col-del { width: 10%; }
 
-        .add-item-btn { background: var(--info); color: #fff; border: none; padding: 10px; border-radius: 6px; width: 100%; margin-top: 8px; font-weight: 900; cursor: pointer; font-family: inherit; }
+        .add-item-btn { border: none; padding: 10px; border-radius: 6px; width: 100%; font-weight: 900; cursor: pointer; font-family: inherit; color: #fff; }
+        .add-item-btn:hover { opacity: 0.9; }
 
         .total-box { background: rgba(22,163,74,0.15); border: 1px solid var(--success); border-radius: 8px; padding: 12px; margin-top: 12px; text-align: center; }
         .total-box .lbl { font-size: 12px; color: #94a3b8; }
         .total-box .val { font-size: 22px; font-weight: 900; color: #4ade80; }
 
-        .booking-hint { background: rgba(37,99,235,0.15); border: 1px solid var(--info); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 12px; color: #93c5fd; display: none; }
-        .booking-hint.active { display: block; }
-
-        .trash-banner { display: none; background: rgba(220,38,38,0.15); border: 1px solid var(--danger); color: #fca5a5; padding: 8px 12px; border-radius: 8px; font-size: 11px; margin-bottom: 8px; text-align: center; }
-        .trash-banner.active { display: block; }
-
         .checkbox-group { display: flex; gap: 15px; flex-wrap: wrap; padding: 8px 0; }
         .checkbox-group label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #fff; cursor: pointer; }
         .checkbox-group input[type="checkbox"], .checkbox-group input[type="radio"] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
 
-        #pdfLangBtn {
-            background: linear-gradient(135deg, var(--info) 0%, #1d4ed8 100%);
-            color: #fff;
-            padding: 8px 14px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 900;
-            font-size: 13px;
-            font-family: inherit;
-            box-shadow: 0 2px 6px rgba(37,99,235,0.4);
-            transition: transform 0.15s ease;
-        }
-        #pdfLangBtn:active { transform: scale(0.95); }
-
-        /* ✅ Modal PDF fullscreen dynamique */
-        #pdfPreviewModal.modal-overlay {
-            padding: 0;
-            align-items: stretch;
-            justify-content: stretch;
-        }
-        #pdfPreviewModal .modal-content {
-            max-width: 100% !important;
-            width: 100%;
-            height: 100vh;
-            height: 100dvh;
-            max-height: 100vh;
-            max-height: 100dvh;
-            border-radius: 0;
-            border: none;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            background: #1e293b;
-            overflow: hidden;
-        }
-        #pdfPreviewModal .pdf-toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 14px;
-            background: #0f172a;
-            border-bottom: 2px solid var(--primary);
-            gap: 8px;
-            flex-wrap: wrap;
-            flex-shrink: 0;
-        }
-        #pdfPreviewModal .pdf-toolbar h3 {
-            margin: 0;
-            color: var(--accent);
-            font-size: 15px;
-        }
-        #pdfPreviewModal .pdf-toolbar-actions {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        #pdfPreviewModal .pdf-body {
-            flex: 1;
-            overflow: auto;
-            padding: 15px;
-            background: #334155;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-        }
-        #pdfPreviewContent {
-            background: #fff;
-            color: #000;
-            width: 100%;
-            max-width: 794px;
-            min-height: auto;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-            padding: 20px;
-            border-radius: 4px;
-        }
-        #pdfPreviewModal .pdf-footer {
-            display: flex;
-            gap: 8px;
-            padding: 10px 14px;
-            background: #0f172a;
-            border-top: 2px solid var(--primary);
-            flex-wrap: wrap;
-            flex-shrink: 0;
-        }
+        #pdfPreviewModal.modal-overlay { padding: 0; align-items: stretch; justify-content: stretch; }
+        #pdfPreviewModal .modal-content { max-width: 100% !important; width: 100%; height: 100vh; height: 100dvh; max-height: 100vh; max-height: 100dvh; border-radius: 0; border: none; padding: 0; display: flex; flex-direction: column; background: #1e293b; overflow: hidden; }
+        #pdfPreviewModal .pdf-toolbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #0f172a; border-bottom: 2px solid var(--primary); gap: 8px; flex-wrap: wrap; flex-shrink: 0; }
+        #pdfPreviewModal .pdf-toolbar h3 { margin: 0; color: var(--accent); font-size: 15px; }
+        #pdfPreviewModal .pdf-toolbar-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        #pdfPreviewModal .pdf-body { flex: 1; overflow: auto; padding: 15px; background: #334155; display: flex; justify-content: center; align-items: flex-start; }
+        #pdfPreviewContent { background: #fff; color: #000; width: 100%; max-width: 794px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); padding: 20px; border-radius: 4px; }
+        #pdfPreviewModal .pdf-footer { display: flex; gap: 8px; padding: 10px 14px; background: #0f172a; border-top: 2px solid var(--primary); flex-wrap: wrap; flex-shrink: 0; }
         #pdfPreviewModal .pdf-footer button { flex: 1; min-width: 120px; }
 
         @media (max-width: 600px) {
             #pdfPreviewContent { padding: 10px; }
-            #pdfPreviewModal .pdf-toolbar h3 { font-size: 13px; }
-            #pdfPreviewModal .pdf-toolbar-actions button { font-size: 11px; padding: 6px 10px; }
             #pdfPreviewModal .pdf-footer button { font-size: 12px; padding: 10px; }
-        }
-
-        @media print {
-            body * { visibility: hidden; }
-            #pdfPreviewContent, #pdfPreviewContent * { visibility: visible; }
-            #pdfPreviewContent { position: absolute; left: 0; top: 0; width: 100%; }
         }
     </style>
 </head>
-<body id="bodyRoot">
+<body>
 
 <div class="container">
     <div class="admin-header">
@@ -237,30 +106,18 @@
         <a href="./dashboard.html" class="btn-back-admin">← رجوع</a>
     </div>
 
-    <div class="booking-hint" id="bookingHint">
-        📅 <strong>حجز محوّل:</strong> <span id="bookingHintText"></span>
-    </div>
-
     <button onclick="openNewInvoice()" class="btn-submit-booking" style="background:var(--success); margin-bottom:20px;">
         ➕ إنشاء فاتورة أو Devis جديد
     </button>
 
-    <div class="trash-banner" id="trashBanner">
-        🗑️ أنت في وضع سلة المحذوفات — اضغط زر السلة للعودة
-    </div>
-
     <div class="section-title">📄 عروض الأسعار (Devis)</div>
     <div class="list-box" id="devisList">
-        <div class="empty-state">جاري التحميل...</div>
+        <div class="empty-state">لا توجد عروض أسعار حالياً</div>
     </div>
 
     <div class="section-title">✅ الفواتير المكتملة</div>
-    <div class="form-group" style="margin-top:10px; display:flex; gap:8px;">
-        <input type="text" id="invoiceSearch" class="form-control" placeholder="🔍 بحث بالاسم أو الرقم..." oninput="debouncedSearch()" style="background:#0f1115; color:#fff; border-color:var(--border-dark); flex:1;">
-        <button onclick="toggleTrash()" id="trashToggleBtn" class="btn btn-warning" style="white-space:nowrap;">🗑️ السلة (0)</button>
-    </div>
     <div class="list-box" id="doneList">
-        <div class="empty-state">جاري التحميل...</div>
+        <div class="empty-state">لا توجد فواتير مكتملة</div>
     </div>
 
     <div class="footer">
@@ -268,7 +125,7 @@
     </div>
 </div>
 
-<!-- ================= Modal إنشاء/تعديل الفاتورة ================= -->
+<!-- MODAL: إنشاء فاتورة -->
 <div class="modal-overlay" id="invoiceModal">
     <div class="modal-content">
         <h3 id="modalTitle">🧾 فاتورة جديدة</h3>
@@ -277,42 +134,36 @@
             <label>رقم الفاتورة</label>
             <input type="text" id="invCode" class="form-control" readonly style="color:var(--accent); font-weight:900; direction:ltr; text-align:center;">
         </div>
-
         <div class="form-group">
             <label>اسم الزبون *</label>
             <input type="text" id="invClient" class="form-control" placeholder="أدخل اسم الزبون">
         </div>
-
         <div class="form-group">
             <label>الهاتف</label>
             <input type="tel" id="invPhone" class="form-control phone-input" placeholder="05 XX XX XX XX" maxlength="10" inputmode="numeric">
         </div>
-
         <div class="form-group">
             <label>السيارة</label>
-            <input type="text" id="invCar" class="form-control" placeholder="Ex: Skoda Octavia 1.4 TSI">
+            <input type="text" id="invCar" class="form-control" placeholder="Ex: Skoda Octavia">
         </div>
-
         <div class="form-group">
             <label>VIN (رقم الهيكل)</label>
             <input type="text" id="invVin" class="form-control" placeholder="17 حرف/رقم" maxlength="17" style="direction:ltr; text-align:center; text-transform:uppercase;">
         </div>
-
         <div class="form-group">
-            <label>لوحة السيارة (Immatriculation)</label>
-            <input type="text" id="invPlate" class="form-control" placeholder="مثال: 16 117 12345" style="direction:ltr; text-align:center;">
+            <label>لوحة السيارة</label>
+            <input type="text" id="invPlate" class="form-control" placeholder="16 117 12345" style="direction:ltr; text-align:center;">
         </div>
-
         <div class="form-group">
             <label>KM (الكيلومترات)</label>
             <input type="number" id="invKm" class="form-control" placeholder="اختياري" min="0" style="text-align:center;">
         </div>
-
         <div class="form-group">
             <label>ملاحظات / طلب الزبون</label>
-            <textarea id="invNotes" class="form-control" placeholder="اختياري" rows="2" style="resize:vertical;"></textarea>
+            <textarea id="invNotes" class="form-control" placeholder="اختياري" rows="2"></textarea>
         </div>
 
+        <!-- ⚡ جدول القطع والخدمات (الجديد) -->
         <div class="form-group">
             <label>القطع والخدمات</label>
             <table class="items-table">
@@ -327,12 +178,11 @@
                 </thead>
                 <tbody id="itemsBody"></tbody>
             </table>
-            <button type="button" onclick="addItemRow()" class="add-item-btn">➕ إضافة قطعة/خدمة</button>
-        </div>
-
-        <div class="form-group">
-            <label>يد العاملة (دج)</label>
-            <input type="number" id="invLabor" class="form-control" value="0" min="0" oninput="calcTotal()" style="text-align:center;">
+            <div style="display:flex; gap:8px; margin-top:8px;">
+                <button type="button" onclick="addItemRow('piece_stock')" class="add-item-btn" style="background:var(--success);">➕ قطعة من المخزن</button>
+                <button type="button" onclick="addItemRow('piece_external')" class="add-item-btn" style="background:var(--accent);">➕ قطعة خارجية</button>
+                <button type="button" onclick="addItemRow('labor')" class="add-item-btn" style="background:var(--info);">➕ إضافة خدمة (يد عاملة)</button>
+            </div>
         </div>
 
         <div class="form-group">
@@ -343,10 +193,10 @@
         </div>
 
         <div class="total-box">
-            <div class="lbl">المجموع الفرعي</div>
+            <div class="lbl">المجموع الفرعي (HT)</div>
             <div class="val" id="invSubtotal">0 دج</div>
             <div class="lbl" id="tvaLine" style="margin-top:8px; display:none;">TVA (19%): <span id="invTva">0 دج</span></div>
-            <div class="lbl" style="margin-top:8px; font-size:14px;">المجموع الإجمالي</div>
+            <div class="lbl" style="margin-top:8px; font-size:14px;">المجموع الإجمالي (TTC)</div>
             <div class="val" id="invTotal" style="font-size:24px;">0 دج</div>
         </div>
 
@@ -358,7 +208,6 @@
                 <label><input type="radio" name="paymentMethod" value="Virement"> 🏦 تحويل</label>
             </div>
         </div>
-
         <div class="form-group">
             <label>حالة الفاتورة</label>
             <div class="checkbox-group">
@@ -367,10 +216,9 @@
                 <label><input type="radio" name="paymentStatus" value="Non payée"> ❌ غير مدفوعة</label>
             </div>
         </div>
-
-        <div class="form-group" style="margin-top:12px;">
+        <div class="form-group">
             <label>نوع المستند</label>
-            <select id="invStatus" class="form-control" onchange="onInvoiceTypeChange()">
+            <select id="invStatus" class="form-control">
                 <option value="done">✅ فاتورة مكتملة</option>
                 <option value="devis">📄 Devis (عرض سعر)</option>
             </select>
@@ -381,13 +229,12 @@
     </div>
 </div>
 
-<!-- ================= Modal معاينة PDF (Fullscreen Dynamique) ================= -->
+<!-- MODAL: معاينة PDF -->
 <div class="modal-overlay" id="pdfPreviewModal">
     <div class="modal-content">
         <div class="pdf-toolbar">
             <h3>📄 معاينة الفاتورة</h3>
             <div class="pdf-toolbar-actions">
-                <button onclick="togglePdfLang()" id="pdfLangBtn">🇫🇷 Français</button>
                 <button onclick="closePdfPreview()" style="background:transparent; border:none; color:#fff; font-size:24px; cursor:pointer; padding:0 8px;">✕</button>
             </div>
         </div>
@@ -397,7 +244,6 @@
         <div class="pdf-footer">
             <button onclick="downloadPDF()" class="btn-submit-booking" style="background:var(--info);">📥 تحميل PDF</button>
             <button onclick="printPDF()" class="btn-submit-booking" style="background:var(--success);">🖨️ طباعة</button>
-            <button onclick="sharePDF()" class="btn-submit-booking" style="background:var(--accent);">📤 مشاركة</button>
             <button onclick="closePdfPreview()" class="btn-back-admin">إلغاء</button>
         </div>
     </div>
@@ -405,1096 +251,236 @@
 
 <div id="toast" class="toast"></div>
 
-<!-- ================= JS: الجزء 2 و 3 راح يجيو في الرسائل الجاية ================= -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-// ================= أدوات عامة =================
-function getData(key, def = []) {
-    try {
-        const v = localStorage.getItem('mg_' + key);
-        return v ? JSON.parse(v) : def;
-    } catch(e) { return def; }
-}
+    // ==========================================
+    // 1. إدارة البيانات (localStorage)
+    // ==========================================
+    let invoices = JSON.parse(localStorage.getItem('med_garage_invoices') || '[]');
+    let currentInvoiceId = null;
 
-function setData(key, val) {
-    try {
-        localStorage.setItem('mg_' + key, JSON.stringify(val));
-    } catch(e) { showToast('⚠️ خطأ في الحفظ', 'error'); }
-}
-
-function escapeHtml(str) {
-    if (!str) return '';
-    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-function showToast(msg, type = 'success') {
-    const toast = document.getElementById('toast');
-    toast.textContent = msg;
-    toast.className = 'toast show' + (type === 'error' ? ' error' : '');
-    clearTimeout(window.__toastTimer);
-    window.__toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
-}
-
-function applyTheme(theme) {
-    if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
-    else if (theme === 'oled') document.documentElement.setAttribute('data-theme', 'oled');
-    else document.documentElement.removeAttribute('data-theme');
-    const meta = document.getElementById('themeColorMeta');
-    if (meta) meta.setAttribute('content', theme === 'light' ? '#f1f5f9' : theme === 'oled' ? '#000000' : '#1a1d21');
-}
-
-function formatDateDDMMYYYY(ts) {
-    const d = new Date(ts);
-    if (isNaN(d.getTime())) return '';
-    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
-}
-
-function formatTimeHHMM(ts) {
-    const d = new Date(ts);
-    if (isNaN(d.getTime())) return '';
-    return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
-}
-
-function cleanDisplayDate(str) {
-    if (!str) return '';
-    if (/^\d{2}\/\d{2}\/\d{4}$/.test(str)) return str;
-    const m = String(str).match(/(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})/);
-    if (m) return m[1].padStart(2, '0') + '/' + m[2].padStart(2, '0') + '/' + m[3];
-    return str;
-}
-
-// ================= التحقق من الصيغ الجزائرية =================
-function validatePhone(phone) {
-    if (!phone) return true; // اختياري
-    const clean = phone.replace(/\s/g, '');
-    return /^0[567]\d{8}$/.test(clean);
-}
-
-function validateVIN(vin) {
-    if (!vin) return true; // اختياري
-    return /^[A-HJ-NPR-Z0-9]{17}$/i.test(vin);
-}
-
-// ================= اللوقو Base64 =================
-let LOGO_BASE64 = './icon-512.png';
-let LOGO_READY = null;
-
-(function preloadLogoBase64() {
-    LOGO_READY = new Promise((resolve) => {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = function() {
-            try {
-                const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                canvas.getContext('2d').drawImage(img, 0, 0);
-                LOGO_BASE64 = canvas.toDataURL('image/png');
-            } catch(e) { LOGO_BASE64 = './icon-512.png'; }
-            resolve(LOGO_BASE64);
-        };
-        img.onerror = function() { LOGO_BASE64 = './icon-512.png'; resolve(LOGO_BASE64); };
-        img.src = './icon-512.png';
-    });
-})();
-
-// ================= حالة الفاتورة =================
-let editingInvoiceId = null;
-let currentItems = [];
-let showTrash = false;
-let currentPdfLang = 'fr';
-let currentPDFInvoice = null;
-
-// ================= Debounce البحث =================
-let __searchTimer = null;
-function debouncedSearch() {
-    clearTimeout(__searchTimer);
-    __searchTimer = setTimeout(() => loadInvoices(), 250);
-}
-
-// ================= مولّد الأكواد (5 أرقام) =================
-function generateInvoiceCode(status = 'done') {
-    const invoices = getData('invoices', []);
-    const isDevis = status === 'devis';
-    const prefix = isDevis ? 'M-G D' : 'M-G';
-    const sameType = invoices.filter(i =>
-        (i.status === 'devis') === isDevis && !i.deleted
-    );
-
-    let maxNum = 0;
-    sameType.forEach(i => {
-        const re = isDevis ? /^M-G\s+D\s+(\d+)$/ : /^M-G\s+(\d+)$/;
-        const m = String(i.code || '').match(re);
-        if (m) {
-            const n = parseInt(m[1], 10);
-            if (n > maxNum) maxNum = n;
-        }
-    });
-
-    const num = String(maxNum + 1).padStart(5, '0');
-    return `${prefix} ${num}`;
-}
-
-function toggleTrash() {
-    showTrash = !showTrash;
-    loadInvoices();
-}
-
-function onInvoiceTypeChange() {
-    if (editingInvoiceId) {
-        showToast('⚠️ لا يمكن تغيير النوع أثناء التعديل', 'error');
-        const inv = getData('invoices', []).find(i => i.id === editingInvoiceId);
-        if (inv) document.getElementById('invStatus').value = inv.status || 'done';
-        return;
-    }
-    const newType = document.getElementById('invStatus').value;
-    document.getElementById('invCode').value = generateInvoiceCode(newType);
-}
-
-// ================= فتح فاتورة جديدة =================
-function openNewInvoice() {
-    editingInvoiceId = null;
-    currentItems = [];
-    const booking = sessionStorage.getItem('mg_convert_booking');
-
-    document.getElementById('modalTitle').textContent = '🧾 فاتورة جديدة';
-    document.getElementById('invCode').value = generateInvoiceCode('done');
-    document.getElementById('invClient').value = '';
-    document.getElementById('invPhone').value = '';
-    document.getElementById('invCar').value = '';
-    document.getElementById('invVin').value = '';
-    document.getElementById('invPlate').value = '';
-    document.getElementById('invKm').value = '';
-    document.getElementById('invNotes').value = '';
-    document.getElementById('invLabor').value = '0';
-    document.getElementById('invTvaEnabled').checked = false;
-    document.getElementById('invStatus').value = 'done';
-    document.querySelector('input[name="paymentMethod"][value="Espèces"]').checked = true;
-    document.querySelector('input[name="paymentStatus"][value="Payée"]').checked = true;
-
-    if (booking) {
-        try {
-            const b = JSON.parse(booking);
-            document.getElementById('invClient').value = b.name || '';
-            document.getElementById('invPhone').value = b.phone || '';
-            document.getElementById('invCar').value = b.car || '';
-            if (b.desc) document.getElementById('invNotes').value = b.desc;
-            if (Array.isArray(b.services) && b.services.length > 0) {
-                b.services.forEach(svc => {
-                    currentItems.push({ type: 'service', name: svc, qty: 1, price: 0 });
-                });
-            }
-            document.getElementById('bookingHint').classList.add('active');
-            document.getElementById('bookingHintText').textContent = b.name + ' — ' + (b.car || '');
-            sessionStorage.removeItem('mg_convert_booking');
-        } catch(e) {}
-    } else {
-        document.getElementById('bookingHint').classList.remove('active');
+    function saveToStorage() {
+        localStorage.setItem('med_garage_invoices', JSON.stringify(invoices));
     }
 
-    if (currentItems.length === 0) {
-        currentItems.push({ type: 'part', name: '', qty: 1, price: 0 });
+    function generateInvoiceCode() {
+        const now = new Date();
+        const year = now.getFullYear().toString().slice(-2);
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+        const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+        return `M-G ${year}${month}${random}`;
     }
 
-    renderItems();
-    calcTotal();
-    document.getElementById('invoiceModal').classList.add('active');
-}
+    // ==========================================
+    // 2. عرض القوائم
+    // ==========================================
+    function renderLists() {
+        const devisList = document.getElementById('devisList');
+        const doneList = document.getElementById('doneList');
+        const devis = invoices.filter(i => i.status === 'devis');
+        const done = invoices.filter(i => i.status === 'done');
 
-// ================= تعديل فاتورة =================
-function editInvoice(id) {
-    const invoices = getData('invoices', []);
-    const inv = invoices.find(i => i.id === id);
-    if (!inv || inv.deleted) return;
+        devisList.innerHTML = devis.length ? '' : '<div class="empty-state">لا توجد عروض أسعار حالياً</div>';
+        devis.forEach(inv => {
+            devisList.innerHTML += `
+                <div class="list-row">
+                    <strong>${inv.code}</strong> — ${inv.client}<br>
+                    <span style="color:var(--accent);">${inv.total.toFixed(2)} دج</span>
+                </div>
+            `;
+        });
 
-    editingInvoiceId = id;
-    document.getElementById('modalTitle').textContent = '✏️ تعديل الفاتورة';
-    document.getElementById('invCode').value = inv.code;
-    document.getElementById('invClient').value = inv.client || '';
-    document.getElementById('invPhone').value = inv.phone || '';
-    document.getElementById('invCar').value = inv.car || '';
-    document.getElementById('invVin').value = inv.vin || '';
-    document.getElementById('invPlate').value = inv.plate || '';
-    document.getElementById('invKm').value = inv.km || '';
-    document.getElementById('invNotes').value = inv.notes || '';
-    document.getElementById('invLabor').value = inv.labor || 0;
-    document.getElementById('invTvaEnabled').checked = !!inv.tvaEnabled;
-    document.getElementById('invStatus').value = inv.status || 'done';
-    document.getElementById('invStatus').disabled = true;
+        doneList.innerHTML = done.length ? '' : '<div class="empty-state">لا توجد فواتير مكتملة</div>';
+        done.forEach(inv => {
+            doneList.innerHTML += `
+                <div class="list-row">
+                    <strong>${inv.code}</strong> — ${inv.client}<br>
+                    <span style="color:var(--success);">${inv.total.toFixed(2)} دج</span>
+                </div>
+            `;
+        });
+    }
 
-    const pm = document.querySelector(`input[name="paymentMethod"][value="${inv.paymentMethod || 'Espèces'}"]`);
-    if (pm) pm.checked = true;
-    const ps = document.querySelector(`input[name="paymentStatus"][value="${inv.paymentStatus || 'Payée'}"]`);
-    if (ps) ps.checked = true;
+    // ==========================================
+    // 3. فتح/إغلاق المودال
+    // ==========================================
+    function openNewInvoice() {
+        currentInvoiceId = null;
+        document.getElementById('modalTitle').textContent = '🧾 فاتورة جديدة';
+        document.getElementById('invCode').value = generateInvoiceCode();
+        document.getElementById('invClient').value = '';
+        document.getElementById('invPhone').value = '';
+        document.getElementById('invCar').value = '';
+        document.getElementById('invVin').value = '';
+        document.getElementById('invPlate').value = '';
+        document.getElementById('invKm').value = '';
+        document.getElementById('invNotes').value = '';
+        document.getElementById('invTvaEnabled').checked = false;
+        document.getElementById('itemsBody').innerHTML = '';
+        document.getElementById('invStatus').value = 'done';
+        document.getElementById('invoiceModal').classList.add('active');
+        calcTotal();
+    }
 
-    currentItems = (inv.items && Array.isArray(inv.items)) ? inv.items.map(it => ({ ...it })) : [];
-    if (currentItems.length === 0) currentItems.push({ type: 'part', name: '', qty: 1, price: 0 });
+    function closeInvoiceModal() {
+        document.getElementById('invoiceModal').classList.remove('active');
+    }
 
-    renderItems();
-    calcTotal();
-    document.getElementById('bookingHint').classList.remove('active');
-    document.getElementById('invoiceModal').classList.add('active');
-}
-
-// ================= إدارة الأصناف =================
-function renderItems() {
-    const stock = getData('stock', []);
-    const tbody = document.getElementById('itemsBody');
-
-    tbody.innerHTML = currentItems.map((item, idx) => {
-        const typeIcon = item.type === 'part' ? '📦' : '✏️';
-        let inputHTML = '';
-
-        if (item.type === 'part') {
-            const opts = stock.map(s => {
-                const qty = (s.qty || 0);
-                const disabled = qty <= 0 ? 'disabled' : '';
-                const stockLabel = qty > 0 ? `متوفر: ${qty}` : 'نافذ';
-                const selected = s.name === item.name ? 'selected' : '';
-                return `<option value="${escapeHtml(s.name)}" data-price="${s.sellPrice || 0}" data-qty="${qty}" ${selected} ${disabled}>${escapeHtml(s.name)} (${stockLabel})</option>`;
-            }).join('');
-            inputHTML = `<select onchange="onItemFromStock(${idx}, this)"><option value="">-- اختر --</option>${opts}</select>`;
-        } else {
-            inputHTML = `<input type="text" value="${escapeHtml(item.name)}" oninput="onItemChange(${idx}, 'name', this.value)" placeholder="اسم الخدمة">`;
-        }
-
-        return `
-            <tr>
-                <td class="col-type"><button type="button" onclick="toggleItemType(${idx})" title="تحويل" style="background:${item.type === 'part' ? 'var(--info)' : 'var(--accent)'}; color:#fff; border:none; padding:4px 6px; border-radius:4px; cursor:pointer; font-size:14px;">${typeIcon}</button></td>
-                <td class="col-name">${inputHTML}</td>
-                <td class="col-qty"><input type="number" min="1" value="${item.qty || 1}" oninput="onItemChange(${idx}, 'qty', this.value); calcTotal()"></td>
-                <td class="col-price"><input type="number" min="0" value="${item.price || 0}" oninput="onItemChange(${idx}, 'price', this.value); calcTotal()"></td>
-                <td class="col-del"><button type="button" onclick="removeItemRow(${idx})" style="background:var(--danger); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;">🗑️</button></td>
-            </tr>
+    // ==========================================
+    // 4. إدارة جدول القطع والخدمات
+    // ==========================================
+    function addItemRow(type = 'piece_stock') {
+        const tbody = document.getElementById('itemsBody');
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="col-type">
+                <select class="item-type" onchange="calcTotal()">
+                    <option value="piece_stock" ${type === 'piece_stock' ? 'selected' : ''}>من المخزن</option>
+                    <option value="piece_external" ${type === 'piece_external' ? 'selected' : ''}>قطعة خارجية</option>
+                    <option value="labor" ${type === 'labor' ? 'selected' : ''}>يد عاملة</option>
+                </select>
+            </td>
+            <td class="col-name"><input type="text" class="item-name" placeholder="اسم القطعة/الخدمة" oninput="calcTotal()"></td>
+            <td class="col-qty"><input type="number" class="item-qty" value="1" min="1" oninput="calcTotal()"></td>
+            <td class="col-price"><input type="number" class="item-price" value="0" min="0" oninput="calcTotal()"></td>
+            <td class="col-del"><button type="button" onclick="this.closest('tr').remove(); calcTotal();" style="background:var(--primary); color:#fff; border:none; border-radius:4px; padding:4px 8px; cursor:pointer;">✕</button></td>
         `;
-    }).join('');
-}
-
-function addItemRow() {
-    currentItems.push({ type: 'part', name: '', qty: 1, price: 0 });
-    renderItems();
-    calcTotal();
-}
-
-function removeItemRow(idx) {
-    if (currentItems.length <= 1) { showToast('⚠️ يجب أن تبقى قطعة واحدة على الأقل', 'error'); return; }
-    currentItems.splice(idx, 1);
-    renderItems();
-    calcTotal();
-}
-
-function onItemChange(idx, field, value) {
-    if (!currentItems[idx]) return;
-    currentItems[idx][field] = (field === 'qty' || field === 'price') ? (parseFloat(value) || 0) : value;
-}
-
-// ✅ تحسين: ما نعاودوش نبنو الجدول كامل — نحدّثو غير الحقل
-function onItemFromStock(idx, selectEl) {
-    const opt = selectEl.options[selectEl.selectedIndex];
-    if (!opt || !currentItems[idx]) return;
-    const price = parseFloat(opt.getAttribute('data-price')) || 0;
-    const stockQty = parseInt(opt.getAttribute('data-qty')) || 0;
-
-    currentItems[idx].name = selectEl.value;
-    currentItems[idx].price = price;
-    currentItems[idx].type = 'part';
-
-    const qtyInput = selectEl.closest('tr').querySelector('.col-qty input');
-    if (currentItems[idx].qty > stockQty && stockQty > 0) {
-        showToast(`⚠️ الكمية المطلوبة أكبر من المتوفرة (${stockQty})`, 'error');
-        currentItems[idx].qty = stockQty;
-        if (qtyInput) qtyInput.value = stockQty;
+        tbody.appendChild(row);
+        calcTotal();
     }
 
-    const priceInput = selectEl.closest('tr').querySelector('.col-price input');
-    if (priceInput) priceInput.value = price;
+    // ==========================================
+    // 5. حساب المجاميع
+    // ==========================================
+    function calcTotal() {
+        let subtotal = 0;
+        document.querySelectorAll('#itemsBody tr').forEach(row => {
+            const qty = parseFloat(row.querySelector('.item-qty')?.value) || 0;
+            const price = parseFloat(row.querySelector('.item-price')?.value) || 0;
+            subtotal += qty * price;
+        });
 
-    calcTotal();
-}
+        const tvaEnabled = document.getElementById('invTvaEnabled').checked;
+        const tva = tvaEnabled ? subtotal * 0.19 : 0;
+        const total = subtotal + tva;
 
-function toggleItemType(idx) {
-    if (!currentItems[idx]) return;
-    currentItems[idx].type = currentItems[idx].type === 'part' ? 'service' : 'part';
-    currentItems[idx].name = '';
-    currentItems[idx].price = 0;
-    renderItems();
-    calcTotal();
-}
-
-// ================= حساب المجموع =================
-function calcTotal() {
-    let itemsTotal = 0;
-    currentItems.forEach(it => { itemsTotal += (it.qty || 0) * (it.price || 0); });
-    const labor = parseFloat(document.getElementById('invLabor').value) || 0;
-    const subtotal = itemsTotal + labor;
-    const tvaEnabled = document.getElementById('invTvaEnabled').checked;
-    const tva = tvaEnabled ? subtotal * 0.19 : 0;
-    const total = subtotal + tva;
-
-    document.getElementById('invSubtotal').textContent = subtotal.toLocaleString() + ' دج';
-    document.getElementById('tvaLine').style.display = tvaEnabled ? 'block' : 'none';
-    document.getElementById('invTva').textContent = tva.toLocaleString() + ' دج';
-    document.getElementById('invTotal').textContent = total.toLocaleString() + ' دج';
-}
-
-// ================= حفظ الفاتورة =================
-function saveInvoice() {
-    const code = document.getElementById('invCode').value;
-    const client = document.getElementById('invClient').value.trim();
-    const phone = document.getElementById('invPhone').value.trim();
-    const car = document.getElementById('invCar').value.trim();
-    const vin = document.getElementById('invVin').value.trim();
-    const plate = document.getElementById('invPlate').value.trim();
-    const km = document.getElementById('invKm').value.trim();
-    const notes = document.getElementById('invNotes').value.trim();
-    const labor = parseFloat(document.getElementById('invLabor').value) || 0;
-    const tvaEnabled = document.getElementById('invTvaEnabled').checked;
-    const status = document.getElementById('invStatus').value;
-    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'Espèces';
-    const paymentStatus = document.querySelector('input[name="paymentStatus"]:checked')?.value || 'Payée';
-
-    if (!client) {
-        showToast('⚠️ يرجى إدخال اسم الزبون', 'error');
-        document.getElementById('invClient').focus();
-        return;
+        document.getElementById('invSubtotal').textContent = subtotal.toFixed(2) + ' دج';
+        document.getElementById('invTva').textContent = tva.toFixed(2) + ' دج';
+        document.getElementById('invTotal').textContent = total.toFixed(2) + ' دج';
+        document.getElementById('tvaLine').style.display = tvaEnabled ? 'block' : 'none';
     }
 
-    if (phone && !validatePhone(phone)) {
-        showToast('⚠️ رقم الهاتف يجب أن يكون 10 أرقام ويبدأ بـ 05/06/07', 'error');
-        document.getElementById('invPhone').focus();
-        return;
-    }
-
-    if (vin && !validateVIN(vin)) {
-        showToast('⚠️ VIN يجب أن يكون 17 حرف/رقم بالضبط', 'error');
-        document.getElementById('invVin').focus();
-        return;
-    }
-
-    const stock = getData('stock', []);
-    for (const it of currentItems) {
-        if (it.type === 'part' && it.name) {
-            const stockItem = stock.find(s => s.name === it.name);
-            if (stockItem && it.qty > stockItem.qty) {
-                showToast(`❌ القطعة "${it.name}" الكمية المطلوبة أكبر من المتوفرة`, 'error');
-                return;
-            }
+    // ==========================================
+    // 6. حفظ الفاتورة
+    // ==========================================
+    function saveInvoice() {
+        const client = document.getElementById('invClient').value.trim();
+        if (!client) {
+            showToast('❌ الرجاء إدخال اسم الزبون', true);
+            return;
         }
-    }
 
-    const validItems = currentItems.filter(it => it.name && it.qty > 0);
-    if (validItems.length === 0 && labor === 0) {
-        showToast('⚠️ أضف قطعة أو خدمة واحدة على الأقل', 'error');
-        return;
-    }
-
-    let itemsTotal = 0;
-    validItems.forEach(it => { itemsTotal += it.qty * it.price; });
-    const subtotal = itemsTotal + labor;
-    const tva = tvaEnabled ? subtotal * 0.19 : 0;
-    const total = subtotal + tva;
-
-    let invoices = getData('invoices', []);
-
-    if (editingInvoiceId) {
-        const oldIdx = invoices.findIndex(i => i.id === editingInvoiceId);
-        if (oldIdx === -1) return;
-        const oldInv = invoices[oldIdx];
-
-        // ✅ إصلاح: نرجّع ستوك القديم دايماً (إذا ما كانش devis)
-        if (oldInv.status !== 'devis' && oldInv.items) {
-            oldInv.items.forEach(it => {
-                if (it.type === 'part' && it.name) {
-                    const si = stock.findIndex(s => s.name === it.name);
-                    if (si !== -1) stock[si].qty += it.qty;
-                }
+        const items = [];
+        document.querySelectorAll('#itemsBody tr').forEach(row => {
+            items.push({
+                type: row.querySelector('.item-type').value,
+                name: row.querySelector('.item-name').value.trim(),
+                qty: parseFloat(row.querySelector('.item-qty').value) || 0,
+                price: parseFloat(row.querySelector('.item-price').value) || 0,
             });
-        }
+        });
 
-        // ✅ إصلاح: نخصم ستوك الجديد فقط إذا النوع الجديد ماهوش devis
-        if (status !== 'devis') {
-            validItems.forEach(it => {
-                if (it.type === 'part' && it.name) {
-                    const si = stock.findIndex(s => s.name === it.name);
-                    if (si !== -1) stock[si].qty = Math.max(0, stock[si].qty - it.qty);
-                }
-            });
-        }
+        const subtotal = items.reduce((s, i) => s + i.qty * i.price, 0);
+        const tvaEnabled = document.getElementById('invTvaEnabled').checked;
+        const tva = tvaEnabled ? subtotal * 0.19 : 0;
+        const total = subtotal + tva;
 
-        invoices[oldIdx] = {
-            ...oldInv, client, phone, car, vin, plate, km, notes,
-            labor, subtotal, tvaEnabled, tva, total, status,
-            paymentMethod, paymentStatus, items: validItems, updatedAt: Date.now()
+        const invoice = {
+            id: Date.now(),
+            code: document.getElementById('invCode').value,
+            client: client,
+            phone: document.getElementById('invPhone').value,
+            car: document.getElementById('invCar').value,
+            vin: document.getElementById('invVin').value,
+            plate: document.getElementById('invPlate').value,
+            km: document.getElementById('invKm').value,
+            notes: document.getElementById('invNotes').value,
+            items: items,
+            subtotal: subtotal,
+            tvaEnabled: tvaEnabled,
+            tva: tva,
+            total: total,
+            paymentMethod: document.querySelector('input[name="paymentMethod"]:checked').value,
+            paymentStatus: document.querySelector('input[name="paymentStatus"]:checked').value,
+            status: document.getElementById('invStatus').value,
+            date: new Date().toLocaleString('fr-FR'),
         };
-        showToast('✅ تم تعديل الفاتورة');
-    } else {
-        if (status !== 'devis') {
-            validItems.forEach(it => {
-                if (it.type === 'part' && it.name) {
-                    const si = stock.findIndex(s => s.name === it.name);
-                    if (si !== -1) stock[si].qty = Math.max(0, stock[si].qty - it.qty);
-                }
-            });
-        }
 
-        const now = Date.now();
-        invoices.unshift({
-            id: now, code, client, phone, car, vin, plate, km, notes,
-            labor, subtotal, tvaEnabled, tva, total, status,
-            paymentMethod, paymentStatus, items: validItems,
-            date: formatDateDDMMYYYY(now), time: formatTimeHHMM(now), createdAt: now
-        });
-
-        showToast(status === 'devis' ? '✅ تم حفظ الـ Devis' : '✅ تم حفظ الفاتورة وخصم الستوك');
+        invoices.push(invoice);
+        saveToStorage();
+        renderLists();
+        closeInvoiceModal();
+        showToast('✅ تم حفظ الفاتورة بنجاح');
     }
 
-    setData('stock', stock);
-    setData('invoices', invoices);
-    closeInvoiceModal();
-    loadInvoices();
-}
-
-function closeInvoiceModal() {
-    document.getElementById('invoiceModal').classList.remove('active');
-    document.getElementById('invStatus').disabled = false;
-    editingInvoiceId = null;
-    currentItems = [];
-}
-
-// ================= حذف/استرجاع =================
-function deleteInvoice(id) {
-    if (!confirm('نقل هذه الفاتورة إلى السلة؟ (يمكن استرجاعها)')) return;
-    const invoices = getData('invoices', []);
-    const inv = invoices.find(i => i.id === id);
-    if (!inv || inv.deleted) return;
-
-    if (inv.status !== 'devis' && inv.items) {
-        const stock = getData('stock', []);
-        inv.items.forEach(it => {
-            if (it.type === 'part' && it.name) {
-                const si = stock.findIndex(s => s.name === it.name);
-                if (si !== -1) stock[si].qty += it.qty;
-            }
-        });
-        setData('stock', stock);
-    }
-
-    inv.deleted = true;
-    inv.deletedAt = Date.now();
-    setData('invoices', invoices);
-    loadInvoices();
-    showToast('🗑️ تم نقل الفاتورة لسلة المحذوفات');
-}
-
-function restoreInvoice(id) {
-    const invoices = getData('invoices', []);
-    const inv = invoices.find(i => i.id === id);
-    if (!inv || !inv.deleted) return;
-
-    if (inv.status !== 'devis' && inv.items) {
-        const stock = getData('stock', []);
-        inv.items.forEach(it => {
-            if (it.type === 'part' && it.name) {
-                const si = stock.findIndex(s => s.name === it.name);
-                if (si !== -1) stock[si].qty = Math.max(0, stock[si].qty - it.qty);
-            }
-        });
-        setData('stock', stock);
-    }
-
-    delete inv.deleted;
-    delete inv.deletedAt;
-    setData('invoices', invoices);
-    loadInvoices();
-    showToast('♻️ تم استرجاع الفاتورة');
-}
-
-function permanentDeleteInvoice(id) {
-    if (!confirm('⚠️ حذف نهائي! لا يمكن الرجوع. متأكد؟')) return;
-    if (!confirm('تأكيد أخير: حذف هذه الفاتورة من السجل نهائياً؟')) return;
-    setData('invoices', getData('invoices', []).filter(i => i.id !== id));
-    loadInvoices();
-    showToast('🔥 تم الحذف النهائي');
-}
-
-// ================= عرض القوائم =================
-function loadInvoices() {
-    const allInvoices = getData('invoices', []);
-    const search = (document.getElementById('invoiceSearch').value || '').toLowerCase();
-
-    const deletedCount = allInvoices.filter(i => i.deleted).length;
-    const trashBtn = document.getElementById('trashToggleBtn');
-    if (trashBtn) {
-        trashBtn.textContent = `🗑️ السلة (${deletedCount})`;
-        trashBtn.classList.toggle('btn-trash-empty', deletedCount === 0);
-    }
-    const banner = document.getElementById('trashBanner');
-    if (banner) banner.classList.toggle('active', showTrash);
-
-    const baseList = showTrash ? allInvoices.filter(i => i.deleted) : allInvoices.filter(i => !i.deleted);
-    const filtered = search ? baseList.filter(i =>
-        (i.client || '').toLowerCase().includes(search) ||
-        (i.code || '').toLowerCase().includes(search)
-    ) : baseList;
-
-    const devis = filtered.filter(i => i.status === 'devis');
-    const devisBox = document.getElementById('devisList');
-    devisBox.innerHTML = devis.length === 0
-        ? `<div class="empty-state">${showTrash ? 'سلة Devis فارغة' : 'لا يوجد Devis حالياً'}</div>`
-        : devis.map(inv => renderInvoiceRow(inv, true)).join('');
-
-    const done = filtered.filter(i => i.status !== 'devis');
-    const doneBox = document.getElementById('doneList');
-    doneBox.innerHTML = done.length === 0
-        ? `<div class="empty-state">${showTrash ? 'سلة الفواتير فارغة' : 'لا توجد فواتير مكتملة'}</div>`
-        : done.map(inv => renderInvoiceRow(inv, false)).join('');
-}
-
-function renderInvoiceRow(inv, isDevis) {
-    const delDate = inv.deletedAt ? ` <span style="color:#f87171; font-size:10px;">(حُذفت: ${formatDateDDMMYYYY(inv.deletedAt)})</span>` : '';
-    const amountLabel = isDevis
-        ? `<span style="color:#fbbf24;">📄 Devis: <strong>${(inv.total || 0).toLocaleString()} دج</strong></span>`
-        : `<span style="color:#4ade80; font-weight:900;">💵 ${(inv.total || 0).toLocaleString()} دج</span>`;
-    const dateLabel = inv.date ? ` | ${escapeHtml(cleanDisplayDate(inv.date))}` : '';
-
-    const actions = showTrash
-        ? `<button onclick="restoreInvoice(${inv.id})" class="btn btn-sm btn-success">♻️ استرجاع</button>
-           <button onclick="permanentDeleteInvoice(${inv.id})" class="btn btn-sm btn-danger">🔥 حذف نهائي</button>`
-        : `<button onclick="editInvoice(${inv.id})" class="btn btn-sm btn-info">✏️</button>
-           <button onclick="openPdfPreview(${inv.id})" class="btn btn-sm btn-warning">👁️</button>
-           <button onclick="printInvoice(${inv.id})" class="btn btn-sm btn-success">🖨️</button>
-           <button onclick="deleteInvoice(${inv.id})" class="btn btn-sm btn-danger">🗑️</button>`;
-
-    return `
-        <div class="list-row">
-            <strong>${escapeHtml(inv.code)}</strong> — 👤 ${escapeHtml(inv.client)}
-            ${inv.car ? ` | 🚗 ${escapeHtml(inv.car)}` : ''}${delDate}<br>
-            ${amountLabel}${dateLabel}
-            <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">${actions}</div>
-        </div>
-    `;
-}
-</script>
-<script>
-// ============================================================
-// بناء HTML الفاتورة — الهيدر الثابت + اللغات + QR + كل التحسينات
-// ============================================================
-function buildInvoiceHTML(inv, lang = 'fr') {
-    const isAr = lang === 'ar';
-    const dir = isAr ? 'rtl' : 'ltr';
-    const fontFamily = isAr ? "'Cairo', Arial, sans-serif" : 'Arial, sans-serif';
-
-    // بيانات الورشة
-    let shop = {
-        name: 'MED GARAGE',
-        phone: '0790 58 25 51',
-        address: 'السويدانية - الجزائر العاصمة',
-        email: 'med911gt3@gmail.com'
-    };
-    try {
-        const s = JSON.parse(localStorage.getItem('mg_shop_info') || 'null');
-        if (s) shop = { ...shop, ...s };
-    } catch(e) {}
-
-    // نصوص اللغة
-    const L = isAr ? {
-        devis: 'عرض سعر', facture: 'فاتورة', num: 'رقم', date: 'التاريخ', time: 'الوقت',
-        clientInfo: '👤 معلومات الزبون', name: 'الاسم', phone: 'الهاتف', address: 'العنوان',
-        vehicleInfo: '🚗 معلومات السيارة', type: 'النوع', vin: 'VIN (الهيكل)', plate: 'اللوحة', km: 'الكيلومترات',
-        clientRequest: '📝 طلب الزبون', numShort: 'رقم', designation: 'البيان', qty: 'الكمية',
-        unitPrice: 'سعر الوحدة (دج)', amount: 'المبلغ (دج)',
-        paymentMode: '💳 طريقة الدفع', cash: 'نقداً', check: 'شيك', transfer: 'تحويل', credit: 'آجل',
-        invoiceState: '✅ حالة الفاتورة', paid: 'مدفوعة', partial: 'دفع جزئي', unpaid: 'غير مدفوعة',
-        summary: 'الملخص', totalPieces: 'مجموع القطع', labor: 'يد العاملة', tva: 'TVA (19%)',
-        totalTTC: 'المجموع الإجمالي', stamp: 'الختم والتوقيع',
-        thanks: 'شكراً لثقتكم', slogan: 'ميد غراج - سيارتك في أيدٍ أمينة',
-        mainOeuvre: 'يد العاملة', noPieces: 'لا توجد قطع', da: 'دج',
-        bonPourAccord: 'موافق على المحتوى (Bon pour accord)',
-        tvaNonApplicable: 'TVA غير مطبقة',
-        qrHint: 'امسح للتحقق'
-    } : {
-        devis: 'DEVIS', facture: 'FACTURE', num: 'N°', date: 'Date', time: 'Heure',
-        clientInfo: '👤 Informations du client', name: 'Nom', phone: 'Téléphone', address: 'Adresse',
-        vehicleInfo: '🚗 Informations du véhicule', type: 'Type', vin: 'VIN', plate: 'Immatriculation', km: 'KM',
-        clientRequest: '📝 Demande du client', numShort: 'N°', designation: 'Désignation', qty: 'Quantité',
-        unitPrice: 'Prix unitaire (DA)', amount: 'Montant (DA)',
-        paymentMode: '💳 Mode de paiement', cash: 'Espèces', check: 'Chèque', transfer: 'Virement', credit: 'Crédit',
-        invoiceState: '✅ État de la facture', paid: 'Payée', partial: 'Paiement partiel', unpaid: 'Non payée',
-        summary: 'Récapitulatif', totalPieces: 'Total pièces', labor: 'Main d\'œuvre', tva: 'TVA (19%)',
-        totalTTC: 'Total TTC', stamp: 'Cachet et signature',
-        thanks: 'Merci pour votre confiance', slogan: 'MED GARAGE - Votre véhicule entre de bonnes mains',
-        mainOeuvre: 'Main d\'œuvre', noPieces: 'Aucune pièce', da: 'DA',
-        bonPourAccord: 'Bon pour accord',
-        tvaNonApplicable: 'TVA non applicable',
-        qrHint: 'Scannez pour vérifier'
-    };
-
-    // ألوان نوع المستند
-    const isDevisDoc = inv.status === 'devis';
-    const docColor = isDevisDoc ? '#f59e0b' : '#2563eb';
-    const docBg = isDevisDoc ? '#fef3c7' : '#dbeafe';
-
-    // جدول الأصناف — كل الأرقام في الوسط
-    let itemsHTML = '';
-    if (inv.items && inv.items.length > 0) {
-        inv.items.forEach((it, i) => {
-            const lineTotal = (it.qty || 0) * (it.price || 0);
-            itemsHTML += `<tr>
-                <td style="text-align:center; border: 1px solid #cbd5e1; padding: 8px;">${i + 1}</td>
-                <td style="text-align:${isAr ? 'right' : 'left'}; padding: 8px 10px; border: 1px solid #cbd5e1; direction:${dir}; unicode-bidi: plaintext;">${escapeHtml(it.name)}</td>
-                <td style="text-align: center; border: 1px solid #cbd5e1; padding: 8px;">${it.qty}</td>
-                <td style="text-align: center; border: 1px solid #cbd5e1; padding: 8px; direction:ltr;">${(it.price || 0).toLocaleString()}</td>
-                <td style="text-align: center; border: 1px solid #cbd5e1; padding: 8px; direction:ltr;">${lineTotal.toLocaleString()}</td>
-            </tr>`;
-        });
-    }
-
-    if (inv.labor > 0) {
-        itemsHTML += `<tr style="background: #f8fafc;">
-            <td style="text-align:center; border: 1px solid #cbd5e1; padding: 8px;">🛠️</td>
-            <td style="text-align:${isAr ? 'right' : 'left'}; padding: 8px 10px; border: 1px solid #cbd5e1; direction:${dir};"><strong>${L.mainOeuvre}</strong></td>
-            <td style="text-align: center; border: 1px solid #cbd5e1; padding: 8px;">1</td>
-            <td style="text-align: center; border: 1px solid #cbd5e1; padding: 8px; direction:ltr;">${(inv.labor || 0).toLocaleString()}</td>
-            <td style="text-align: center; border: 1px solid #cbd5e1; padding: 8px; direction:ltr;">${(inv.labor || 0).toLocaleString()}</td>
-        </tr>`;
-    }
-
-    const docType = isDevisDoc ? L.devis : L.facture;
-    const chk = (isChecked) => isChecked
-        ? '<span style="font-size:16px; color:#16a34a;">☑</span>'
-        : '<span style="font-size:16px; color:#94a3b8;">☐</span>';
-
-    const labor = Number(inv.labor) || 0;
-    const subtotal = Number(inv.subtotal) || 0;
-    const total = Number(inv.total) || 0;
-    const tva = Number(inv.tva) || 0;
-    const piecesTotal = Math.max(0, subtotal - labor);
-
-    return `
-        <div dir="${dir}" style="font-family: ${fontFamily}; color: #1e293b; max-width: 100%; background: #fff; direction: ${dir};">
-
-            <!-- ================== الهيدر الثابت (يمين: لوقو + Auto Repair / يسار: MED GARAGE + معلومات) ================== -->
-            <div style="display: grid; grid-template-columns: 1fr auto; gap: 15px; align-items: center; direction: ltr; border-bottom: 3px solid #dc2626; padding-bottom: 15px; margin-bottom: 18px;">
-
-                <!-- يسار: MED GARAGE + معلومات الورشة -->
-                <div style="text-align: left;">
-                    <h1 style="margin: 0; color: #dc2626; font-size: 26px; font-weight: 900; letter-spacing: 1px;">MED GARAGE</h1>
-                    <div style="font-size: 11px; color: #333; line-height: 1.8; font-weight: bold; margin-top: 6px;">
-                        <div>📍 ${escapeHtml(shop.address)}</div>
-                        <div>📞 <span style="direction:ltr; unicode-bidi:embed;">${escapeHtml(shop.phone)}</span></div>
-                        <div>✉️ <span style="direction:ltr; unicode-bidi:embed;">${escapeHtml(shop.email)}</span></div>
-                    </div>
-                </div>
-
-                <!-- يمين: اللوقو + Auto Repair -->
-                <div style="text-align: center;">
-                    <img src="${LOGO_BASE64}" alt="Logo" style="width: 110px; height: 110px; object-fit: contain; display: block; margin: 0 auto;">
-                    <div style="font-size: 13px; font-weight: 900; color: #dc2626; letter-spacing: 1px; margin-top: 4px; font-style: italic;">Auto Repair</div>
-                </div>
+    // ==========================================
+    // 7. معاينة PDF (مبسطة)
+    // ==========================================
+    function previewPDF(invoiceId) {
+        const inv = invoices.find(i => i.id === invoiceId);
+        if (!inv) return;
+        const content = document.getElementById('pdfPreviewContent');
+        content.innerHTML = `
+            <div style="font-family:Cairo; direction:rtl; padding:20px;">
+                <h2 style="color:#dc2626; text-align:center;">MED GARAGE</h2>
+                <p style="text-align:center; font-size:12px;">الجزائر العاصمة — 0790 58 25 51</p>
+                <hr>
+                <h3 style="text-align:center;">${inv.code}</h3>
+                <p><strong>الزبون:</strong> ${inv.client}</p>
+                <p><strong>الهاتف:</strong> ${inv.phone}</p>
+                <p><strong>السيارة:</strong> ${inv.car} — ${inv.plate}</p>
+                <table style="width:100%; border-collapse:collapse; margin-top:15px;">
+                    <thead><tr style="background:#f3f4f6;"><th>النوع</th><th>البيان</th><th>الكمية</th><th>السعر</th></tr></thead>
+                    <tbody>
+                        ${inv.items.map(i => `<tr><td>${i.type}</td><td>${i.name}</td><td>${i.qty}</td><td>${i.price} دج</td></tr>`).join('')}
+                    </tbody>
+                </table>
+                <hr>
+                <p style="text-align:left;"><strong>Total HT:</strong> ${inv.subtotal.toFixed(2)} دج</p>
+                ${inv.tvaEnabled ? `<p style="text-align:left;"><strong>TVA (19%):</strong> ${inv.tva.toFixed(2)} دج</p>` : ''}
+                <p style="text-align:left; font-size:18px; color:#16a34a;"><strong>Total TTC:</strong> ${inv.total.toFixed(2)} دج</p>
+                <p style="text-align:center; font-size:11px; color:#666; margin-top:20px;">شكراً لثقتكم — MED GARAGE</p>
             </div>
-
-            <!-- ================== نوع المستند + الرقم + التاريخ والوقت (واضحين) ================== -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; align-items: stretch;">
-
-                <!-- يسار: نوع + رقم -->
-                <div style="background: ${docBg}; border: 2px solid ${docColor}; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                    <div style="font-size: 20px; font-weight: 900; color: ${docColor}; letter-spacing: 1px;">${docType}</div>
-                    <div style="font-size: 18px; font-weight: 900; color: #1e293b; direction:ltr; margin-top: 4px;">${escapeHtml(inv.code)}</div>
-                </div>
-
-                <!-- يمين: تاريخ + وقت واضحين -->
-                <div style="background: #1e293b; color: #fff; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px;">
-                    <div style="font-size: 14px; font-weight: 900; letter-spacing: 0.5px;">
-                        📅 ${L.date} : <span style="direction:ltr; unicode-bidi:embed; color: #fbbf24;">${escapeHtml(cleanDisplayDate(inv.date))}</span>
-                    </div>
-                    <div style="font-size: 14px; font-weight: 900; letter-spacing: 0.5px;">
-                        ⏰ ${L.time} : <span style="direction:ltr; unicode-bidi:embed; color: #fbbf24;">${escapeHtml(inv.time || '--:--')}</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ================== معلومات الزبون + السيارة ================== -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
-                <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
-                    <div style="background: #dc2626; color: #fff; padding: 7px 12px; font-size: 13px; font-weight: bold; text-align: ${isAr ? 'right' : 'left'};">${L.clientInfo}</div>
-                    <div style="padding: 10px 12px; font-size: 12px; line-height: 2; text-align: ${isAr ? 'right' : 'left'};">
-                        <div><strong>${L.name} :</strong> ${escapeHtml(inv.client)}</div>
-                        <div><strong>${L.phone} :</strong> <span style="direction:ltr; unicode-bidi:embed;">${escapeHtml(inv.phone || '-')}</span></div>
-                    </div>
-                </div>
-                <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
-                    <div style="background: #dc2626; color: #fff; padding: 7px 12px; font-size: 13px; font-weight: bold; text-align: ${isAr ? 'right' : 'left'};">${L.vehicleInfo}</div>
-                    <div style="padding: 10px 12px; font-size: 12px; line-height: 2; text-align: ${isAr ? 'right' : 'left'};">
-                        <div><strong>${L.type} :</strong> ${escapeHtml(inv.car || '-')}</div>
-                        <div><strong>${L.plate} :</strong> <span style="direction:ltr; unicode-bidi:embed;">${escapeHtml(inv.plate || '-')}</span></div>
-                        <div><strong>${L.km} :</strong> <span style="direction:ltr; unicode-bidi:embed;">${escapeHtml(String(inv.km || '-'))}</span></div>
-                        ${inv.vin ? `<div><strong>${L.vin} :</strong> <span style="direction:ltr; unicode-bidi:embed; font-size:11px;">${escapeHtml(inv.vin)}</span></div>` : ''}
-                    </div>
-                </div>
-            </div>
-
-            <!-- ================== طلب الزبون ================== -->
-            ${inv.notes ? `
-            <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; margin-bottom: 14px;">
-                <div style="background: #dc2626; color: #fff; padding: 7px 12px; font-size: 13px; font-weight: bold; text-align: ${isAr ? 'right' : 'left'};">${L.clientRequest}</div>
-                <div style="padding: 10px 12px; font-size: 12px; min-height: 30px; text-align: ${isAr ? 'right' : 'left'};">${escapeHtml(inv.notes)}</div>
-            </div>` : ''}
-
-            <!-- ================== جدول الأصناف ================== -->
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 12px;">
-                <thead>
-                    <tr style="background: #1e293b; color: #fff;">
-                        <th style="padding: 9px; border: 1px solid #cbd5e1; width: 8%; text-align: center;">${L.numShort}</th>
-                        <th style="padding: 9px; border: 1px solid #cbd5e1; width: 44%; text-align: center;">${L.designation}</th>
-                        <th style="padding: 9px; border: 1px solid #cbd5e1; width: 12%; text-align: center;">${L.qty}</th>
-                        <th style="padding: 9px; border: 1px solid #cbd5e1; width: 18%; text-align: center;">${L.unitPrice}</th>
-                        <th style="padding: 9px; border: 1px solid #cbd5e1; width: 18%; text-align: center;">${L.amount}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${itemsHTML || `<tr><td colspan="5" style="text-align:center; padding:12px; border: 1px solid #cbd5e1;">${L.noPieces}</td></tr>`}
-                </tbody>
-            </table>
-
-            <!-- ================== الدفع + الحالة + الملخص ================== -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
-
-                <!-- يسار: دفع + حالة + QR -->
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
-                        <div style="background: #dc2626; color: #fff; padding: 7px 12px; font-size: 12px; font-weight: bold; text-align: ${isAr ? 'right' : 'left'};">${L.paymentMode}</div>
-                        <div style="padding: 10px 12px; font-size: 12px; display: flex; gap: 12px; flex-wrap: wrap; text-align: ${isAr ? 'right' : 'left'};">
-                            <span>${chk(inv.paymentMethod === 'Espèces')} ${L.cash}</span>
-                            <span>${chk(inv.paymentMethod === 'Chèque')} ${L.check}</span>
-                            <span>${chk(inv.paymentMethod === 'Virement')} ${L.transfer}</span>
-                        </div>
-                    </div>
-                    <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
-                        <div style="background: #dc2626; color: #fff; padding: 7px 12px; font-size: 12px; font-weight: bold; text-align: ${isAr ? 'right' : 'left'};">${L.invoiceState}</div>
-                        <div style="padding: 10px 12px; font-size: 12px; display: flex; gap: 12px; flex-wrap: wrap; text-align: ${isAr ? 'right' : 'left'};">
-                            <span>${chk(inv.paymentStatus === 'Payée')} ${L.paid}</span>
-                            <span>${chk(inv.paymentStatus === 'Partiel')} ${L.partial}</span>
-                            <span>${chk(inv.paymentStatus === 'Non payée')} ${L.unpaid}</span>
-                        </div>
-                    </div>
-                    <!-- QR Code -->
-                    <div style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; text-align: center; background: #f8fafc;">
-                        <div id="qrHolder_${inv.id}" style="display:flex; justify-content:center; margin-bottom:5px;"></div>
-                        <div style="font-size: 10px; color: #64748b;">${L.qrHint}</div>
-                    </div>
-                </div>
-
-                <!-- يمين: الملخص -->
-                <div>
-                    <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
-                        <div style="background: #1e293b; color: #fff; padding: 7px 12px; font-size: 13px; font-weight: bold; text-align: ${isAr ? 'right' : 'left'};">${L.summary}</div>
-                        <div style="padding: 0;">
-                            <div style="display: flex; justify-content: space-between; padding: 9px 12px; font-size: 13px; border-bottom: 1px solid #cbd5e1;">
-                                <span>${L.totalPieces}</span>
-                                <strong style="direction:ltr;">${piecesTotal.toLocaleString()} ${L.da}</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 9px 12px; font-size: 13px; border-bottom: 1px solid #cbd5e1;">
-                                <span>${L.labor}</span>
-                                <strong style="direction:ltr;">${labor.toLocaleString()} ${L.da}</strong>
-                            </div>
-                            ${inv.tvaEnabled ? `<div style="display: flex; justify-content: space-between; padding: 9px 12px; font-size: 13px; border-bottom: 1px solid #cbd5e1;">
-                                <span>${L.tva}</span>
-                                <strong style="direction:ltr;">${tva.toLocaleString()} ${L.da}</strong>
-                            </div>` : `<div style="display: flex; justify-content: space-between; padding: 9px 12px; font-size: 11px; color: #64748b; border-bottom: 1px solid #cbd5e1; font-style: italic;">
-                                <span>${L.tvaNonApplicable}</span>
-                            </div>`}
-                            <div style="display: flex; justify-content: space-between; padding: 12px; font-size: 16px; font-weight: 900; background: #dc2626; color: #fff;">
-                                <span>${L.totalTTC}</span>
-                                <span style="direction:ltr;">${total.toLocaleString()} ${L.da}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Bon pour accord -->
-                    <div style="border: 1px solid #cbd5e1; border-radius: 8px; height: 80px; margin-top: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; color: #64748b; padding: 8px;">
-                        <div style="font-weight: 900; color: #1e293b; margin-bottom: 4px;">✍️ ${L.bonPourAccord}</div>
-                        <div>${L.stamp}</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ================== Footer ================== -->
-            <div style="text-align: center; background: #1e293b; color: #fff; padding: 12px; border-radius: 8px;">
-                <div style="font-size: 15px; font-style: italic; margin-bottom: 4px;">${L.thanks}</div>
-                <div style="font-size: 11px; color: #cbd5e1;">${L.slogan}</div>
-            </div>
-        </div>
-    `;
-}
-
-// ============================================================
-// معاينة PDF — fullscreen dynamique
-// ============================================================
-function openPdfPreview(id) {
-    const invoices = getData('invoices', []);
-    const inv = invoices.find(i => i.id === id);
-    if (!inv) return;
-    currentPDFInvoice = inv;
-
-    const preview = document.getElementById('pdfPreviewContent');
-    preview.innerHTML = buildInvoiceHTML(inv, currentPdfLang);
-
-    // ✅ نولّدو QR Code بعد ما نحطو HTML
-    setTimeout(() => {
-        const holder = document.getElementById('qrHolder_' + inv.id);
-        if (holder && typeof QRCode !== 'undefined') {
-            holder.innerHTML = '';
-            new QRCode(holder, {
-                text: `MED GARAGE | ${inv.code} | ${inv.client} | ${inv.total} DA`,
-                width: 90,
-                height: 90,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.M
-            });
-        }
-    }, 100);
-
-    document.getElementById('pdfPreviewModal').classList.add('active');
-    updatePdfLangButton();
-    document.body.style.overflow = 'hidden';
-}
-
-function closePdfPreview() {
-    document.getElementById('pdfPreviewModal').classList.remove('active');
-    document.body.style.overflow = '';
-    currentPDFInvoice = null;
-}
-
-function togglePdfLang() {
-    currentPdfLang = currentPdfLang === 'fr' ? 'ar' : 'fr';
-    updatePdfLangButton();
-    if (currentPDFInvoice) {
-        const preview = document.getElementById('pdfPreviewContent');
-        preview.innerHTML = buildInvoiceHTML(currentPDFInvoice, currentPdfLang);
-        setTimeout(() => {
-            const holder = document.getElementById('qrHolder_' + currentPDFInvoice.id);
-            if (holder && typeof QRCode !== 'undefined') {
-                holder.innerHTML = '';
-                new QRCode(holder, {
-                    text: `MED GARAGE | ${currentPDFInvoice.code} | ${currentPDFInvoice.client} | ${currentPDFInvoice.total} DA`,
-                    width: 90, height: 90
-                });
-            }
-        }, 100);
+        `;
+        document.getElementById('pdfPreviewModal').classList.add('active');
     }
-}
 
-function updatePdfLangButton() {
-    const btn = document.getElementById('pdfLangBtn');
-    if (btn) btn.textContent = currentPdfLang === 'fr' ? '🇫🇷 Français' : '🇸🇦 عربي';
-}
-
-// ============================================================
-// تحميل PDF — Lazy load html2pdf
-// ============================================================
-function loadHtml2Pdf() {
-    return new Promise((resolve, reject) => {
-        if (typeof html2pdf !== 'undefined') return resolve();
-        const s = document.createElement('script');
-        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-        s.onload = () => resolve();
-        s.onerror = () => reject(new Error('html2pdf load failed'));
-        document.head.appendChild(s);
-    });
-}
-
-function downloadPDF() {
-    if (!currentPDFInvoice) return;
-
-    const inv = currentPDFInvoice;
-    const lang = currentPdfLang;
-    const safeCode = String(inv.code || 'facture').replace(/[^\w\-]+/g, '-');
-    const filename = (inv.status === 'devis' ? 'devis-' : 'facture-') + safeCode + '.pdf';
-
-    showToast('⏳ جاري تحضير PDF...');
-
-    Promise.all([loadHtml2Pdf(), LOGO_READY])
-        .then(() => {
-            const container = document.createElement('div');
-            container.style.cssText = 'position: fixed; left: -10000px; top: 0; width: 794px; background: #ffffff; padding: 20px; z-index: 99999; pointer-events: none;';
-            container.innerHTML = buildInvoiceHTML(inv, lang);
-            document.body.appendChild(container);
-
-            // ✅ نضيف QR داخل الـ container
-            const holder = document.getElementById('qrHolder_' + inv.id);
-            if (holder && typeof QRCode !== 'undefined') {
-                holder.innerHTML = '';
-                new QRCode(holder, {
-                    text: `MED GARAGE | ${inv.code} | ${inv.client} | ${inv.total} DA`,
-                    width: 90, height: 90
-                });
-            }
-
-            const imgs = Array.from(container.querySelectorAll('img'));
-            const imgPromises = imgs.map(img => {
-                if (img.complete && img.naturalWidth > 0) return Promise.resolve();
-                return new Promise(resolve => {
-                    img.onload = resolve;
-                    img.onerror = resolve;
-                    setTimeout(resolve, 2000);
-                });
-            });
-
-            return Promise.all(imgPromises)
-                .then(() => new Promise(r => setTimeout(r, 250)))
-                .then(() => html2pdf().set({
-                    margin: [8, 8, 8, 8],
-                    filename: filename,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: {
-                        scale: 2,
-                        useCORS: true,
-                        backgroundColor: '#ffffff',
-                        logging: false,
-                        scrollY: 0,
-                        windowWidth: 794
-                    },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                    pagebreak: { mode: ['css', 'legacy'] }
-                }).from(container).save())
-                .then(() => {
-                    if (container.parentNode) document.body.removeChild(container);
-                    showToast('✅ تم تحميل PDF');
-                })
-                .catch((err) => {
-                    console.error('PDF error:', err);
-                    if (container.parentNode) document.body.removeChild(container);
-                    showToast('⚠️ جرب الطباعة (Save as PDF)', 'error');
-                });
-        })
-        .catch(() => {
-            showToast('⚠️ تعذر تحميل مكتبة PDF — جرب الطباعة', 'error');
-        });
-}
-
-function printPDF() {
-    if (!currentPDFInvoice) return;
-    printInvoice(currentPDFInvoice.id, currentPdfLang);
-}
-
-// ============================================================
-// طباعة — نافذة منفصلة مع A4 نظيف + QR
-// ============================================================
-function printInvoice(id, lang = 'fr') {
-    const invoices = getData('invoices', []);
-    const inv = invoices.find(i => i.id === id);
-    if (!inv) return;
-
-    const htmlContent = buildInvoiceHTML(inv, lang);
-
-    const html = `<!DOCTYPE html>
-        <html dir="${lang === 'ar' ? 'rtl' : 'ltr'}" lang="${lang}">
-        <head>
-            <meta charset="UTF-8">
-            <title>${inv.status === 'devis' ? 'Devis' : 'Facture'} ${inv.code}</title>
-            <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
-            <style>
-                * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
-                body { font-family: 'Cairo', Tahoma, Arial, sans-serif; padding: 15px; max-width: 800px; margin: 0 auto; background: #fff; }
-                @page { size: A4; margin: 8mm; }
-                @media print {
-                    body { padding: 0; }
-                    .no-print { display: none !important; }
-                }
-                .print-btn {
-                    position: fixed; top: 15px; right: 15px;
-                    background: #16a34a; color: #fff; border: none;
-                    padding: 12px 20px; border-radius: 8px; cursor: pointer;
-                    font-weight: 900; font-size: 14px; font-family: inherit;
-                    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-                    z-index: 9999;
-                }
-                .print-btn:hover { background: #15803d; }
-            </style>
-        </head>
-        <body>
-            <button class="print-btn no-print" onclick="window.print()">🖨️ طباعة / Save as PDF</button>
-            ${htmlContent}
-            <script>
-                window.addEventListener('load', function() {
-                    var holder = document.getElementById('qrHolder_${inv.id}');
-                    if (holder && typeof QRCode !== 'undefined') {
-                        holder.innerHTML = '';
-                        new QRCode(holder, {
-                            text: "MED GARAGE | ${inv.code} | ${inv.client} | ${inv.total} DA",
-                            width: 90, height: 90
-                        });
-                    }
-                    setTimeout(function() { try { window.print(); } catch(e) {} }, 1000);
-                });
-            <\/script>
-        </body>
-        </html>`;
-
-    const win = window.open('', '_blank');
-    if (!win) {
-        showToast('⚠️ يرجى السماح بالنوافذ المنبثقة', 'error');
-        return;
+    function closePdfPreview() {
+        document.getElementById('pdfPreviewModal').classList.remove('active');
     }
-    win.document.write(html);
-    win.document.close();
-}
 
-// ============================================================
-// مشاركة — Web Share API مع fallback
-// ============================================================
-function sharePDF() {
-    if (!currentPDFInvoice) return;
-    const inv = currentPDFInvoice;
-
-    const text = `🧾 ${inv.status === 'devis' ? 'Devis' : 'Facture'} ${inv.code}
-👤 ${inv.client}
-${inv.car ? '🚗 ' + inv.car + '\n' : ''}💰 ${inv.total} دج
-📅 ${inv.date} ${inv.time || ''}
-
-MED GARAGE — Auto Repair
-📞 0790 58 25 51`;
-
-    if (navigator.share) {
-        navigator.share({
-            title: `Facture ${inv.code}`,
-            text: text
-        }).catch(() => {});
-    } else if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(() => {
-            showToast('📋 تم نسخ معلومات الفاتورة');
-        }).catch(() => {
-            showToast('⚠️ تعذر النسخ', 'error');
-        });
-    } else {
-        showToast('⚠️ المشاركة غير متوفرة', 'error');
+    function downloadPDF() {
+        // هنا تقدر تستعمل مكتبة html2pdf.js ولا jsPDF
+        alert('مكتبة PDF خاصها تكون مثبتة. هاد الزر راهو تجريبي.');
     }
-}
 
-// ============================================================
-// Init
-// ============================================================
-document.addEventListener('DOMContentLoaded', function() {
-    try {
-        const savedTheme = localStorage.getItem('medgarage_theme');
-        if (savedTheme) applyTheme(savedTheme);
-    } catch(e) {}
+    function printPDF() {
+        window.print();
+    }
 
-    const booking = sessionStorage.getItem('mg_convert_booking');
-    if (booking) setTimeout(() => openNewInvoice(), 300);
+    // ==========================================
+    // 8. Toast
+    // ==========================================
+    function showToast(msg, isError = false) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = 'toast show' + (isError ? ' error' : '');
+        setTimeout(() => t.classList.remove('show'), 3000);
+    }
 
-    loadInvoices();
-
-    // قفل الـ scroll عند فتح أي modal
-    document.querySelectorAll('.modal-overlay').forEach(modal => {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal && modal.id === 'pdfPreviewModal') {
-                closePdfPreview();
-            }
-        });
-    });
-});
+    // ==========================================
+    // 9. التهيئة
+    // ==========================================
+    renderLists();
 </script>
 
 </body>
