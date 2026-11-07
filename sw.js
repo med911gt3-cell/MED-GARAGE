@@ -1,10 +1,10 @@
 // ============================================
 // MED GARAGE — Service Worker
 // Network-First Strategy
-// Version: 3.8 (إجبار التحديث لمسح الأسماء من السلايد)
+// Version: 4.0 (تحديث الأيقونات وشاشة البداية)
 // ============================================
 
-const CACHE_NAME = 'med-garage-v3.8';
+const CACHE_NAME = 'med-garage-v4.0';
 
 const CACHE_URLS = [
   './',
@@ -39,7 +39,7 @@ const CDN_WHITELIST = [
 // INSTALL
 // ============================================
 self.addEventListener('install', (event) => {
-  console.log('🔧 [SW] Installing v3.8...');
+  console.log('🔧 [SW] Installing v4.0...');
 
   // ✅ تفعيل فوري
   self.skipWaiting();
@@ -61,7 +61,7 @@ self.addEventListener('install', (event) => {
 // ACTIVATE
 // ============================================
 self.addEventListener('activate', (event) => {
-  console.log('🔧 [SW] Activating v3.8...');
+  console.log('🔧 [SW] Activating v4.0...');
 
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -153,4 +153,4 @@ self.addEventListener('sync', (event) => {
   console.log('🔄 [SW] Background sync:', event.tag);
 });
 
-console.log('✅ [SW] Service Worker loaded — MED GARAGE v3.8');
+console.log('✅ [SW] Service Worker loaded — MED GARAGE v4.0');
