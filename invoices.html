@@ -975,3 +975,527 @@ function renderInvoiceRow(inv, isDevis) {
     `;
 }
 </script>
+<script>
+// ============================================================
+// بناء HTML الفاتورة — الهيدر الثابت + اللغات + QR + كل التحسينات
+// ============================================================
+function buildInvoiceHTML(inv, lang = 'fr') {
+    const isAr = lang === 'ar';
+    const dir = isAr ? 'rtl' : 'ltr';
+    const fontFamily = isAr ? "'Cairo', Arial, sans-serif" : 'Arial, sans-serif';
+
+    // بيانات الورشة
+    let shop = {
+        name: 'MED GARAGE',
+        phone: '0790 58 25 51',
+        address: 'السويدانية - الجزائر العاصمة',
+        email: 'med911gt3@gmail.com'
+    };
+    try {
+        const s = JSON.parse(localStorage.getItem('mg_shop_info') || 'null');
+        if (s) shop = { ...shop, ...s };
+    } catch(e) {}
+
+    // نصوص اللغة
+    const L = isAr ? {
+        devis: 'عرض سعر', facture: 'فاتورة', num: 'رقم', date: 'التاريخ', time: 'الوقت',
+        clientInfo: '👤 معلومات الزبون', name: 'الاسم', phone: 'الهاتف', address: 'العنوان',
+        vehicleInfo: '🚗 معلومات السيارة', type: 'النوع', vin: 'VIN (الهيكل)', plate: 'اللوحة', km: 'الكيلومترات',
+        clientRequest: '📝 طلب الزبون', numShort: 'رقم', designation: 'البيان', qty: 'الكمية',
+        unitPrice: 'سعر الوحدة (دج)', amount: 'المبلغ (دج)',
+        paymentMode: '💳 طريقة الدفع', cash: 'نقداً', check: 'شيك', transfer: 'تحويل', credit: 'آجل',
+        invoiceState: '✅ حالة الفاتورة', paid: 'مدفوعة', partial: 'دفع جزئي', unpaid: 'غير مدفوعة',
+        summary: 'الملخص', totalPieces: 'مجموع القطع', labor: 'يد العاملة', tva: 'TVA (19%)',
+        totalTTC: 'المجموع الإجمالي', stamp: 'الختم والتوقيع',
+        thanks: 'شكراً لثقتكم', slogan: 'ميد غراج - سيارتك في أيدٍ أمينة',
+        mainOeuvre: 'يد العاملة', noPieces: 'لا توجد قطع', da: 'دج',
+        bonPourAccord: 'موافق على المحتوى (Bon pour accord)',
+        tvaNonApplicable: 'TVA غير مطبقة',
+        qrHint: 'امسح للتحقق'
+    } : {
+        devis: 'DEVIS', facture: 'FACTURE', num: 'N°', date: 'Date', time: 'Heure',
+        clientInfo: '👤 Informations du client', name: 'Nom', phone: 'Téléphone', address: 'Adresse',
+        vehicleInfo: '🚗 Informations du véhicule', type: 'Type', vin: 'VIN', plate: 'Immatriculation', km: 'KM',
+        clientRequest: '📝 Demande du client', numShort: 'N°', designation: 'Désignation', qty: 'Quantité',
+        unitPrice: 'Prix unitaire (DA)', amount: 'Montant (DA)',
+        paymentMode: '💳 Mode de paiement', cash: 'Espèces', check: 'Chèque', transfer: 'Virement', credit: 'Crédit',
+        invoiceState: '✅ État de la facture', paid: 'Payée', partial: 'Paiement partiel', unpaid: 'Non payée',
+        summary: 'Récapitulatif', totalPieces: 'Total pièces', labor: 'Main d\'œuvre', tva: 'TVA (19%)',
+        totalTTC: 'Total TTC', stamp: 'Cachet et signature',
+        thanks: 'Merci pour votre confiance', slogan: 'MED GARAGE - Votre véhicule entre de bonnes mains',
+        mainOeuvre: 'Main d\'œuvre', noPieces: 'Aucune pièce', da: 'DA',
+        bonPourAccord: 'Bon pour accord',
+        tvaNonApplicable: 'TVA non applicable',
+        qrHint: 'Scannez pour vérifier'
+    };
+
+    // ألوان نوع المستند
+    const isDevisDoc = inv.status === 'devis';
+    const docColor = isDevisDoc ? '#f59e0b' : '#2563eb';
+    const docBg = isDevisDoc ? '#fef3c7' : '#dbeafe';
+
+    // جدول الأصناف — كل الأرقام في الوسط
+    let itemsHTML = '';
+    if (inv.items && inv.items.length > 0) {
+        inv.items.forEach((it, i) => {
+            const lineTotal = (it.qty || 0) * (it.price || 0);
+            itemsHTML += `<tr>
+                <td style="text-align:center; border: 1px solid #cbd5e1; padding: 8px;">${i + 1}</td>
+                <td style="text-align:${isAr ? 'right' : 'left'}; padding: 8px 10px; border: 1px solid #cbd5e1; direction:${dir}; unicode-bidi: plaintext;">${escapeHtml(it.name)}</td>
+                <td style="text-align: center; border: 1px solid #cbd5e1; padding: 8px;">${it.qty}</td>
+                <td style="text-align: center; border: 1px solid #cbd5e1; padding: 8px; direction:ltr;">${(it.price || 0).toLocaleString()}</td>
+                <td style="text-align: center; border: 1px solid #cbd5e1; padding: 8px; direction:ltr;">${lineTotal.toLocaleString()}</td>
+            </tr>`;
+        });
+    }
+
+    if (inv.labor > 0) {
+        itemsHTML += `<tr style="background: #f8fafc;">
+            <td style="text-align:center; border: 1px solid #cbd5e1; padding: 8px;">🛠️</td>
+            <td style="text-align:${isAr ? 'right' : 'left'}; padding: 8px 10px; border: 1px solid #cbd5e1; direction:${dir};"><strong>${L.mainOeuvre}</strong></td>
+            <td style="text-align: center; border: 1px solid #cbd5e1; padding: 8px;">1</td>
+            <td style="text-align: center; border: 1px solid #cbd5e1; padding: 8px; direction:ltr;">${(inv.labor || 0).toLocaleString()}</td>
+            <td style="text-align: center; border: 1px solid #cbd5e1; padding: 8px; direction:ltr;">${(inv.labor || 0).toLocaleString()}</td>
+        </tr>`;
+    }
+
+    const docType = isDevisDoc ? L.devis : L.facture;
+    const chk = (isChecked) => isChecked
+        ? '<span style="font-size:16px; color:#16a34a;">☑</span>'
+        : '<span style="font-size:16px; color:#94a3b8;">☐</span>';
+
+    const labor = Number(inv.labor) || 0;
+    const subtotal = Number(inv.subtotal) || 0;
+    const total = Number(inv.total) || 0;
+    const tva = Number(inv.tva) || 0;
+    const piecesTotal = Math.max(0, subtotal - labor);
+
+    return `
+        <div dir="${dir}" style="font-family: ${fontFamily}; color: #1e293b; max-width: 100%; background: #fff; direction: ${dir};">
+
+            <!-- ================== الهيدر الثابت (يمين: لوقو + Auto Repair / يسار: MED GARAGE + معلومات) ================== -->
+            <div style="display: grid; grid-template-columns: 1fr auto; gap: 15px; align-items: center; direction: ltr; border-bottom: 3px solid #dc2626; padding-bottom: 15px; margin-bottom: 18px;">
+
+                <!-- يسار: MED GARAGE + معلومات الورشة -->
+                <div style="text-align: left;">
+                    <h1 style="margin: 0; color: #dc2626; font-size: 26px; font-weight: 900; letter-spacing: 1px;">MED GARAGE</h1>
+                    <div style="font-size: 11px; color: #333; line-height: 1.8; font-weight: bold; margin-top: 6px;">
+                        <div>📍 ${escapeHtml(shop.address)}</div>
+                        <div>📞 <span style="direction:ltr; unicode-bidi:embed;">${escapeHtml(shop.phone)}</span></div>
+                        <div>✉️ <span style="direction:ltr; unicode-bidi:embed;">${escapeHtml(shop.email)}</span></div>
+                    </div>
+                </div>
+
+                <!-- يمين: اللوقو + Auto Repair -->
+                <div style="text-align: center;">
+                    <img src="${LOGO_BASE64}" alt="Logo" style="width: 110px; height: 110px; object-fit: contain; display: block; margin: 0 auto;">
+                    <div style="font-size: 13px; font-weight: 900; color: #dc2626; letter-spacing: 1px; margin-top: 4px; font-style: italic;">Auto Repair</div>
+                </div>
+            </div>
+
+            <!-- ================== نوع المستند + الرقم + التاريخ والوقت (واضحين) ================== -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; align-items: stretch;">
+
+                <!-- يسار: نوع + رقم -->
+                <div style="background: ${docBg}; border: 2px solid ${docColor}; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                    <div style="font-size: 20px; font-weight: 900; color: ${docColor}; letter-spacing: 1px;">${docType}</div>
+                    <div style="font-size: 18px; font-weight: 900; color: #1e293b; direction:ltr; margin-top: 4px;">${escapeHtml(inv.code)}</div>
+                </div>
+
+                <!-- يمين: تاريخ + وقت واضحين -->
+                <div style="background: #1e293b; color: #fff; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px;">
+                    <div style="font-size: 14px; font-weight: 900; letter-spacing: 0.5px;">
+                        📅 ${L.date} : <span style="direction:ltr; unicode-bidi:embed; color: #fbbf24;">${escapeHtml(cleanDisplayDate(inv.date))}</span>
+                    </div>
+                    <div style="font-size: 14px; font-weight: 900; letter-spacing: 0.5px;">
+                        ⏰ ${L.time} : <span style="direction:ltr; unicode-bidi:embed; color: #fbbf24;">${escapeHtml(inv.time || '--:--')}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================== معلومات الزبون + السيارة ================== -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
+                    <div style="background: #dc2626; color: #fff; padding: 7px 12px; font-size: 13px; font-weight: bold; text-align: ${isAr ? 'right' : 'left'};">${L.clientInfo}</div>
+                    <div style="padding: 10px 12px; font-size: 12px; line-height: 2; text-align: ${isAr ? 'right' : 'left'};">
+                        <div><strong>${L.name} :</strong> ${escapeHtml(inv.client)}</div>
+                        <div><strong>${L.phone} :</strong> <span style="direction:ltr; unicode-bidi:embed;">${escapeHtml(inv.phone || '-')}</span></div>
+                    </div>
+                </div>
+                <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
+                    <div style="background: #dc2626; color: #fff; padding: 7px 12px; font-size: 13px; font-weight: bold; text-align: ${isAr ? 'right' : 'left'};">${L.vehicleInfo}</div>
+                    <div style="padding: 10px 12px; font-size: 12px; line-height: 2; text-align: ${isAr ? 'right' : 'left'};">
+                        <div><strong>${L.type} :</strong> ${escapeHtml(inv.car || '-')}</div>
+                        <div><strong>${L.plate} :</strong> <span style="direction:ltr; unicode-bidi:embed;">${escapeHtml(inv.plate || '-')}</span></div>
+                        <div><strong>${L.km} :</strong> <span style="direction:ltr; unicode-bidi:embed;">${escapeHtml(String(inv.km || '-'))}</span></div>
+                        ${inv.vin ? `<div><strong>${L.vin} :</strong> <span style="direction:ltr; unicode-bidi:embed; font-size:11px;">${escapeHtml(inv.vin)}</span></div>` : ''}
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================== طلب الزبون ================== -->
+            ${inv.notes ? `
+            <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; margin-bottom: 14px;">
+                <div style="background: #dc2626; color: #fff; padding: 7px 12px; font-size: 13px; font-weight: bold; text-align: ${isAr ? 'right' : 'left'};">${L.clientRequest}</div>
+                <div style="padding: 10px 12px; font-size: 12px; min-height: 30px; text-align: ${isAr ? 'right' : 'left'};">${escapeHtml(inv.notes)}</div>
+            </div>` : ''}
+
+            <!-- ================== جدول الأصناف ================== -->
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 12px;">
+                <thead>
+                    <tr style="background: #1e293b; color: #fff;">
+                        <th style="padding: 9px; border: 1px solid #cbd5e1; width: 8%; text-align: center;">${L.numShort}</th>
+                        <th style="padding: 9px; border: 1px solid #cbd5e1; width: 44%; text-align: center;">${L.designation}</th>
+                        <th style="padding: 9px; border: 1px solid #cbd5e1; width: 12%; text-align: center;">${L.qty}</th>
+                        <th style="padding: 9px; border: 1px solid #cbd5e1; width: 18%; text-align: center;">${L.unitPrice}</th>
+                        <th style="padding: 9px; border: 1px solid #cbd5e1; width: 18%; text-align: center;">${L.amount}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${itemsHTML || `<tr><td colspan="5" style="text-align:center; padding:12px; border: 1px solid #cbd5e1;">${L.noPieces}</td></tr>`}
+                </tbody>
+            </table>
+
+            <!-- ================== الدفع + الحالة + الملخص ================== -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+
+                <!-- يسار: دفع + حالة + QR -->
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
+                        <div style="background: #dc2626; color: #fff; padding: 7px 12px; font-size: 12px; font-weight: bold; text-align: ${isAr ? 'right' : 'left'};">${L.paymentMode}</div>
+                        <div style="padding: 10px 12px; font-size: 12px; display: flex; gap: 12px; flex-wrap: wrap; text-align: ${isAr ? 'right' : 'left'};">
+                            <span>${chk(inv.paymentMethod === 'Espèces')} ${L.cash}</span>
+                            <span>${chk(inv.paymentMethod === 'Chèque')} ${L.check}</span>
+                            <span>${chk(inv.paymentMethod === 'Virement')} ${L.transfer}</span>
+                        </div>
+                    </div>
+                    <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
+                        <div style="background: #dc2626; color: #fff; padding: 7px 12px; font-size: 12px; font-weight: bold; text-align: ${isAr ? 'right' : 'left'};">${L.invoiceState}</div>
+                        <div style="padding: 10px 12px; font-size: 12px; display: flex; gap: 12px; flex-wrap: wrap; text-align: ${isAr ? 'right' : 'left'};">
+                            <span>${chk(inv.paymentStatus === 'Payée')} ${L.paid}</span>
+                            <span>${chk(inv.paymentStatus === 'Partiel')} ${L.partial}</span>
+                            <span>${chk(inv.paymentStatus === 'Non payée')} ${L.unpaid}</span>
+                        </div>
+                    </div>
+                    <!-- QR Code -->
+                    <div style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; text-align: center; background: #f8fafc;">
+                        <div id="qrHolder_${inv.id}" style="display:flex; justify-content:center; margin-bottom:5px;"></div>
+                        <div style="font-size: 10px; color: #64748b;">${L.qrHint}</div>
+                    </div>
+                </div>
+
+                <!-- يمين: الملخص -->
+                <div>
+                    <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
+                        <div style="background: #1e293b; color: #fff; padding: 7px 12px; font-size: 13px; font-weight: bold; text-align: ${isAr ? 'right' : 'left'};">${L.summary}</div>
+                        <div style="padding: 0;">
+                            <div style="display: flex; justify-content: space-between; padding: 9px 12px; font-size: 13px; border-bottom: 1px solid #cbd5e1;">
+                                <span>${L.totalPieces}</span>
+                                <strong style="direction:ltr;">${piecesTotal.toLocaleString()} ${L.da}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 9px 12px; font-size: 13px; border-bottom: 1px solid #cbd5e1;">
+                                <span>${L.labor}</span>
+                                <strong style="direction:ltr;">${labor.toLocaleString()} ${L.da}</strong>
+                            </div>
+                            ${inv.tvaEnabled ? `<div style="display: flex; justify-content: space-between; padding: 9px 12px; font-size: 13px; border-bottom: 1px solid #cbd5e1;">
+                                <span>${L.tva}</span>
+                                <strong style="direction:ltr;">${tva.toLocaleString()} ${L.da}</strong>
+                            </div>` : `<div style="display: flex; justify-content: space-between; padding: 9px 12px; font-size: 11px; color: #64748b; border-bottom: 1px solid #cbd5e1; font-style: italic;">
+                                <span>${L.tvaNonApplicable}</span>
+                            </div>`}
+                            <div style="display: flex; justify-content: space-between; padding: 12px; font-size: 16px; font-weight: 900; background: #dc2626; color: #fff;">
+                                <span>${L.totalTTC}</span>
+                                <span style="direction:ltr;">${total.toLocaleString()} ${L.da}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Bon pour accord -->
+                    <div style="border: 1px solid #cbd5e1; border-radius: 8px; height: 80px; margin-top: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; color: #64748b; padding: 8px;">
+                        <div style="font-weight: 900; color: #1e293b; margin-bottom: 4px;">✍️ ${L.bonPourAccord}</div>
+                        <div>${L.stamp}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================== Footer ================== -->
+            <div style="text-align: center; background: #1e293b; color: #fff; padding: 12px; border-radius: 8px;">
+                <div style="font-size: 15px; font-style: italic; margin-bottom: 4px;">${L.thanks}</div>
+                <div style="font-size: 11px; color: #cbd5e1;">${L.slogan}</div>
+            </div>
+        </div>
+    `;
+}
+
+// ============================================================
+// معاينة PDF — fullscreen dynamique
+// ============================================================
+function openPdfPreview(id) {
+    const invoices = getData('invoices', []);
+    const inv = invoices.find(i => i.id === id);
+    if (!inv) return;
+    currentPDFInvoice = inv;
+
+    const preview = document.getElementById('pdfPreviewContent');
+    preview.innerHTML = buildInvoiceHTML(inv, currentPdfLang);
+
+    // ✅ نولّدو QR Code بعد ما نحطو HTML
+    setTimeout(() => {
+        const holder = document.getElementById('qrHolder_' + inv.id);
+        if (holder && typeof QRCode !== 'undefined') {
+            holder.innerHTML = '';
+            new QRCode(holder, {
+                text: `MED GARAGE | ${inv.code} | ${inv.client} | ${inv.total} DA`,
+                width: 90,
+                height: 90,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        }
+    }, 100);
+
+    document.getElementById('pdfPreviewModal').classList.add('active');
+    updatePdfLangButton();
+    document.body.style.overflow = 'hidden';
+}
+
+function closePdfPreview() {
+    document.getElementById('pdfPreviewModal').classList.remove('active');
+    document.body.style.overflow = '';
+    currentPDFInvoice = null;
+}
+
+function togglePdfLang() {
+    currentPdfLang = currentPdfLang === 'fr' ? 'ar' : 'fr';
+    updatePdfLangButton();
+    if (currentPDFInvoice) {
+        const preview = document.getElementById('pdfPreviewContent');
+        preview.innerHTML = buildInvoiceHTML(currentPDFInvoice, currentPdfLang);
+        setTimeout(() => {
+            const holder = document.getElementById('qrHolder_' + currentPDFInvoice.id);
+            if (holder && typeof QRCode !== 'undefined') {
+                holder.innerHTML = '';
+                new QRCode(holder, {
+                    text: `MED GARAGE | ${currentPDFInvoice.code} | ${currentPDFInvoice.client} | ${currentPDFInvoice.total} DA`,
+                    width: 90, height: 90
+                });
+            }
+        }, 100);
+    }
+}
+
+function updatePdfLangButton() {
+    const btn = document.getElementById('pdfLangBtn');
+    if (btn) btn.textContent = currentPdfLang === 'fr' ? '🇫🇷 Français' : '🇸🇦 عربي';
+}
+
+// ============================================================
+// تحميل PDF — Lazy load html2pdf
+// ============================================================
+function loadHtml2Pdf() {
+    return new Promise((resolve, reject) => {
+        if (typeof html2pdf !== 'undefined') return resolve();
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+        s.onload = () => resolve();
+        s.onerror = () => reject(new Error('html2pdf load failed'));
+        document.head.appendChild(s);
+    });
+}
+
+function downloadPDF() {
+    if (!currentPDFInvoice) return;
+
+    const inv = currentPDFInvoice;
+    const lang = currentPdfLang;
+    const safeCode = String(inv.code || 'facture').replace(/[^\w\-]+/g, '-');
+    const filename = (inv.status === 'devis' ? 'devis-' : 'facture-') + safeCode + '.pdf';
+
+    showToast('⏳ جاري تحضير PDF...');
+
+    Promise.all([loadHtml2Pdf(), LOGO_READY])
+        .then(() => {
+            const container = document.createElement('div');
+            container.style.cssText = 'position: fixed; left: -10000px; top: 0; width: 794px; background: #ffffff; padding: 20px; z-index: 99999; pointer-events: none;';
+            container.innerHTML = buildInvoiceHTML(inv, lang);
+            document.body.appendChild(container);
+
+            // ✅ نضيف QR داخل الـ container
+            const holder = document.getElementById('qrHolder_' + inv.id);
+            if (holder && typeof QRCode !== 'undefined') {
+                holder.innerHTML = '';
+                new QRCode(holder, {
+                    text: `MED GARAGE | ${inv.code} | ${inv.client} | ${inv.total} DA`,
+                    width: 90, height: 90
+                });
+            }
+
+            const imgs = Array.from(container.querySelectorAll('img'));
+            const imgPromises = imgs.map(img => {
+                if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+                return new Promise(resolve => {
+                    img.onload = resolve;
+                    img.onerror = resolve;
+                    setTimeout(resolve, 2000);
+                });
+            });
+
+            return Promise.all(imgPromises)
+                .then(() => new Promise(r => setTimeout(r, 250)))
+                .then(() => html2pdf().set({
+                    margin: [8, 8, 8, 8],
+                    filename: filename,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: {
+                        scale: 2,
+                        useCORS: true,
+                        backgroundColor: '#ffffff',
+                        logging: false,
+                        scrollY: 0,
+                        windowWidth: 794
+                    },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak: { mode: ['css', 'legacy'] }
+                }).from(container).save())
+                .then(() => {
+                    if (container.parentNode) document.body.removeChild(container);
+                    showToast('✅ تم تحميل PDF');
+                })
+                .catch((err) => {
+                    console.error('PDF error:', err);
+                    if (container.parentNode) document.body.removeChild(container);
+                    showToast('⚠️ جرب الطباعة (Save as PDF)', 'error');
+                });
+        })
+        .catch(() => {
+            showToast('⚠️ تعذر تحميل مكتبة PDF — جرب الطباعة', 'error');
+        });
+}
+
+function printPDF() {
+    if (!currentPDFInvoice) return;
+    printInvoice(currentPDFInvoice.id, currentPdfLang);
+}
+
+// ============================================================
+// طباعة — نافذة منفصلة مع A4 نظيف + QR
+// ============================================================
+function printInvoice(id, lang = 'fr') {
+    const invoices = getData('invoices', []);
+    const inv = invoices.find(i => i.id === id);
+    if (!inv) return;
+
+    const htmlContent = buildInvoiceHTML(inv, lang);
+
+    const html = `<!DOCTYPE html>
+        <html dir="${lang === 'ar' ? 'rtl' : 'ltr'}" lang="${lang}">
+        <head>
+            <meta charset="UTF-8">
+            <title>${inv.status === 'devis' ? 'Devis' : 'Facture'} ${inv.code}</title>
+            <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
+            <style>
+                * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+                body { font-family: 'Cairo', Tahoma, Arial, sans-serif; padding: 15px; max-width: 800px; margin: 0 auto; background: #fff; }
+                @page { size: A4; margin: 8mm; }
+                @media print {
+                    body { padding: 0; }
+                    .no-print { display: none !important; }
+                }
+                .print-btn {
+                    position: fixed; top: 15px; right: 15px;
+                    background: #16a34a; color: #fff; border: none;
+                    padding: 12px 20px; border-radius: 8px; cursor: pointer;
+                    font-weight: 900; font-size: 14px; font-family: inherit;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+                    z-index: 9999;
+                }
+                .print-btn:hover { background: #15803d; }
+            </style>
+        </head>
+        <body>
+            <button class="print-btn no-print" onclick="window.print()">🖨️ طباعة / Save as PDF</button>
+            ${htmlContent}
+            <script>
+                window.addEventListener('load', function() {
+                    var holder = document.getElementById('qrHolder_${inv.id}');
+                    if (holder && typeof QRCode !== 'undefined') {
+                        holder.innerHTML = '';
+                        new QRCode(holder, {
+                            text: "MED GARAGE | ${inv.code} | ${inv.client} | ${inv.total} DA",
+                            width: 90, height: 90
+                        });
+                    }
+                    setTimeout(function() { try { window.print(); } catch(e) {} }, 1000);
+                });
+            <\/script>
+        </body>
+        </html>`;
+
+    const win = window.open('', '_blank');
+    if (!win) {
+        showToast('⚠️ يرجى السماح بالنوافذ المنبثقة', 'error');
+        return;
+    }
+    win.document.write(html);
+    win.document.close();
+}
+
+// ============================================================
+// مشاركة — Web Share API مع fallback
+// ============================================================
+function sharePDF() {
+    if (!currentPDFInvoice) return;
+    const inv = currentPDFInvoice;
+
+    const text = `🧾 ${inv.status === 'devis' ? 'Devis' : 'Facture'} ${inv.code}
+👤 ${inv.client}
+${inv.car ? '🚗 ' + inv.car + '\n' : ''}💰 ${inv.total} دج
+📅 ${inv.date} ${inv.time || ''}
+
+MED GARAGE — Auto Repair
+📞 0790 58 25 51`;
+
+    if (navigator.share) {
+        navigator.share({
+            title: `Facture ${inv.code}`,
+            text: text
+        }).catch(() => {});
+    } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('📋 تم نسخ معلومات الفاتورة');
+        }).catch(() => {
+            showToast('⚠️ تعذر النسخ', 'error');
+        });
+    } else {
+        showToast('⚠️ المشاركة غير متوفرة', 'error');
+    }
+}
+
+// ============================================================
+// Init
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        const savedTheme = localStorage.getItem('medgarage_theme');
+        if (savedTheme) applyTheme(savedTheme);
+    } catch(e) {}
+
+    const booking = sessionStorage.getItem('mg_convert_booking');
+    if (booking) setTimeout(() => openNewInvoice(), 300);
+
+    loadInvoices();
+
+    // قفل الـ scroll عند فتح أي modal
+    document.querySelectorAll('.modal-overlay').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal && modal.id === 'pdfPreviewModal') {
+                closePdfPreview();
+            }
+        });
+    });
+});
+</script>
+
+</body>
+</html>
