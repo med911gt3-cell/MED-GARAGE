@@ -407,3 +407,571 @@
 
 <!-- ================= JS: الجزء 2 و 3 راح يجيو في الرسائل الجاية ================= -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+// ================= أدوات عامة =================
+function getData(key, def = []) {
+    try {
+        const v = localStorage.getItem('mg_' + key);
+        return v ? JSON.parse(v) : def;
+    } catch(e) { return def; }
+}
+
+function setData(key, val) {
+    try {
+        localStorage.setItem('mg_' + key, JSON.stringify(val));
+    } catch(e) { showToast('⚠️ خطأ في الحفظ', 'error'); }
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function showToast(msg, type = 'success') {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.className = 'toast show' + (type === 'error' ? ' error' : '');
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
+}
+
+function applyTheme(theme) {
+    if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    else if (theme === 'oled') document.documentElement.setAttribute('data-theme', 'oled');
+    else document.documentElement.removeAttribute('data-theme');
+    const meta = document.getElementById('themeColorMeta');
+    if (meta) meta.setAttribute('content', theme === 'light' ? '#f1f5f9' : theme === 'oled' ? '#000000' : '#1a1d21');
+}
+
+function formatDateDDMMYYYY(ts) {
+    const d = new Date(ts);
+    if (isNaN(d.getTime())) return '';
+    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+}
+
+function formatTimeHHMM(ts) {
+    const d = new Date(ts);
+    if (isNaN(d.getTime())) return '';
+    return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+}
+
+function cleanDisplayDate(str) {
+    if (!str) return '';
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(str)) return str;
+    const m = String(str).match(/(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})/);
+    if (m) return m[1].padStart(2, '0') + '/' + m[2].padStart(2, '0') + '/' + m[3];
+    return str;
+}
+
+// ================= التحقق من الصيغ الجزائرية =================
+function validatePhone(phone) {
+    if (!phone) return true; // اختياري
+    const clean = phone.replace(/\s/g, '');
+    return /^0[567]\d{8}$/.test(clean);
+}
+
+function validateVIN(vin) {
+    if (!vin) return true; // اختياري
+    return /^[A-HJ-NPR-Z0-9]{17}$/i.test(vin);
+}
+
+// ================= اللوقو Base64 =================
+let LOGO_BASE64 = './icon-512.png';
+let LOGO_READY = null;
+
+(function preloadLogoBase64() {
+    LOGO_READY = new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = function() {
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                canvas.getContext('2d').drawImage(img, 0, 0);
+                LOGO_BASE64 = canvas.toDataURL('image/png');
+            } catch(e) { LOGO_BASE64 = './icon-512.png'; }
+            resolve(LOGO_BASE64);
+        };
+        img.onerror = function() { LOGO_BASE64 = './icon-512.png'; resolve(LOGO_BASE64); };
+        img.src = './icon-512.png';
+    });
+})();
+
+// ================= حالة الفاتورة =================
+let editingInvoiceId = null;
+let currentItems = [];
+let showTrash = false;
+let currentPdfLang = 'fr';
+let currentPDFInvoice = null;
+
+// ================= Debounce البحث =================
+let __searchTimer = null;
+function debouncedSearch() {
+    clearTimeout(__searchTimer);
+    __searchTimer = setTimeout(() => loadInvoices(), 250);
+}
+
+// ================= مولّد الأكواد (5 أرقام) =================
+function generateInvoiceCode(status = 'done') {
+    const invoices = getData('invoices', []);
+    const isDevis = status === 'devis';
+    const prefix = isDevis ? 'M-G D' : 'M-G';
+    const sameType = invoices.filter(i =>
+        (i.status === 'devis') === isDevis && !i.deleted
+    );
+
+    let maxNum = 0;
+    sameType.forEach(i => {
+        const re = isDevis ? /^M-G\s+D\s+(\d+)$/ : /^M-G\s+(\d+)$/;
+        const m = String(i.code || '').match(re);
+        if (m) {
+            const n = parseInt(m[1], 10);
+            if (n > maxNum) maxNum = n;
+        }
+    });
+
+    const num = String(maxNum + 1).padStart(5, '0');
+    return `${prefix} ${num}`;
+}
+
+function toggleTrash() {
+    showTrash = !showTrash;
+    loadInvoices();
+}
+
+function onInvoiceTypeChange() {
+    if (editingInvoiceId) {
+        showToast('⚠️ لا يمكن تغيير النوع أثناء التعديل', 'error');
+        const inv = getData('invoices', []).find(i => i.id === editingInvoiceId);
+        if (inv) document.getElementById('invStatus').value = inv.status || 'done';
+        return;
+    }
+    const newType = document.getElementById('invStatus').value;
+    document.getElementById('invCode').value = generateInvoiceCode(newType);
+}
+
+// ================= فتح فاتورة جديدة =================
+function openNewInvoice() {
+    editingInvoiceId = null;
+    currentItems = [];
+    const booking = sessionStorage.getItem('mg_convert_booking');
+
+    document.getElementById('modalTitle').textContent = '🧾 فاتورة جديدة';
+    document.getElementById('invCode').value = generateInvoiceCode('done');
+    document.getElementById('invClient').value = '';
+    document.getElementById('invPhone').value = '';
+    document.getElementById('invCar').value = '';
+    document.getElementById('invVin').value = '';
+    document.getElementById('invPlate').value = '';
+    document.getElementById('invKm').value = '';
+    document.getElementById('invNotes').value = '';
+    document.getElementById('invLabor').value = '0';
+    document.getElementById('invTvaEnabled').checked = false;
+    document.getElementById('invStatus').value = 'done';
+    document.querySelector('input[name="paymentMethod"][value="Espèces"]').checked = true;
+    document.querySelector('input[name="paymentStatus"][value="Payée"]').checked = true;
+
+    if (booking) {
+        try {
+            const b = JSON.parse(booking);
+            document.getElementById('invClient').value = b.name || '';
+            document.getElementById('invPhone').value = b.phone || '';
+            document.getElementById('invCar').value = b.car || '';
+            if (b.desc) document.getElementById('invNotes').value = b.desc;
+            if (Array.isArray(b.services) && b.services.length > 0) {
+                b.services.forEach(svc => {
+                    currentItems.push({ type: 'service', name: svc, qty: 1, price: 0 });
+                });
+            }
+            document.getElementById('bookingHint').classList.add('active');
+            document.getElementById('bookingHintText').textContent = b.name + ' — ' + (b.car || '');
+            sessionStorage.removeItem('mg_convert_booking');
+        } catch(e) {}
+    } else {
+        document.getElementById('bookingHint').classList.remove('active');
+    }
+
+    if (currentItems.length === 0) {
+        currentItems.push({ type: 'part', name: '', qty: 1, price: 0 });
+    }
+
+    renderItems();
+    calcTotal();
+    document.getElementById('invoiceModal').classList.add('active');
+}
+
+// ================= تعديل فاتورة =================
+function editInvoice(id) {
+    const invoices = getData('invoices', []);
+    const inv = invoices.find(i => i.id === id);
+    if (!inv || inv.deleted) return;
+
+    editingInvoiceId = id;
+    document.getElementById('modalTitle').textContent = '✏️ تعديل الفاتورة';
+    document.getElementById('invCode').value = inv.code;
+    document.getElementById('invClient').value = inv.client || '';
+    document.getElementById('invPhone').value = inv.phone || '';
+    document.getElementById('invCar').value = inv.car || '';
+    document.getElementById('invVin').value = inv.vin || '';
+    document.getElementById('invPlate').value = inv.plate || '';
+    document.getElementById('invKm').value = inv.km || '';
+    document.getElementById('invNotes').value = inv.notes || '';
+    document.getElementById('invLabor').value = inv.labor || 0;
+    document.getElementById('invTvaEnabled').checked = !!inv.tvaEnabled;
+    document.getElementById('invStatus').value = inv.status || 'done';
+    document.getElementById('invStatus').disabled = true;
+
+    const pm = document.querySelector(`input[name="paymentMethod"][value="${inv.paymentMethod || 'Espèces'}"]`);
+    if (pm) pm.checked = true;
+    const ps = document.querySelector(`input[name="paymentStatus"][value="${inv.paymentStatus || 'Payée'}"]`);
+    if (ps) ps.checked = true;
+
+    currentItems = (inv.items && Array.isArray(inv.items)) ? inv.items.map(it => ({ ...it })) : [];
+    if (currentItems.length === 0) currentItems.push({ type: 'part', name: '', qty: 1, price: 0 });
+
+    renderItems();
+    calcTotal();
+    document.getElementById('bookingHint').classList.remove('active');
+    document.getElementById('invoiceModal').classList.add('active');
+}
+
+// ================= إدارة الأصناف =================
+function renderItems() {
+    const stock = getData('stock', []);
+    const tbody = document.getElementById('itemsBody');
+
+    tbody.innerHTML = currentItems.map((item, idx) => {
+        const typeIcon = item.type === 'part' ? '📦' : '✏️';
+        let inputHTML = '';
+
+        if (item.type === 'part') {
+            const opts = stock.map(s => {
+                const qty = (s.qty || 0);
+                const disabled = qty <= 0 ? 'disabled' : '';
+                const stockLabel = qty > 0 ? `متوفر: ${qty}` : 'نافذ';
+                const selected = s.name === item.name ? 'selected' : '';
+                return `<option value="${escapeHtml(s.name)}" data-price="${s.sellPrice || 0}" data-qty="${qty}" ${selected} ${disabled}>${escapeHtml(s.name)} (${stockLabel})</option>`;
+            }).join('');
+            inputHTML = `<select onchange="onItemFromStock(${idx}, this)"><option value="">-- اختر --</option>${opts}</select>`;
+        } else {
+            inputHTML = `<input type="text" value="${escapeHtml(item.name)}" oninput="onItemChange(${idx}, 'name', this.value)" placeholder="اسم الخدمة">`;
+        }
+
+        return `
+            <tr>
+                <td class="col-type"><button type="button" onclick="toggleItemType(${idx})" title="تحويل" style="background:${item.type === 'part' ? 'var(--info)' : 'var(--accent)'}; color:#fff; border:none; padding:4px 6px; border-radius:4px; cursor:pointer; font-size:14px;">${typeIcon}</button></td>
+                <td class="col-name">${inputHTML}</td>
+                <td class="col-qty"><input type="number" min="1" value="${item.qty || 1}" oninput="onItemChange(${idx}, 'qty', this.value); calcTotal()"></td>
+                <td class="col-price"><input type="number" min="0" value="${item.price || 0}" oninput="onItemChange(${idx}, 'price', this.value); calcTotal()"></td>
+                <td class="col-del"><button type="button" onclick="removeItemRow(${idx})" style="background:var(--danger); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;">🗑️</button></td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function addItemRow() {
+    currentItems.push({ type: 'part', name: '', qty: 1, price: 0 });
+    renderItems();
+    calcTotal();
+}
+
+function removeItemRow(idx) {
+    if (currentItems.length <= 1) { showToast('⚠️ يجب أن تبقى قطعة واحدة على الأقل', 'error'); return; }
+    currentItems.splice(idx, 1);
+    renderItems();
+    calcTotal();
+}
+
+function onItemChange(idx, field, value) {
+    if (!currentItems[idx]) return;
+    currentItems[idx][field] = (field === 'qty' || field === 'price') ? (parseFloat(value) || 0) : value;
+}
+
+// ✅ تحسين: ما نعاودوش نبنو الجدول كامل — نحدّثو غير الحقل
+function onItemFromStock(idx, selectEl) {
+    const opt = selectEl.options[selectEl.selectedIndex];
+    if (!opt || !currentItems[idx]) return;
+    const price = parseFloat(opt.getAttribute('data-price')) || 0;
+    const stockQty = parseInt(opt.getAttribute('data-qty')) || 0;
+
+    currentItems[idx].name = selectEl.value;
+    currentItems[idx].price = price;
+    currentItems[idx].type = 'part';
+
+    const qtyInput = selectEl.closest('tr').querySelector('.col-qty input');
+    if (currentItems[idx].qty > stockQty && stockQty > 0) {
+        showToast(`⚠️ الكمية المطلوبة أكبر من المتوفرة (${stockQty})`, 'error');
+        currentItems[idx].qty = stockQty;
+        if (qtyInput) qtyInput.value = stockQty;
+    }
+
+    const priceInput = selectEl.closest('tr').querySelector('.col-price input');
+    if (priceInput) priceInput.value = price;
+
+    calcTotal();
+}
+
+function toggleItemType(idx) {
+    if (!currentItems[idx]) return;
+    currentItems[idx].type = currentItems[idx].type === 'part' ? 'service' : 'part';
+    currentItems[idx].name = '';
+    currentItems[idx].price = 0;
+    renderItems();
+    calcTotal();
+}
+
+// ================= حساب المجموع =================
+function calcTotal() {
+    let itemsTotal = 0;
+    currentItems.forEach(it => { itemsTotal += (it.qty || 0) * (it.price || 0); });
+    const labor = parseFloat(document.getElementById('invLabor').value) || 0;
+    const subtotal = itemsTotal + labor;
+    const tvaEnabled = document.getElementById('invTvaEnabled').checked;
+    const tva = tvaEnabled ? subtotal * 0.19 : 0;
+    const total = subtotal + tva;
+
+    document.getElementById('invSubtotal').textContent = subtotal.toLocaleString() + ' دج';
+    document.getElementById('tvaLine').style.display = tvaEnabled ? 'block' : 'none';
+    document.getElementById('invTva').textContent = tva.toLocaleString() + ' دج';
+    document.getElementById('invTotal').textContent = total.toLocaleString() + ' دج';
+}
+
+// ================= حفظ الفاتورة =================
+function saveInvoice() {
+    const code = document.getElementById('invCode').value;
+    const client = document.getElementById('invClient').value.trim();
+    const phone = document.getElementById('invPhone').value.trim();
+    const car = document.getElementById('invCar').value.trim();
+    const vin = document.getElementById('invVin').value.trim();
+    const plate = document.getElementById('invPlate').value.trim();
+    const km = document.getElementById('invKm').value.trim();
+    const notes = document.getElementById('invNotes').value.trim();
+    const labor = parseFloat(document.getElementById('invLabor').value) || 0;
+    const tvaEnabled = document.getElementById('invTvaEnabled').checked;
+    const status = document.getElementById('invStatus').value;
+    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'Espèces';
+    const paymentStatus = document.querySelector('input[name="paymentStatus"]:checked')?.value || 'Payée';
+
+    if (!client) {
+        showToast('⚠️ يرجى إدخال اسم الزبون', 'error');
+        document.getElementById('invClient').focus();
+        return;
+    }
+
+    if (phone && !validatePhone(phone)) {
+        showToast('⚠️ رقم الهاتف يجب أن يكون 10 أرقام ويبدأ بـ 05/06/07', 'error');
+        document.getElementById('invPhone').focus();
+        return;
+    }
+
+    if (vin && !validateVIN(vin)) {
+        showToast('⚠️ VIN يجب أن يكون 17 حرف/رقم بالضبط', 'error');
+        document.getElementById('invVin').focus();
+        return;
+    }
+
+    const stock = getData('stock', []);
+    for (const it of currentItems) {
+        if (it.type === 'part' && it.name) {
+            const stockItem = stock.find(s => s.name === it.name);
+            if (stockItem && it.qty > stockItem.qty) {
+                showToast(`❌ القطعة "${it.name}" الكمية المطلوبة أكبر من المتوفرة`, 'error');
+                return;
+            }
+        }
+    }
+
+    const validItems = currentItems.filter(it => it.name && it.qty > 0);
+    if (validItems.length === 0 && labor === 0) {
+        showToast('⚠️ أضف قطعة أو خدمة واحدة على الأقل', 'error');
+        return;
+    }
+
+    let itemsTotal = 0;
+    validItems.forEach(it => { itemsTotal += it.qty * it.price; });
+    const subtotal = itemsTotal + labor;
+    const tva = tvaEnabled ? subtotal * 0.19 : 0;
+    const total = subtotal + tva;
+
+    let invoices = getData('invoices', []);
+
+    if (editingInvoiceId) {
+        const oldIdx = invoices.findIndex(i => i.id === editingInvoiceId);
+        if (oldIdx === -1) return;
+        const oldInv = invoices[oldIdx];
+
+        // ✅ إصلاح: نرجّع ستوك القديم دايماً (إذا ما كانش devis)
+        if (oldInv.status !== 'devis' && oldInv.items) {
+            oldInv.items.forEach(it => {
+                if (it.type === 'part' && it.name) {
+                    const si = stock.findIndex(s => s.name === it.name);
+                    if (si !== -1) stock[si].qty += it.qty;
+                }
+            });
+        }
+
+        // ✅ إصلاح: نخصم ستوك الجديد فقط إذا النوع الجديد ماهوش devis
+        if (status !== 'devis') {
+            validItems.forEach(it => {
+                if (it.type === 'part' && it.name) {
+                    const si = stock.findIndex(s => s.name === it.name);
+                    if (si !== -1) stock[si].qty = Math.max(0, stock[si].qty - it.qty);
+                }
+            });
+        }
+
+        invoices[oldIdx] = {
+            ...oldInv, client, phone, car, vin, plate, km, notes,
+            labor, subtotal, tvaEnabled, tva, total, status,
+            paymentMethod, paymentStatus, items: validItems, updatedAt: Date.now()
+        };
+        showToast('✅ تم تعديل الفاتورة');
+    } else {
+        if (status !== 'devis') {
+            validItems.forEach(it => {
+                if (it.type === 'part' && it.name) {
+                    const si = stock.findIndex(s => s.name === it.name);
+                    if (si !== -1) stock[si].qty = Math.max(0, stock[si].qty - it.qty);
+                }
+            });
+        }
+
+        const now = Date.now();
+        invoices.unshift({
+            id: now, code, client, phone, car, vin, plate, km, notes,
+            labor, subtotal, tvaEnabled, tva, total, status,
+            paymentMethod, paymentStatus, items: validItems,
+            date: formatDateDDMMYYYY(now), time: formatTimeHHMM(now), createdAt: now
+        });
+
+        showToast(status === 'devis' ? '✅ تم حفظ الـ Devis' : '✅ تم حفظ الفاتورة وخصم الستوك');
+    }
+
+    setData('stock', stock);
+    setData('invoices', invoices);
+    closeInvoiceModal();
+    loadInvoices();
+}
+
+function closeInvoiceModal() {
+    document.getElementById('invoiceModal').classList.remove('active');
+    document.getElementById('invStatus').disabled = false;
+    editingInvoiceId = null;
+    currentItems = [];
+}
+
+// ================= حذف/استرجاع =================
+function deleteInvoice(id) {
+    if (!confirm('نقل هذه الفاتورة إلى السلة؟ (يمكن استرجاعها)')) return;
+    const invoices = getData('invoices', []);
+    const inv = invoices.find(i => i.id === id);
+    if (!inv || inv.deleted) return;
+
+    if (inv.status !== 'devis' && inv.items) {
+        const stock = getData('stock', []);
+        inv.items.forEach(it => {
+            if (it.type === 'part' && it.name) {
+                const si = stock.findIndex(s => s.name === it.name);
+                if (si !== -1) stock[si].qty += it.qty;
+            }
+        });
+        setData('stock', stock);
+    }
+
+    inv.deleted = true;
+    inv.deletedAt = Date.now();
+    setData('invoices', invoices);
+    loadInvoices();
+    showToast('🗑️ تم نقل الفاتورة لسلة المحذوفات');
+}
+
+function restoreInvoice(id) {
+    const invoices = getData('invoices', []);
+    const inv = invoices.find(i => i.id === id);
+    if (!inv || !inv.deleted) return;
+
+    if (inv.status !== 'devis' && inv.items) {
+        const stock = getData('stock', []);
+        inv.items.forEach(it => {
+            if (it.type === 'part' && it.name) {
+                const si = stock.findIndex(s => s.name === it.name);
+                if (si !== -1) stock[si].qty = Math.max(0, stock[si].qty - it.qty);
+            }
+        });
+        setData('stock', stock);
+    }
+
+    delete inv.deleted;
+    delete inv.deletedAt;
+    setData('invoices', invoices);
+    loadInvoices();
+    showToast('♻️ تم استرجاع الفاتورة');
+}
+
+function permanentDeleteInvoice(id) {
+    if (!confirm('⚠️ حذف نهائي! لا يمكن الرجوع. متأكد؟')) return;
+    if (!confirm('تأكيد أخير: حذف هذه الفاتورة من السجل نهائياً؟')) return;
+    setData('invoices', getData('invoices', []).filter(i => i.id !== id));
+    loadInvoices();
+    showToast('🔥 تم الحذف النهائي');
+}
+
+// ================= عرض القوائم =================
+function loadInvoices() {
+    const allInvoices = getData('invoices', []);
+    const search = (document.getElementById('invoiceSearch').value || '').toLowerCase();
+
+    const deletedCount = allInvoices.filter(i => i.deleted).length;
+    const trashBtn = document.getElementById('trashToggleBtn');
+    if (trashBtn) {
+        trashBtn.textContent = `🗑️ السلة (${deletedCount})`;
+        trashBtn.classList.toggle('btn-trash-empty', deletedCount === 0);
+    }
+    const banner = document.getElementById('trashBanner');
+    if (banner) banner.classList.toggle('active', showTrash);
+
+    const baseList = showTrash ? allInvoices.filter(i => i.deleted) : allInvoices.filter(i => !i.deleted);
+    const filtered = search ? baseList.filter(i =>
+        (i.client || '').toLowerCase().includes(search) ||
+        (i.code || '').toLowerCase().includes(search)
+    ) : baseList;
+
+    const devis = filtered.filter(i => i.status === 'devis');
+    const devisBox = document.getElementById('devisList');
+    devisBox.innerHTML = devis.length === 0
+        ? `<div class="empty-state">${showTrash ? 'سلة Devis فارغة' : 'لا يوجد Devis حالياً'}</div>`
+        : devis.map(inv => renderInvoiceRow(inv, true)).join('');
+
+    const done = filtered.filter(i => i.status !== 'devis');
+    const doneBox = document.getElementById('doneList');
+    doneBox.innerHTML = done.length === 0
+        ? `<div class="empty-state">${showTrash ? 'سلة الفواتير فارغة' : 'لا توجد فواتير مكتملة'}</div>`
+        : done.map(inv => renderInvoiceRow(inv, false)).join('');
+}
+
+function renderInvoiceRow(inv, isDevis) {
+    const delDate = inv.deletedAt ? ` <span style="color:#f87171; font-size:10px;">(حُذفت: ${formatDateDDMMYYYY(inv.deletedAt)})</span>` : '';
+    const amountLabel = isDevis
+        ? `<span style="color:#fbbf24;">📄 Devis: <strong>${(inv.total || 0).toLocaleString()} دج</strong></span>`
+        : `<span style="color:#4ade80; font-weight:900;">💵 ${(inv.total || 0).toLocaleString()} دج</span>`;
+    const dateLabel = inv.date ? ` | ${escapeHtml(cleanDisplayDate(inv.date))}` : '';
+
+    const actions = showTrash
+        ? `<button onclick="restoreInvoice(${inv.id})" class="btn btn-sm btn-success">♻️ استرجاع</button>
+           <button onclick="permanentDeleteInvoice(${inv.id})" class="btn btn-sm btn-danger">🔥 حذف نهائي</button>`
+        : `<button onclick="editInvoice(${inv.id})" class="btn btn-sm btn-info">✏️</button>
+           <button onclick="openPdfPreview(${inv.id})" class="btn btn-sm btn-warning">👁️</button>
+           <button onclick="printInvoice(${inv.id})" class="btn btn-sm btn-success">🖨️</button>
+           <button onclick="deleteInvoice(${inv.id})" class="btn btn-sm btn-danger">🗑️</button>`;
+
+    return `
+        <div class="list-row">
+            <strong>${escapeHtml(inv.code)}</strong> — 👤 ${escapeHtml(inv.client)}
+            ${inv.car ? ` | 🚗 ${escapeHtml(inv.car)}` : ''}${delDate}<br>
+            ${amountLabel}${dateLabel}
+            <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">${actions}</div>
+        </div>
+    `;
+}
+</script>
