@@ -50,25 +50,27 @@
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Cairo', system-ui, -apple-system, sans-serif; font-weight: 700; background: var(--bg-gradient); background-attachment: fixed; color: var(--text-light); margin: 0; padding: 15px; line-height: 1.6; min-height: 100vh; }
-        .container { max-width: 550px; margin: 0 auto; padding-bottom: 40px; }
+        
+        /* ✅ جعل الحاوية متجاوبة */
+        .container { max-width: 550px; width: 100%; margin: 0 auto; padding-bottom: 40px; transition: max-width 0.3s ease; }
 
         .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: var(--card-dark); border-radius: 12px; border: 1px solid var(--border-dark); margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-        .admin-header h2 { margin: 0; font-size: 16px; color: #fff; }
-        .btn-back-admin { background: transparent; border: 1px solid var(--border-dark); color: var(--text-muted); padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-block; }
+        .admin-header h2 { margin: 0; font-size: clamp(16px, 4vw, 22px); color: #fff; }
+        .btn-back-admin { background: transparent; border: 1px solid var(--border-dark); color: var(--text-muted); padding: 8px 12px; border-radius: 8px; font-size: clamp(11px, 3vw, 13px); cursor: pointer; font-family: inherit; text-decoration: none; display: inline-block; }
         .btn-back-admin:hover { color: var(--text-light); }
 
-        .section-title { font-size: 16px; margin: 22px 0 12px; color: var(--text-light); border-right: 4px solid var(--primary); padding-right: 10px; font-weight: 900; display: flex; justify-content: space-between; align-items: center; }
+        .section-title { font-size: clamp(16px, 4vw, 20px); margin: 22px 0 12px; color: var(--text-light); border-right: 4px solid var(--primary); padding-right: 10px; font-weight: 900; display: flex; justify-content: space-between; align-items: center; }
         .section-title small { font-size: 12px; color: var(--text-muted); font-weight: normal; }
 
         .booking-form, .admin-card { background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 13px; color: var(--text); margin-bottom: 5px; font-weight: 700; }
-        .form-control { width: 100%; padding: 11px; background: #ffffff; border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px; font-family: inherit; font-weight: 700; box-sizing: border-box; }
+        .form-group label { display: block; font-size: clamp(12px, 3.5vw, 14px); color: var(--text); margin-bottom: 5px; font-weight: 700; }
+        .form-control { width: 100%; padding: 11px; background: #ffffff; border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: clamp(13px, 3.5vw, 15px); font-family: inherit; font-weight: 700; box-sizing: border-box; }
         .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(220,38,38,0.1); }
 
-        .btn-submit-booking { background-color: var(--primary); color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; font-family: inherit; box-shadow: 0 4px 10px rgba(220,38,38,0.3); }
+        .btn-submit-booking { background-color: var(--primary); color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: clamp(14px, 4vw, 16px); cursor: pointer; font-family: inherit; box-shadow: 0 4px 10px rgba(220,38,38,0.3); }
 
-        .btn { border: none; padding: 10px 18px; border-radius: 6px; font-weight: 900; cursor: pointer; font-family: inherit; color: #fff; }
+        .btn { border: none; padding: 10px 18px; border-radius: 6px; font-weight: 900; cursor: pointer; font-family: inherit; color: #fff; font-size: clamp(11px, 3vw, 13px); }
         .btn-sm { padding: 6px 10px; font-size: 11px; }
         .btn-success { background: var(--success); }
         .btn-warning { background: var(--accent); }
@@ -85,17 +87,14 @@
             transition: all 0.2s;
             margin-bottom: 15px;
         }
-        .gallery-upload-box:hover {
-            background: rgba(245,158,11,0.15);
-            border-color: var(--primary);
-        }
-        .gallery-upload-box .icon { font-size: 40px; margin-bottom: 6px; }
-        .gallery-upload-box .text { color: var(--text-light); font-size: 13px; }
+        .gallery-upload-box:hover { background: rgba(245,158,11,0.15); border-color: var(--primary); }
+        .gallery-upload-box .icon { font-size: clamp(30px, 8vw, 40px); margin-bottom: 6px; }
+        .gallery-upload-box .text { color: var(--text-light); font-size: clamp(12px, 3.5vw, 14px); }
         .gallery-upload-box .hint { color: var(--text-muted); font-size: 11px; margin-top: 4px; }
 
         .gallery-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(3, 1fr); /* الافتراضي في الهاتف 3 أعمدة */
             gap: 8px;
             margin-bottom: 15px;
         }
@@ -110,12 +109,7 @@
             transition: transform 0.2s;
         }
         .gallery-item:hover { transform: scale(1.03); }
-        .gallery-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .gallery-item .delete-btn {
             position: absolute;
             top: 4px;
@@ -135,83 +129,27 @@
             transition: opacity 0.2s;
         }
         .gallery-item:hover .delete-btn { opacity: 1; }
-        @media (hover: none) {
-            .gallery-item .delete-btn { opacity: 1; }
-        }
+        @media (hover: none) { .gallery-item .delete-btn { opacity: 1; } }
 
-        .empty-gallery {
-            text-align: center;
-            padding: 30px 15px;
-            color: var(--text-muted);
-            font-size: 12px;
-            border: 1px dashed var(--border-dark);
-            border-radius: 10px;
-            margin-bottom: 15px;
-        }
+        .empty-gallery { text-align: center; padding: 30px 15px; color: var(--text-muted); font-size: 12px; border: 1px dashed var(--border-dark); border-radius: 10px; margin-bottom: 15px; }
         .empty-gallery .big-icon { font-size: 40px; margin-bottom: 8px; opacity: 0.5; }
 
-        .rating-input { display: flex; gap: 4px; font-size: 30px; direction: ltr; }
-        .rating-input span {
-            color: #4b5563;
-            cursor: pointer;
-            transition: color 0.15s;
-            user-select: none;
-        }
+        .rating-input { display: flex; gap: 4px; font-size: clamp(24px, 6vw, 30px); direction: ltr; }
+        .rating-input span { color: #4b5563; cursor: pointer; transition: color 0.15s; user-select: none; }
         .rating-input span.on { color: var(--star) !important; }
 
         .list-box { background: #181b20; border: 1px solid var(--border-dark); border-radius: 10px; padding: 10px; max-height: 500px; overflow-y: auto; margin-top: 10px; }
-        .list-row { background: #0f1115; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; border: 1px solid var(--border-dark); color: #f1f5f9; line-height: 1.6; }
+        .list-row { background: #0f1115; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: clamp(12px, 3.5vw, 14px); border: 1px solid var(--border-dark); color: #f1f5f9; line-height: 1.6; }
         .list-row:last-child { margin-bottom: 0; }
         .empty-state { text-align: center; padding: 25px 15px; color: var(--text-muted); font-size: 12px; }
-        .stars { color: var(--star); font-size: 16px; margin-bottom: 4px; letter-spacing: 2px; }
+        .stars { color: var(--star); font-size: clamp(14px, 4vw, 18px); margin-bottom: 4px; letter-spacing: 2px; }
 
-        .lightbox {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.95);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
+        .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: center; align-items: center; padding: 20px; }
         .lightbox.active { display: flex; }
-        .lightbox img {
-            max-width: 95%;
-            max-height: 90vh;
-            object-fit: contain;
-            border-radius: 8px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-        }
-        .lightbox .close-lb {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.15);
-            border: none;
-            color: #fff;
-            font-size: 24px;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-family: inherit;
-        }
+        .lightbox img { max-width: 95%; max-height: 90vh; object-fit: contain; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        .lightbox .close-lb { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.15); border: none; color: #fff; font-size: 24px; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-family: inherit; }
         .lightbox .close-lb:hover { background: rgba(220,38,38,0.8); }
-        .lightbox .nav-lb {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.15);
-            border: none;
-            color: #fff;
-            font-size: 28px;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-family: inherit;
-        }
+        .lightbox .nav-lb { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.15); border: none; color: #fff; font-size: 28px; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-family: inherit; }
         .lightbox .nav-lb:hover { background: rgba(220,38,38,0.8); }
         .lightbox .nav-lb.prev { left: 15px; }
         .lightbox .nav-lb.next { right: 15px; }
@@ -223,20 +161,36 @@
         .toast.show { transform: translateX(-50%) translateY(0); }
         .toast.error { background: var(--primary); }
 
-        .storage-warning {
-            background: rgba(245,158,11,0.15);
-            border: 1px solid var(--accent);
-            color: #fbbf24;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 11px;
-            margin-bottom: 12px;
-            line-height: 1.6;
-        }
+        .storage-warning { background: rgba(245,158,11,0.15); border: 1px solid var(--accent); color: #fbbf24; padding: 10px; border-radius: 8px; font-size: clamp(10px, 3vw, 12px); margin-bottom: 12px; line-height: 1.6; }
 
         #trashToggleBtn { font-size: 10px !important; padding: 5px 8px !important; }
         #trashToggleBtn.empty { opacity: 0.5; }
         .trash-mode-banner { background: rgba(220,38,38,0.15); border: 1px solid var(--danger); color: #fca5a5; padding: 8px 12px; border-radius: 8px; font-size: 11px; margin-bottom: 8px; text-align: center; }
+
+        /* ========================================================= */
+        /* ✅ التحديث الشامل للديناميكية (Responsive Design) */
+        /* ========================================================= */
+
+        /* 📱 شاشات الهواتف الصغيرة جداً (أقل من 360 بكسل) */
+        @media (max-width: 360px) {
+            .gallery-grid { gap: 4px; }
+            .admin-header { flex-direction: column; gap: 10px; text-align: center; }
+            .rating-input { font-size: 22px; gap: 2px; }
+        }
+
+        /* 💻 شاشات التابليت (أكبر من 768 بكسل) */
+        @media (min-width: 768px) {
+            .container { max-width: 750px; }
+            .gallery-grid { grid-template-columns: repeat(4, 1fr); gap: 12px; } /* 4 أعمدة */
+            .list-box { max-height: 600px; }
+        }
+
+        /* 🖥️ شاشات الكمبيوتر (أكبر من 1024 بكسل) */
+        @media (min-width: 1024px) {
+            .container { max-width: 1000px; }
+            .gallery-grid { grid-template-columns: repeat(5, 1fr); gap: 15px; } /* 5 أعمدة */
+            .booking-form { max-width: 700px; margin: 0 auto 15px; } /* فورم التقييم في الوسط */
+        }
     </style>
 </head>
 <body id="htmlRoot">
@@ -427,7 +381,7 @@
                     galleryImages.unshift({
                         id: now + Math.random(),
                         data: base64,
-                        date: formatDateDDMMYYYY(now),   // ✅ تاريخ نظيف
+                        date: formatDateDDMMYYYY(now),
                         createdAt: now
                     });
                     successCount++;
@@ -550,7 +504,7 @@
             name: name,
             rating: currentRating,
             text: text,
-            date: formatDateDDMMYYYY(now),   // ✅ تاريخ نظيف
+            date: formatDateDDMMYYYY(now),
             createdAt: now,
             approved: true
         });
