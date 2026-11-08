@@ -136,7 +136,7 @@
         .brands-section { margin-top: 20px; padding: 15px 0; background: var(--card); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .brands-title { text-align: center; font-size: 16px; font-weight: bold; color: var(--text); margin-bottom: 12px; padding: 0 15px; }
         .brands-slider { display: flex; gap: 10px; overflow: hidden; position: relative; padding: 10px 0; }
-        
+
         .brands-track { display: flex; gap: 10px; animation: scrollBrands 60s linear infinite; padding-right: 10px; }
         @keyframes scrollBrands { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         html[dir="rtl"] .brands-track { animation: scrollBrandsRTL 60s linear infinite; }
@@ -144,7 +144,7 @@
 
         .brand-card { flex-shrink: 0; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; width: 135px; height: 135px; padding: 10px; }
         .brand-logo { width: 100%; height: 100%; object-fit: contain; display: block; border-radius: 8px; }
-        
+
         .brand-fallback { display: none; font-size: 14px; font-weight: bold; color: #1e293b; text-align: center; padding: 5px; line-height: 1.2; word-break: break-word; }
 
         .install-pwa-card { background: var(--card); color: var(--text); border: 1px solid var(--accent); border-radius: 10px; padding: 12px; margin-top: 15px; text-align: center; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
@@ -218,7 +218,7 @@
             <button id="btnAr" class="active" onclick="setLang('ar')">ع</button>
             <button id="btnFr" onclick="setLang('fr')">FR</button>
         </div>
-        
+
         <!-- زر الثيمات ف اليسار -->
         <div class="theme-toggle">
             <button id="themeDark" onclick="setTheme('dark')" title="رمادي غامق">🌙</button>
@@ -266,7 +266,7 @@
     <div class="section-title" data-ar="من نحن" data-fr="Qui sommes-nous">من نحن</div>
     <div class="info-card">
         <h4 data-ar="👨‍🔧 ورشة محمد لصيانة السيارات" data-fr="👨‍🔧 Garage Mohamed Auto Repair">👨‍🔧 ورشة محمد لصيانة السيارات</h4>
-        <p data-ar="نعتمد منهجية عمل قائمة على التشخيص الشامل والفحص الدقيق للسيارة قبل تغيير أي قطعة غيار، لضمان معالجة العطل الحقيقي وتوفير التكاليف." data-fr="Nous adoptons une méthode basée sur le diagnostic complet et la vérification précise du véhicule avant tout remplacement de pièce.">نعتمد منهجية عمل قائمة على التشخيص الشامل والفحص الدقيق للسيارة قبل تغيير أي قطعة غيار، لضمان معالجة العطل الحقيقي وتوفير التكاليف.</p>
+        <p data-ar="نعتمد منهجية عمل قائمة على التشخيص الشامل والفحص الدقيق للسيارة قبل تغيير أي قطعة غيار، لضمان معالجة العطل الحقيقي وتوفير التكاليف." data-fr="Nous adoptons une méthode basée sur le diagnostic complet et la vérification précise du véhicule avant tout remplacement de pièce.">نعتمد منهجية عمل قائمة على التشخيص الشامل والفحص الدقيق للسيارة قبل تغيير أي قطعة غيار، لمعالجة العطل الحقيقي وتوفير التكاليف.</p>
     </div>
 
     <div class="announcement-card">
@@ -504,31 +504,61 @@
         setTimeout(() => toast.classList.remove('show'), 3500);
     }
 
-    // ============ الباب السري (ضغطة مطولة 5 ثواني) ============
+    // ============================================================
+    // 🔐 الباب السري — ضغطتين خفيفتين + الثالثة مطوّلة 5 ثوانٍ
+    // ============================================================
     (function initSecretDoor() {
         const logo = document.getElementById('logoSecret');
         if (!logo) return;
 
+        let clickCount = 0;
         let longPressTimer = null;
+        let resetTimer = null;
+        const HOLD_MS = 5000;
+        const RESET_MS = 1200;
 
         function openDashboard() {
             window.location.href = './dashboard.html';
         }
 
-        function startPress(e) {
+        function resetClicks() {
+            clickCount = 0;
+            clearTimeout(longPressTimer);
+            clearTimeout(resetTimer);
+        }
+
+        function handleDown(e) {
             e.preventDefault();
-            clearTimeout(longPressTimer);
-            longPressTimer = setTimeout(openDashboard, 5000); 
+            clearTimeout(resetTimer);
+            // الضغطة الثالثة = بداية الباب السري
+            if (clickCount === 2) {
+                longPressTimer = setTimeout(() => {
+                    resetClicks();
+                    openDashboard();
+                }, HOLD_MS);
+            }
         }
 
-        function cancelPress(e) {
+        function handleUp(e) {
+            clearTimeout(longPressTimer);
+            if (clickCount < 2) {
+                clickCount++;
+            }
+            // إعادة ضبط العدّاد بعد 1.2 ثانية بدون لمس
+            clearTimeout(resetTimer);
+            resetTimer = setTimeout(() => {
+                clickCount = 0;
+            }, RESET_MS);
+        }
+
+        function handleCancel(e) {
             clearTimeout(longPressTimer);
         }
 
-        logo.addEventListener('pointerdown', startPress);
-        logo.addEventListener('pointerup', cancelPress);
-        logo.addEventListener('pointerleave', cancelPress);
-        logo.addEventListener('pointercancel', cancelPress);
+        logo.addEventListener('pointerdown', handleDown);
+        logo.addEventListener('pointerup', handleUp);
+        logo.addEventListener('pointerleave', handleCancel);
+        logo.addEventListener('pointercancel', handleCancel);
         logo.addEventListener('contextmenu', e => e.preventDefault());
         logo.addEventListener('dragstart', e => e.preventDefault());
     })();
