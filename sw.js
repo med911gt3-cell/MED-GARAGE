@@ -1,10 +1,10 @@
 // ============================================
 // MED GARAGE — Service Worker
 // Network-First Strategy
-// Version: 4.0 (تحديث الأيقونات وشاشة البداية)
+// Version: 4.1 (إزالة oil2.png مؤقتاً)
 // ============================================
 
-const CACHE_NAME = 'med-garage-v4.0';
+const CACHE_NAME = 'med-garage-v4.1';
 
 const CACHE_URLS = [
   './',
@@ -22,11 +22,12 @@ const CACHE_URLS = [
   // 🚗 ماركات السيارات
   './icon1.png', './icon2.png', './icon3.png', './icon4.png', './icon5.png',
   './icon6.png', './icon7.png', './icon8.png', './icon9.png', './icon10.png',
-  // 🔧 قطع الغيار (إذا كانت موجودة)
+  // 🔧 قطع الغيار
   './piece1.png', './piece2.png', './piece3.png', './piece4.png', './piece5.png',
   './piece6.png', './piece7.png', './piece8.png', './piece9.png', './piece10.png',
-  // 🛢️ الزيوت (إذا كانت موجودة)
-  './oil1.png', './oil2.png', './oil3.png', './oil4.png', './oil5.png'
+  // 🛢️ الزيوت
+  // TODO: './oil2.png', ← بعد تصحيح اسم iol2.png إلى oil2.png، فعّل هذا السطر
+  './oil1.png', './oil3.png', './oil4.png', './oil5.png'
 ];
 
 const CDN_WHITELIST = [
@@ -35,15 +36,9 @@ const CDN_WHITELIST = [
   'fonts.gstatic.com'
 ];
 
-// ============================================
-// INSTALL
-// ============================================
 self.addEventListener('install', (event) => {
-  console.log('🔧 [SW] Installing v4.0...');
-
-  // ✅ تفعيل فوري
+  console.log('🔧 [SW] Installing v4.1...');
   self.skipWaiting();
-
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return Promise.allSettled(
@@ -57,12 +52,8 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// ============================================
-// ACTIVATE
-// ============================================
 self.addEventListener('activate', (event) => {
-  console.log('🔧 [SW] Activating v4.0...');
-
+  console.log('🔧 [SW] Activating v4.1...');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
@@ -77,9 +68,6 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// ============================================
-// FETCH — Network-First
-// ============================================
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
@@ -130,9 +118,6 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// ============================================
-// MESSAGE
-// ============================================
 self.addEventListener('message', (event) => {
   if (event.data && event.data.action === 'skipWaiting') {
     self.skipWaiting();
@@ -146,11 +131,8 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// ============================================
-// SYNC
-// ============================================
 self.addEventListener('sync', (event) => {
   console.log('🔄 [SW] Background sync:', event.tag);
 });
 
-console.log('✅ [SW] Service Worker loaded — MED GARAGE v4.0');
+console.log('✅ [SW] Service Worker loaded — MED GARAGE v4.1');
