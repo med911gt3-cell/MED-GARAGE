@@ -78,6 +78,7 @@
         .stat-box.invoices { background: rgba(22, 163, 74, 0.15); border: 1px solid var(--success); }
         .stat-box.income { background: rgba(22, 163, 74, 0.15); border: 1px solid var(--success); }
         .stat-box.expense { background: rgba(220, 38, 38, 0.15); border: 1px solid var(--danger); }
+        .stat-box.unpaid { background: rgba(245, 158, 11, 0.15); border: 1px solid var(--accent); }
         .stat-box.profit { background: rgba(217, 119, 6, 0.15); border: 1px solid var(--accent); grid-column: 1 / -1; }
         .stat-box.bookings { background: rgba(139, 92, 246, 0.15); border: 1px solid #8b5cf6; grid-column: 1 / -1; cursor: pointer; }
         .stat-label { font-size: clamp(11px, 3vw, 13px); color: var(--text-muted); margin-bottom: 6px; }
@@ -87,6 +88,7 @@
         .stat-box.invoices .stat-value { color: #4ade80; }
         .stat-box.income .stat-value { color: #4ade80; }
         .stat-box.expense .stat-value { color: #f87171; }
+        .stat-box.unpaid .stat-value { color: #fbbf24; }
         .stat-box.profit .stat-value { color: #fbbf24; }
         .stat-box.bookings .stat-value { color: #a78bfa; }
 
@@ -140,7 +142,7 @@
         @media (max-width: 360px) {
             .stats-grid { gap: 6px; }
             .stat-box { padding: 10px 8px; }
-            .nav-grid { grid-template-columns: 1fr; } /* الأزرار تولي تحت بعضاها */
+            .nav-grid { grid-template-columns: 1fr; }
             .header-btn { padding: 6px; font-size: 12px; }
             .pin-input { font-size: 18px; letter-spacing: 5px; }
             .admin-header { flex-direction: column; gap: 10px; text-align: center; }
@@ -149,28 +151,18 @@
         /* 💻 شاشات التابليت (أكبر من 768 بكسل) */
         @media (min-width: 768px) {
             .container { max-width: 750px; }
-            
-            /* الإحصائيات تولي 3 أعمدة */
-            .stats-grid { grid-template-columns: repeat(3, 1fr); }
-            
-            /* نلغي امتداد صافي الربح والحجوزات على العرض كامل باش يترصو في 3 أعمدة */
-            .stat-box.profit, .stat-box.bookings { grid-column: span 1; }
-            
-            /* الأقسام تولي 3 أعمدة */
+            /* ✅ 4 أعمدة باش 7 خانات تترصو 4+3 */
+            .stats-grid { grid-template-columns: repeat(4, 1fr); }
+            .stat-box.profit { grid-column: span 1; }
+            .stat-box.bookings { grid-column: span 2; }
             .nav-grid { grid-template-columns: repeat(3, 1fr); }
-            
-            /* نكبرو قائمة الحجوزات باش تاخذ راحتها */
             .list-box { max-height: 600px; }
         }
 
         /* 🖥️ شاشات الكمبيوتر (أكبر من 1024 بكسل) */
         @media (min-width: 1024px) {
             .container { max-width: 1000px; }
-            
-            /* الأقسام تولي 5 أعمدة (حيت كاينين 5 أزرار) */
             .nav-grid { grid-template-columns: repeat(5, 1fr); }
-            
-            /* نزيدو شوية فضاء في الإحصائيات */
             .stat-box { padding: 20px 15px; }
         }
     </style>
@@ -232,8 +224,12 @@
                 <div class="stat-label">💸 المصاريف</div>
                 <div class="stat-value" id="statExpense">0 دج</div>
             </div>
+            <div class="stat-box unpaid">
+                <div class="stat-label">⏳ غير مدفوعة</div>
+                <div class="stat-value" id="statUnpaid">0 دج</div>
+            </div>
             <div class="stat-box profit">
-                <div class="stat-label">📈 صافي الربح</div>
+                <div class="stat-label">📈 صافي الربح (المدفوع − المصاريف)</div>
                 <div class="stat-value" id="statProfit">0 دج</div>
             </div>
             <div class="stat-box bookings" onclick="scrollToBookings()">
@@ -438,6 +434,9 @@
         showToast(icons[next] + ' ثيم: ' + next);
     }
 
+    // ============================================================
+    // ✅ loadStats — حساب صحيح للمداخيل (المدفوع فقط)
+    // ============================================================
     function loadStats() {
         const stock = getData('stock', []);
         const invoices = getData('invoices', []);
@@ -453,15 +452,26 @@
         const activeInvoices = invoices.filter(i => !i.deleted);
         const activeExpenses = expenses.filter(e => !e.deleted);
 
-        const paidInvoices = activeInvoices.filter(i => i.status !== 'devis');
-        document.getElementById('statInvoices').textContent = paidInvoices.length;
+        // عدد الفواتير المكتملة = كل ما ليس Devis
+        const completedInvoices = activeInvoices.filter(i => i.status !== 'devis');
+        document.getElementById('statInvoices').textContent = completedInvoices.length;
 
+        // ✅ المداخيل = Payée + Partiel فقط (المال الذي دخل)
+        const paidInvoices = completedInvoices.filter(i =>
+            i.paymentStatus === 'Payée' || i.paymentStatus === 'Partiel'
+        );
         const totalIncome = paidInvoices.reduce((s, i) => s + (Number(i.total) || 0), 0);
         document.getElementById('statIncome').textContent = totalIncome.toLocaleString() + ' دج';
+
+        // ✅ غير مدفوعة = Non payée فقط
+        const unpaidInvoices = completedInvoices.filter(i => i.paymentStatus === 'Non payée');
+        const totalUnpaid = unpaidInvoices.reduce((s, i) => s + (Number(i.total) || 0), 0);
+        document.getElementById('statUnpaid').textContent = totalUnpaid.toLocaleString() + ' دج';
 
         const totalExpense = activeExpenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
         document.getElementById('statExpense').textContent = totalExpense.toLocaleString() + ' دج';
 
+        // ✅ صافي الربح = المداخيل الفعلية - المصاريف
         const profit = totalIncome - totalExpense;
         const profitEl = document.getElementById('statProfit');
         profitEl.textContent = profit.toLocaleString() + ' دج';
